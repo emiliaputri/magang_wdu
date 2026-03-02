@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../service/auth_service.dart';
+import '../service/client_service.dart';
 import 'list_survey_bpk.dart';
 import 'list_survey_transjakarta.dart';
 import 'project_tj_page.dart';
+import '../utils/storage.dart';
+import '../service/api.dart';
 
 // ── Palette (top-level constants) ────────────────────────────
 const Color sage50 = Color(0xFFF0FAF1);
@@ -23,6 +26,7 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage>
     with SingleTickerProviderStateMixin {
   final AuthService authService = AuthService();
+  final ClientService clientService = ClientService();
   Map<String, dynamic>? user;
   bool loading = true;
   late AnimationController _animController;
@@ -55,24 +59,7 @@ class _DashboardPageState extends State<DashboardPage>
     },
   ];
 
-  final List<Map<String, dynamic>> clients = [
-    {
-      'name': 'TransJakarta',
-      'location':
-          'Jalan Mayjen Sutoyo No. 1, Cawang, Kecamatan Makasar, Jakarta Timur, 13650',
-      'description': 'PT Transportasi Jakarta',
-      'image': 'assets/images/TJ.jpg',
-      'slug': 'transjakarta2026-01-05-135904',
-    },
-    {
-      'name': 'Badan Pemeriksa Keuangan',
-      'location': 'Jl. Jenderal Gatot Subroto Kav. 31 Jakarta Pusat 10210',
-      'description':
-          'Badan Pemeriksa Keuangan (BPK) adalah lembaga negara yang bebas dan mandiri, bertugas memeriksa pengelolaan dan tanggung jawab keuangan negara.',
-      'image': 'assets/images/BPK.jpg',
-      'slug': 'badan-pemeriksa-keuangan2026-01-19-145527',
-    },
-  ];
+  List<Map<String, dynamic>> clients = [];
 
   @override
   void initState() {
@@ -86,9 +73,49 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   void loadUser() async {
-    user = await authService.getUser();
-    setState(() => loading = false);
-    _animController.forward();
+    debugPrint('=== DEBUG: Dashboard loadUser() started ===');
+    try {
+      final token = await Storage.getToken();
+      final tokenPreview = (token != null && token.length > 5) 
+          ? token.substring(0, 5) 
+          : (token ?? 'N/A');
+      debugPrint('Token: ${token != null ? "Found (Starts with $tokenPreview...)" : "NOT FOUND"}');
+      debugPrint('Base URL: ${Api.baseUrl}');
+
+      final userData = await authService.getUser();
+      debugPrint('User Data: ${userData != null ? "Fetched (${userData['email']})" : "Null"}');
+
+      final clientsData = await clientService.getClients();
+      debugPrint('Clients Data Count: ${clientsData.length}');
+
+      setState(() {
+        user = userData;
+        clients = List<Map<String, dynamic>>.from(clientsData);
+        loading = false;
+      });
+
+      // Debug log for fetched clients
+      debugPrint('=== DEBUG: Dynamically Fetched Clients ===');
+      for (var client in clients) {
+        debugPrint('Client Name: ${client['client_name'] ?? client['name']}');
+        debugPrint('Slug: ${client['slug']}');
+        debugPrint('---');
+      }
+      debugPrint('=======================================');
+
+      _animController.forward();
+    } catch (e) {
+      debugPrint('!!! ERROR loading dashboard data: $e');
+      setState(() => loading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load data: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -101,7 +128,7 @@ class _DashboardPageState extends State<DashboardPage>
     if (_clientSearch.isEmpty) return clients;
     return clients
         .where(
-          (c) => c['name'].toString().toLowerCase().contains(
+          (c) => (c['client_name'] ?? c['name'] ?? '') .toString().toLowerCase().contains(
             _clientSearch.toLowerCase(),
           ),
         )
@@ -165,60 +192,26 @@ class _DashboardPageState extends State<DashboardPage>
               ),
 
               // ── Body ─────────────────────────────────────────
+              // SliverPadding(
+              //   padding: const EdgeInsets.all(16),
+              //   sliver: SliverList(
+              //     delegate: SliverChildListDelegate([
+              //       const _SectionHeader( ... )
+              //       ...
+              //     ]),
+              //   ),
+              // ),
+
               SliverPadding(
                 padding: const EdgeInsets.all(16),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    const _SectionHeader(
-                      icon: Icons.folder_open_rounded,
-                      title: 'Active Projects',
-                      subtitle: 'Overview of latest projects',
-                    ),
-                    const SizedBox(height: 14),
-
-                    ...projects.asMap().entries.map((entry) {
-                      final i = entry.key;
-                      final project = entry.value;
-                      return _ProjectCard(
-                        project: project,
-                        animDelay: Duration(milliseconds: 100 + i * 150),
-                        onViewSurveys: () {
-                          if (project['client'] == 'Badan Pemeriksa Keuangan') {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ListSurveyBPK(
-                                  clientSlug: project['client_slug'],
-                                  projectSlug: project['slug'],
-                                  projectTitle: project['title'],
-                                ),
-                              ),
-                            );
-                          } else if (project['client'] == 'TransJakarta') {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ListSurveyTransjakarta(
-                                  clientSlug: project['client_slug'],
-                                  projectSlug: project['slug'],
-                                  projectTitle: project['title'],
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                      );
-                    }),
-
-                    const SizedBox(height: 6),
-
                     _ClientsSection(
                       clients: _filteredClients,
                       searchQuery: _clientSearch,
                       onSearchChanged: (val) =>
                           setState(() => _clientSearch = val),
                     ),
-
                     const SizedBox(height: 24),
                   ]),
                 ),
@@ -357,29 +350,6 @@ class _ClientsSection extends StatelessWidget {
                       ],
                     ),
                   ),
-                  TextButton.icon(
-                    onPressed: () {},
-                    style: TextButton.styleFrom(
-                      backgroundColor: sage100,
-                      foregroundColor: sage500,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: const BorderSide(color: sage200),
-                      ),
-                    ),
-                    icon: const Icon(Icons.add_rounded, size: 16),
-                    label: const Text(
-                      'Create',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -482,14 +452,21 @@ class _ClientCard extends StatelessWidget {
             SizedBox(
               height: 96,
               width: double.infinity,
-              child: client['image'] != null
-                  ? Image.asset(
-                      client['image'],
+              child: client['image_url'] != null
+                  ? Image.network(
+                      client['image_url'],
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) =>
-                          _imagePlaceholder(client['name']),
+                          _imagePlaceholder(client['client_name'] ?? client['name'] ?? 'N/A'),
                     )
-                  : _imagePlaceholder(client['name']),
+                  : client['image'] != null
+                      ? Image.asset(
+                          client['image'],
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              _imagePlaceholder(client['client_name'] ?? client['name'] ?? 'N/A'),
+                        )
+                      : _imagePlaceholder(client['client_name'] ?? client['name'] ?? 'N/A'),
             ),
             Expanded(
               child: Padding(
@@ -498,7 +475,7 @@ class _ClientCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      client['name'],
+                      client['client_name'] ?? client['name'] ?? 'N/A',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -519,7 +496,7 @@ class _ClientCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            client['location'],
+                            client['alamat'] ?? client['location'] ?? 'No address',
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -533,7 +510,7 @@ class _ClientCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      client['description'],
+                      client['desc'] ?? client['description'] ?? 'No description',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

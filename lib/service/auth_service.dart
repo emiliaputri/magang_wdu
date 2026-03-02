@@ -34,6 +34,11 @@ class AuthService {
       },
     );
 
+    print('AuthService.getUser Status: ${response.statusCode}');
+    if (response.statusCode != 200) {
+      print('AuthService.getUser Error: ${response.body}');
+    }
+
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     }

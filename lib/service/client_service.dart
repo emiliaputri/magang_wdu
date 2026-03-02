@@ -1,26 +1,30 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../utils/storage.dart';
+import 'api.dart';
 
 class ClientService {
-  final String baseUrl = 'http://127.0.0.1:8000/api'; // Ganti dengan URL API Anda
-  final _storage = const FlutterSecureStorage();
-
   Future<List<dynamic>> getClients() async {
-    final token = await _storage.read(key: 'token');
+    final token = await Storage.getToken();
 
     final response = await http.get(
-      Uri.parse('$baseUrl/clients'),
+      Uri.parse('${Api.baseUrl}/clients'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
       },
     );
 
+    print('ClientService.getClients Status: ${response.statusCode}');
+    if (response.statusCode != 200) {
+      print('ClientService.getClients Error: ${response.body}');
+    }
+
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      // Sesuaikan dengan struktur response API Anda
-      // Kemungkinan: data['data'] atau langsung data
+      if (data is Map<String, dynamic> && data['clients'] != null) {
+        return data['clients'];
+      }
       if (data is List) return data;
       if (data['data'] != null) return data['data'];
       return [];
