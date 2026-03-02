@@ -59,6 +59,10 @@ Aplikasi ini menggunakan pendekatan **Clean Architecture** yang disederhanakan u
    ```bash
    flutter run
    ```
+5. **Jalankan Aplikasi di Chrome**:
+   ```bash
+   flutter run -d chrome
+   ```
 
 ---
 
@@ -80,6 +84,8 @@ Aplikasi ini menggunakan pendekatan **Clean Architecture** yang disederhanakan u
 ## 🔗 Integrasi dengan SIS WDU Utama
 
 Aplikasi ini mengonsumsi API dari sistem utama SIS WDU. Untuk dokumentasi sistem utama, silakan lihat:
+- **Changelog**: [changelog.md](changelog.md)
+- **Project Walkthrough**: [SIS-WDU-flutter_project_walkthrough.md](docs/SIS-WDU-flutter_project_walkthrough.md)
 - **Main README**: [SIS-WDU-README.md](docs/SIS-WDU-README.md)
 - **System Flowcharts**: [SIS-WDU-system_flowcharts.md](docs/SIS-WDU-system_flowcharts.md)
 

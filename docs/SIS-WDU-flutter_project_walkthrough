@@ -1,0 +1,44 @@
+# Project Walkthrough: WDU Flutter
+
+Selamat datang di pengembangan aplikasi **WDU Flutter**. Dokumen ini memberikan gambaran umum tentang struktur folder dan arsitektur aplikasi untuk membantu Anda memahami di mana harus melakukan perubahan atau menambahkan fitur baru.
+
+## 📁 Struktur Folder Utama
+
+Aplikasi ini mengikuti pola struktur standar Flutter dengan pemisahan tanggung jawab (Separation of Concerns):
+
+- [lib/](file:///c:/xampp/htdocs/wdu-flutter/lib) : Berisi seluruh kode sumber Dart.
+    - [main.dart](file:///c:/xampp/htdocs/wdu-flutter/lib/main.dart) : Titik masuk aplikasi (Entry Point) dan konfigurasi routing.
+    - [pages/](file:///c:/xampp/htdocs/wdu-flutter/lib/pages) : Berisi file UI untuk setiap layar (Screen).
+    - [service/](file:///c:/xampp/htdocs/wdu-flutter/lib/service) : Berisi logika untuk interaksi API dan layanan luar.
+    - [models/](file:///c:/xampp/htdocs/wdu-flutter/lib/models) : Definisi struktur data (Data Classes) dari JSON.
+    - [widgets/](file:///c:/xampp/htdocs/wdu-flutter/lib/widgets) : Komponen UI yang dapat digunakan kembali (Reusable Components).
+    - [utils/](file:///c:/xampp/htdocs/wdu-flutter/lib/utils) : Fungsi pembantu seperti penyimpanan lokal.
+
+## 🚀 Alur Kerja Utama
+
+### 1. Inisialisasi & Routing
+File [main.dart](file:///c:/xampp/htdocs/wdu-flutter/lib/main.dart) mengatur navigasi aplikasi. Jika Anda ingin menambah halaman baru, daftarkan rute tersebut di `onGenerateRoute`.
+
+### 2. Autentikasi
+Logika login dikelola di [auth_service.dart](file:///c:/xampp/htdocs/wdu-flutter/lib/service/auth_service.dart). Token disimpan menggunakan [storage.dart](file:///c:/xampp/htdocs/wdu-flutter/lib/utils/storage.dart).
+
+### 3. Manajemen Survey
+- **Halaman Daftar**: [list_survey_page.dart](file:///c:/xampp/htdocs/wdu-flutter/lib/pages/list_survey_page.dart) adalah pintu masuk utama untuk melihat survey.
+- **Layanan Data**: [survey_service.dart](file:///c:/xampp/htdocs/wdu-flutter/lib/service/survey_service.dart) menangani pengambilan data survey dari backend.
+- **Halaman Spesifik**: Terdapat halaman khusus untuk klien tertentu seperti BPK ([list_survey_BPK.dart](file:///c:/xampp/htdocs/wdu-flutter/lib/pages/list_survey_BPK.dart)) atau Transjakarta ([list_survey_transjakarta.dart](file:///c:/xampp/htdocs/wdu-flutter/lib/pages/list_survey_transjakarta.dart)).
+
+## 🛠️ Panduan Pengembangan
+
+### Menambahkan Halaman Baru
+1. Buat file baru di `lib/pages/`.
+2. Jika butuh data dari API, buat model di `lib/models/` dan layanan di `lib/service/`.
+3. Daftarkan rute di `lib/main.dart`.
+
+### Mengubah Endpoint API
+Semua URL API dikelola secara terpusat di [api.dart](file:///c:/xampp/htdocs/wdu-flutter/lib/service/api.dart).
+
+### Menambahkan Aset
+Tambahkan file gambar ke folder `assets/images/` dan daftarkan di [pubspec.yaml](file:///c:/xampp/htdocs/wdu-flutter/pubspec.yaml).
+
+> [!TIP]
+> Pastikan backend Laravel (atau server API lainnya) berjalan di `http://127.0.0.1:8000` atau sesuaikan `baseUrl` di `lib/service/api.dart`.
