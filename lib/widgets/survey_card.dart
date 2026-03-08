@@ -38,7 +38,7 @@ class SurveyCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            survey.name,
+            survey.title,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -46,7 +46,7 @@ class SurveyCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            survey.description ?? '-',
+            survey.desc ?? '-',
             style: const TextStyle(color: Colors.black54),
           ),
           const SizedBox(height: 12),

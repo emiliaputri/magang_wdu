@@ -1,87 +1,64 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../utils/storage.dart';
-import 'api.dart';
+import '../core/api/api_client.dart';
+import '../core/constants/endpoints.dart';
 import '../models/survey_model.dart';
 
 class SurveyService {
-  // Ambil list survey
+  final _api = ApiClient();
+
+  // ── AMBIL LIST SURVEY ─────────────────────────────────────
+  // GET /api/clients/{clientSlug}/projects/{projectSlug}/surveys
   Future<List<SurveyModel>> getSurveys(
-  String clientSlug,
-  String projectSlug,
-) async {
-    final token = await Storage.getToken();
-    final url = Uri.parse(
-      "${Api.baseUrl}/clients/$clientSlug/projects/$projectSlug/surveys",
+    String clientSlug,
+    String projectSlug,
+  ) async {
+    final response = await _api.get(
+      Endpoints.surveys(clientSlug, projectSlug),
     );
 
-    final res = await http.get(
-      url,
-      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
-    );
-
-    if (res.statusCode == 200) {
-  final body = jsonDecode(res.body);
-  final List raw = body['data'] ?? [];
-  
-
-  return raw
-      .map((e) => SurveyModel.fromJson(e))
-      .toList();
-} else {
-      throw Exception('Failed to load surveys: ${res.statusCode}');
-    }
+    final List raw = response.data?['data'] ?? [];
+    return raw.map((e) => SurveyModel.fromJson(e)).toList();
   }
 
-  // Ambil jawaban individu (untuk cek / edit)
-Future<Map<String, dynamic>> getSurveyResponse(
-  String clientSlug,
-  String projectSlug,
-  String surveySlug,
-  int responseId,
-) async {
-  final token = await Storage.getToken();
-
-  final url = Uri.parse(
-    "${Api.baseUrl}/clients/$clientSlug/projects/$projectSlug/surveys/$surveySlug/report/$responseId",
-  );
-
-  final res = await http.get(
-    url,
-    headers: {
-      "Authorization": "Bearer $token",
-      "Accept": "application/json",
-    },
-  );
-
-  if (res.statusCode == 200) {
-    return jsonDecode(res.body);
-  } else {
-    throw Exception('Failed to load survey response: ${res.statusCode}');
-  }
-}
-
-  // Ambil detail survey / location
+  // ── AMBIL DETAIL SURVEY / LOCATION ───────────────────────
+  // GET /api/clients/{clientSlug}/projects/{projectSlug}/surveys/{slug}/detail
   Future<Map<String, dynamic>> getSurveyDetail(
     String clientSlug,
     String projectSlug,
-    String slug,
+    String surveySlug,
   ) async {
-    final token = await Storage.getToken();
-    final url = Uri.parse(
-      "${Api.baseUrl}/clients/$clientSlug/projects/$projectSlug/surveys/$slug/detail",
+    final response = await _api.get(
+      Endpoints.surveyDetail(clientSlug, projectSlug, surveySlug),
     );
 
-    final res = await http.get(
-      url,
-      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
+    return response.data ?? {};
+  }
+
+  // ── AMBIL SEMUA REPORT SURVEY ─────────────────────────────
+  // GET /api/clients/{clientSlug}/projects/{projectSlug}/surveys/{slug}/all-report
+  Future<Map<String, dynamic>> getSurveyAllReport(
+    String clientSlug,
+    String projectSlug,
+    String surveySlug,
+  ) async {
+    final response = await _api.get(
+      Endpoints.surveyAllReport(clientSlug, projectSlug, surveySlug),
     );
 
-    if (res.statusCode == 200) {
-      return jsonDecode(res.body);
-    } else {
-      throw Exception('Failed to load survey detail: ${res.statusCode}');
-    }
+    return response.data ?? {};
+  }
+
+  // ── AMBIL JAWABAN INDIVIDU ────────────────────────────────
+  // GET /api/clients/{clientSlug}/projects/{projectSlug}/surveys/{slug}/report/{responseId}
+  Future<Map<String, dynamic>> getSurveyResponse(
+    String clientSlug,
+    String projectSlug,
+    String surveySlug,
+    int responseId,
+  ) async {
+    final response = await _api.get(
+      Endpoints.surveyReport(clientSlug, projectSlug, surveySlug, responseId),
+    );
+
+    return response.data ?? {};
   }
 }
-

@@ -1,53 +1,31 @@
 import 'package:flutter/material.dart';
+import '../models/client_model.dart';
+import '../models/project_model.dart';
+import '../pages/list_survey_page.dart'; // ✅ tambah import
 
-// ── Model ────────────────────────────────────────────────────────────────────
+class ProjectListPage extends StatefulWidget {
+  final Client client; // ✅ client diteruskan dari luar, tidak rely pada project.client
 
-class Project {
-  final int number;
-  final String title;
-  final String description;
-
-  const Project({
-    required this.number,
-    required this.title,
-    required this.description,
-  });
-}
-
-// ── Page ─────────────────────────────────────────────────────────────────────
-
-class ClientDetailPage extends StatefulWidget {
-  const ClientDetailPage({super.key});
+  const ProjectListPage({super.key, required this.client});
 
   @override
-  State<ClientDetailPage> createState() => _ClientDetailPageState();
+  State<ProjectListPage> createState() => _ProjectListPageState();
 }
 
-class _ClientDetailPageState extends State<ClientDetailPage> {
-  static const _green = Color(0xFF4CAF50);
-  static const _greenDark = Color(0xFF388E3C);
+class _ProjectListPageState extends State<ProjectListPage> {
+  static const _green    = Color(0xFF4CAF50);
   static const _textDark = Color(0xFF1A2340);
   static const _textGrey = Color(0xFF7A869A);
-  static const _bgPage = Color(0xFFF4F6F8);
+  static const _bgPage   = Color(0xFFF4F6F8);
 
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  final List<Project> _projects = const [
-    Project(
-      number: 1,
-      title: 'Survei Pengukuran Capaian SPM Penyelenggaraan PT Transportasi Jakarta Tahun 2026',
-      description: 'Survei Pengukuran Capaian SPM Penyelenggaraan PT Transportasi Jakarta Tahun 2026',
-    ),
-    Project(
-      number: 2,
-      title: 'Evaluasi Kinerja Layanan Bus Rapid Transit 2026',
-      description: 'Evaluasi menyeluruh terhadap kinerja layanan BRT di seluruh koridor TransJakarta.',
-    ),
-  ];
+  List<Project> get _projects => widget.client.projects ?? [];
 
   List<Project> get _filtered => _projects
-      .where((p) => p.title.toLowerCase().contains(_searchQuery.toLowerCase()))
+      .where((p) =>
+          p.projectName.toLowerCase().contains(_searchQuery.toLowerCase()))
       .toList();
 
   @override
@@ -55,8 +33,6 @@ class _ClientDetailPageState extends State<ClientDetailPage> {
     _searchController.dispose();
     super.dispose();
   }
-
-  // ── Build ──────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -79,87 +55,14 @@ class _ClientDetailPageState extends State<ClientDetailPage> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         children: [
-          _ClientCard(),
+          _ClientCard(client: widget.client),
           const SizedBox(height: 24),
           _ProjectsSection(
             searchController: _searchController,
             searchQuery: _searchQuery,
             onSearch: (v) => setState(() => _searchQuery = v),
             projects: _filtered,
-            onAdd: _showAddProjectDialog,
-            onEdit: (p) => _showEditProjectDialog(p),
-            onDelete: (p) => _showDeleteConfirm(p),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Dialogs ────────────────────────────────────────────────────────────────
-
-  void _showAddProjectDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => _ProjectDialog(
-        title: 'Tambah Project',
-        onSave: (title, desc) {
-          setState(() {
-            _projects.add(Project(
-              number: _projects.length + 1,
-              title: title,
-              description: desc,
-            ));
-          });
-        },
-      ),
-    );
-  }
-
-  void _showEditProjectDialog(Project project) {
-    showDialog(
-      context: context,
-      builder: (_) => _ProjectDialog(
-        title: 'Edit Project',
-        initialTitle: project.title,
-        initialDesc: project.description,
-        onSave: (title, desc) {
-          setState(() {
-            final idx = _projects.indexOf(project);
-            if (idx != -1) {
-              (_projects as List)[idx] = Project(
-                number: project.number,
-                title: title,
-                description: desc,
-              );
-            }
-          });
-        },
-      ),
-    );
-  }
-
-  void _showDeleteConfirm(Project project) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Hapus Project?'),
-        content: Text('Project "${project.title}" akan dihapus permanen.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            onPressed: () {
-              setState(() => (_projects as List).remove(project));
-              Navigator.pop(context);
-            },
-            child: const Text('Hapus'),
+            client: widget.client, // ✅ teruskan client ke section
           ),
         ],
       ),
@@ -170,9 +73,13 @@ class _ClientDetailPageState extends State<ClientDetailPage> {
 // ── Client Card ───────────────────────────────────────────────────────────────
 
 class _ClientCard extends StatelessWidget {
-  static const _green = Color(0xFF4CAF50);
+  final Client client;
+
+  static const _green    = Color(0xFF4CAF50);
   static const _textDark = Color(0xFF1A2340);
   static const _textGrey = Color(0xFF7A869A);
+
+  const _ClientCard({required this.client});
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +98,6 @@ class _ClientCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       child: Row(
         children: [
-          // Logo placeholder
           Container(
             width: 80,
             height: 80,
@@ -200,16 +106,31 @@ class _ClientCard extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
             ),
-            child: const Icon(Icons.business, size: 36, color: Color(0xFFBDBDBD)),
+            clipBehavior: Clip.hardEdge,
+            child: client.image != null
+                ? Image.network(
+                    client.image!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const Icon(
+                      Icons.business,
+                      size: 36,
+                      color: Color(0xFFBDBDBD),
+                    ),
+                  )
+                : const Icon(
+                    Icons.business,
+                    size: 36,
+                    color: Color(0xFFBDBDBD),
+                  ),
           ),
           const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'TransJakarta',
-                  style: TextStyle(
+                Text(
+                  client.clientName,
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                     color: _textDark,
@@ -224,15 +145,35 @@ class _ClientCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'PT Transportasi Jakarta',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: _textGrey,
-                    fontWeight: FontWeight.w500,
+                if (client.desc != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    client.desc!,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: _textGrey,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
+                ],
+                if (client.alamat != null) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.location_on_outlined,
+                          size: 13, color: _textGrey),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          client.alamat!,
+                          style: const TextStyle(
+                              fontSize: 12, color: _textGrey, height: 1.4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -245,8 +186,7 @@ class _ClientCard extends StatelessWidget {
 // ── Projects Section ──────────────────────────────────────────────────────────
 
 class _ProjectsSection extends StatelessWidget {
-  static const _green = Color(0xFF4CAF50);
-  static const _greenDark = Color(0xFF388E3C);
+  static const _green    = Color(0xFF4CAF50);
   static const _textDark = Color(0xFF1A2340);
   static const _textGrey = Color(0xFF7A869A);
 
@@ -254,18 +194,14 @@ class _ProjectsSection extends StatelessWidget {
   final String searchQuery;
   final ValueChanged<String> onSearch;
   final List<Project> projects;
-  final VoidCallback onAdd;
-  final void Function(Project) onEdit;
-  final void Function(Project) onDelete;
+  final Client client; // ✅ terima client
 
   const _ProjectsSection({
     required this.searchController,
     required this.searchQuery,
     required this.onSearch,
     required this.projects,
-    required this.onAdd,
-    required this.onEdit,
-    required this.onDelete,
+    required this.client,
   });
 
   @override
@@ -273,7 +209,6 @@ class _ProjectsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Header row ──
         Row(
           children: [
             Container(
@@ -306,59 +241,26 @@ class _ProjectsSection extends StatelessWidget {
         ),
         const SizedBox(height: 14),
 
-        // ── Search + Add ──
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                height: 42,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE0E0E0)),
-                ),
-                child: TextField(
-                  controller: searchController,
-                  onChanged: onSearch,
-                  style: const TextStyle(fontSize: 13),
-                  decoration: const InputDecoration(
-                    hintText: 'Search projects...',
-                    hintStyle: TextStyle(color: _textGrey, fontSize: 13),
-                    prefixIcon: Icon(Icons.search, size: 18, color: _textGrey),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 12),
-                  ),
-                ),
-              ),
+        // ── Search ──
+        Container(
+          height: 42,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFFE0E0E0)),
+          ),
+          child: TextField(
+            controller: searchController,
+            onChanged: onSearch,
+            style: const TextStyle(fontSize: 13),
+            decoration: const InputDecoration(
+              hintText: 'Search projects...',
+              hintStyle: TextStyle(color: _textGrey, fontSize: 13),
+              prefixIcon: Icon(Icons.search, size: 18, color: _textGrey),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(vertical: 12),
             ),
-            const SizedBox(width: 10),
-            Material(
-              color: _green,
-              borderRadius: BorderRadius.circular(10),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(10),
-                onTap: onAdd,
-                child: Container(
-                  height: 42,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.add, color: Colors.white, size: 18),
-                      SizedBox(width: 4),
-                      Text(
-                        'Add Project',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
         const SizedBox(height: 12),
 
@@ -379,28 +281,35 @@ class _ProjectsSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
             child: Column(
               children: [
-                // Table header
                 Container(
                   color: _green,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Row(
-                    children: const [
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 12),
+                  child: const Row(
+                    children: [
                       SizedBox(width: 28),
                       SizedBox(width: 8),
                       Expanded(
                         flex: 5,
-                        child: _HeaderCell(icon: Icons.assignment_outlined, label: 'PROJECT TITLE'),
+                        child: _HeaderCell(
+                            icon: Icons.assignment_outlined,
+                            label: 'PROJECT NAME'),
                       ),
                       Expanded(
                         flex: 5,
-                        child: _HeaderCell(icon: Icons.notes_outlined, label: 'DESCRIPTION'),
+                        child: _HeaderCell(
+                            icon: Icons.notes_outlined,
+                            label: 'DESCRIPTION'),
                       ),
-                      SizedBox(width: 80, child: _HeaderCell(icon: Icons.settings_outlined, label: 'ACTIONS')),
+                      SizedBox(
+                        width: 80,
+                        child: _HeaderCell(
+                            icon: Icons.list_alt_outlined,
+                            label: 'SURVEYS'),
+                      ),
                     ],
                   ),
                 ),
-
-                // Rows
                 if (projects.isEmpty)
                   const Padding(
                     padding: EdgeInsets.all(32),
@@ -416,10 +325,10 @@ class _ProjectsSection extends StatelessWidget {
                     final idx = entry.key;
                     final project = entry.value;
                     return _ProjectRow(
+                      index: idx + 1,
                       project: project,
+                      client: client, // ✅ teruskan client ke row
                       isLast: idx == projects.length - 1,
-                      onEdit: () => onEdit(project),
-                      onDelete: () => onDelete(project),
                     );
                   }),
               ],
@@ -464,17 +373,18 @@ class _HeaderCell extends StatelessWidget {
 class _ProjectRow extends StatelessWidget {
   static const _textDark = Color(0xFF1A2340);
   static const _textGrey = Color(0xFF7A869A);
+  static const _green    = Color(0xFF4CAF50);
 
+  final int index;
   final Project project;
+  final Client client; // ✅ client dari parent, bukan project.client
   final bool isLast;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
 
   const _ProjectRow({
+    required this.index,
     required this.project,
+    required this.client,
     required this.isLast,
-    required this.onEdit,
-    required this.onDelete,
   });
 
   @override
@@ -489,7 +399,6 @@ class _ProjectRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Number badge
           Container(
             width: 28,
             height: 28,
@@ -499,7 +408,7 @@ class _ProjectRow extends StatelessWidget {
             ),
             alignment: Alignment.center,
             child: Text(
-              '${project.number}',
+              '$index',
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -508,12 +417,10 @@ class _ProjectRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-
-          // Title
           Expanded(
             flex: 5,
             child: Text(
-              project.title,
+              project.projectName,
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -522,195 +429,71 @@ class _ProjectRow extends StatelessWidget {
               ),
             ),
           ),
-
-          // Description
           Expanded(
             flex: 5,
             child: Padding(
               padding: const EdgeInsets.only(left: 8),
               child: Text(
-                project.description,
+                project.desc ?? '-',
                 style: const TextStyle(
-                  fontSize: 12,
-                  color: _textGrey,
-                  height: 1.4,
-                ),
+                    fontSize: 12, color: _textGrey, height: 1.4),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
 
-          // Actions
+          // ✅ Navigasi pakai client dari parent, bukan project.client
           SizedBox(
             width: 80,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _ActionButton(
-                  icon: Icons.edit_outlined,
-                  color: const Color(0xFF1976D2),
-                  bgColor: const Color(0xFFE3F2FD),
-                  onTap: onEdit,
+            child: Center(
+              child: Material(
+                color: const Color(0xFFE8F5E9),
+                borderRadius: BorderRadius.circular(8),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () => _navigateToSurveys(context),
+                  child: const Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.list_alt_outlined,
+                            size: 13, color: _green),
+                        SizedBox(width: 4),
+                        Text(
+                          'Surveys',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: _green,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                const SizedBox(width: 8),
-                _ActionButton(
-                  icon: Icons.delete_outline,
-                  color: const Color(0xFFD32F2F),
-                  bgColor: const Color(0xFFFFEBEE),
-                  onTap: onDelete,
-                ),
-              ],
+              ),
             ),
           ),
         ],
       ),
     );
   }
-}
 
-// ── Action Button ─────────────────────────────────────────────────────────────
-
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final Color bgColor;
-  final VoidCallback onTap;
-
-  const _ActionButton({
-    required this.icon,
-    required this.color,
-    required this.bgColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: bgColor,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(7),
-          child: Icon(icon, size: 16, color: color),
+  void _navigateToSurveys(BuildContext context) {
+    if (project.slug == null || client.slug == null) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SurveyListPage(
+          clientSlug: client.slug!,       // ✅ dari client parent
+          clientName: client.clientName,  // ✅ dari client parent
+          projectSlug: project.slug!,
+          projectTitle: project.projectName,
         ),
       ),
     );
   }
-}
-
-// ── Project Dialog ────────────────────────────────────────────────────────────
-
-class _ProjectDialog extends StatefulWidget {
-  final String title;
-  final String initialTitle;
-  final String initialDesc;
-  final void Function(String title, String desc) onSave;
-
-  const _ProjectDialog({
-    required this.title,
-    this.initialTitle = '',
-    this.initialDesc = '',
-    required this.onSave,
-  });
-
-  @override
-  State<_ProjectDialog> createState() => _ProjectDialogState();
-}
-
-class _ProjectDialogState extends State<_ProjectDialog> {
-  late final TextEditingController _titleCtrl;
-  late final TextEditingController _descCtrl;
-
-  @override
-  void initState() {
-    super.initState();
-    _titleCtrl = TextEditingController(text: widget.initialTitle);
-    _descCtrl = TextEditingController(text: widget.initialDesc);
-  }
-
-  @override
-  void dispose() {
-    _titleCtrl.dispose();
-    _descCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Text(widget.title,
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _DialogField(controller: _titleCtrl, label: 'Judul Project'),
-          const SizedBox(height: 12),
-          _DialogField(controller: _descCtrl, label: 'Deskripsi', maxLines: 3),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Batal', style: TextStyle(color: Colors.grey)),
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF4CAF50),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-          onPressed: () {
-            if (_titleCtrl.text.trim().isNotEmpty) {
-              widget.onSave(_titleCtrl.text.trim(), _descCtrl.text.trim());
-              Navigator.pop(context);
-            }
-          },
-          child: const Text('Simpan'),
-        ),
-      ],
-    );
-  }
-}
-
-class _DialogField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final int maxLines;
-
-  const _DialogField({
-    required this.controller,
-    required this.label,
-    this.maxLines = 1,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      style: const TextStyle(fontSize: 13),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(fontSize: 13),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF4CAF50), width: 1.5),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      ),
-    );
-  }
-}
-
-// ── Entry Point (untuk testing standalone) ────────────────────────────────────
-
-void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: ClientDetailPage(),
-  ));
 }

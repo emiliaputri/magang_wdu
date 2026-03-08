@@ -19,12 +19,11 @@ class _ProvinceTargetPageState extends State<ProvinceTargetPage> {
   final TextEditingController _searchController = TextEditingController();
   List<ProvinceTarget> _filtered = [];
 
-  // ── Palet warna ─────────────────────────────────────────────
-  static const _green      = Color(0xFF4CAF50); // hijau utama soft
-  static const _greenLight = Color(0xFFF0FAF3); // bg nomor urut
-  static const _greenMid   = Color(0xFFDDF2E4); // badge chip
-  static const _greenText  = Color(0xFF2E7D32); // teks hijau gelap
-  static const _bg         = Color(0xFFF5F7F6); // scaffold background
+  static const _green      = Color(0xFF4CAF50);
+  static const _greenLight = Color(0xFFF0FAF3);
+  static const _greenMid   = Color(0xFFDDF2E4);
+  static const _greenText  = Color(0xFF2E7D32);
+  static const _bg         = Color(0xFFF5F7F6);
 
   @override
   void initState() {
@@ -37,7 +36,7 @@ class _ProvinceTargetPageState extends State<ProvinceTargetPage> {
     final query = _searchController.text.toLowerCase();
     setState(() {
       _filtered = widget.provinces
-          .where((p) => p.provinceName.toLowerCase().contains(query))
+          .where((p) => p.name.toLowerCase().contains(query)) // ✅ province → name
           .toList();
     });
   }
@@ -96,7 +95,6 @@ class _ProvinceTargetPageState extends State<ProvinceTargetPage> {
                   ),
                   child: Row(
                     children: [
-                      // Ikon map
                       Container(
                         width: 44,
                         height: 44,
@@ -122,7 +120,6 @@ class _ProvinceTargetPageState extends State<ProvinceTargetPage> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      // Total target
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
@@ -244,7 +241,7 @@ class _ProvinceTargetPageState extends State<ProvinceTargetPage> {
                                   // Nama provinsi
                                   Expanded(
                                     child: Text(
-                                      p.provinceName,
+                                      p.name, // ✅ provinceName → name
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 13,
@@ -254,37 +251,23 @@ class _ProvinceTargetPageState extends State<ProvinceTargetPage> {
                                   ),
                                   const SizedBox(width: 10),
 
-                                  // Badge target & terkumpul
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.end,
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: _greenMid,
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                        ),
-                                        child: Text(
-                                          'Target: ${p.targetResponse}',
-                                          style: const TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600,
-                                            color: _greenText,
-                                          ),
-                                        ),
+                                  // Badge target
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: _greenMid,
+                                      borderRadius:
+                                          BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      'Target: ${p.targetResponse}',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: _greenText,
                                       ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Terkumpul: ${p.submissionResponse}',
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          color: Color(0xFF888888),
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
                                 ],
                               ),

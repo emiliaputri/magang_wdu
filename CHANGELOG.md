@@ -5,6 +5,44 @@ All notable changes to this Flutter project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
+## [1.1.0] - 08 Maret 2026
+### Ditambahkan
+- menambahkan model data dummy dikarenakan endpoint nya blm ada, namanya survey_question
+- menambahkan service dummy juga yang bernama kan dummy_service
+- menambahkan page cek/edit yang terhubung kesemua project
+
+## [1.1.0] - 06 Maret 2026
+### Ditambahkan
+- menambahkan page list survey sesuai dengan isi briefing sebelumnya
+
+### Dihapus
+- Menghapus beberapa tombol yang tidak digunakan lagi, yaitu Add Question, Create Client, dan Add Kuisioner.
+
+
+
+## [1.1.0] - 04 Maret 2026
+### Ditambahkan
+- Menambahkan beberapa file baru di dalam folder widget untuk memisahkan komponen UI agar lebih terstruktur.
+
+### Diubah
+- Mengubah warna background halaman login menjadi putih agar tampilannya lebih sederhana dan bersih.
+
+### Dihapus
+- Menghapus beberapa file yang sudah tidak digunakan, seperti List Survey Page BPK dan List Survey Page Transjakarta, karena keduanya sudah digabungkan menjadi satu file agar lebih terstruktur.
+
+
+## [1.1.0] - 02 Maret 2026
+### Ditambahkan
+- Menambahkan beberapa folder baru, yaitu folder core yang berisi subfolder api, constant, theme, dan utils, serta menambahkan folder provider untuk pengelolaan state.
+
+
+### Diubah
+- Melakukan penyesuaian pada folder model, sehingga model sekarang mengikuti struktur data dari Laravel. Data sudah tidak di-hardcode lagi dan sudah terhubung langsung dengan endpoint API Laravel.
+- Membuat ulang struktur folder project agar sesuai dengan konsep Clean Architecture sehingga kode lebih rapi dan mudah dikelola.
+
+
+### Dihapus
+-
 
 ## [1.2.0] - 2026-03-02
 ### Added

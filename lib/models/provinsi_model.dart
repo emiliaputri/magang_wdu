@@ -1,23 +1,36 @@
 class ProvinceTarget {
-  final int provinceId;
-  final String provinceName;
+  final int id;
+  final String name;
   final int targetResponse;
   final int submissionResponse;
 
   ProvinceTarget({
-    required this.provinceId,
-    required this.provinceName,
+    required this.id,
+    required this.name,
     required this.targetResponse,
-    required this.submissionResponse,
+    this.submissionResponse = 0,
   });
 
   factory ProvinceTarget.fromJson(Map<String, dynamic> json) {
     return ProvinceTarget(
-      provinceId: json['province_id'],
-      provinceName: json['province_name'] ?? '-',
+      // API pakai 'province_id' dan 'province_name'
+      id: json['province_id'] ?? json['id'] ?? 0,
+      name: json['province_name'] ?? json['name'] ?? '-',
       targetResponse:
           int.tryParse(json['target_response'].toString()) ?? 0,
       submissionResponse: json['submission_response'] ?? 0,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'province_id': id,
+      'province_name': name,
+      'target_response': targetResponse,
+      'submission_response': submissionResponse,
+    };
+  }
+
+  @override
+  String toString() => name;
 }

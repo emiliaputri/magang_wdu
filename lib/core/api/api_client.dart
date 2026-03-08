@@ -1,0 +1,236 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import '../constants/endpoints.dart';
+import '../utils/storage.dart';
+
+// ── RESPONSE WRAPPER ──────────────────────────────────────────
+class ApiResponse<T> {
+  final bool success;
+  final T? data;
+  final String? message;
+  final int statusCode;
+
+  const ApiResponse({
+    required this.success,
+    required this.statusCode,
+    this.data,
+    this.message,
+  });
+}
+
+// ── CUSTOM EXCEPTIONS ─────────────────────────────────────────
+class ApiException implements Exception {
+  final String message;
+  final int? statusCode;
+  ApiException(this.message, {this.statusCode});
+
+  @override
+  String toString() => 'ApiException($statusCode): $message';
+}
+
+class UnauthorizedException extends ApiException {
+  UnauthorizedException() : super('Sesi habis, silakan login kembali', statusCode: 401);
+}
+
+class NetworkException extends ApiException {
+  NetworkException() : super('Tidak ada koneksi internet');
+}
+
+class ServerException extends ApiException {
+  ServerException(String message) : super(message, statusCode: 500);
+}
+
+// ── API CLIENT ────────────────────────────────────────────────
+class ApiClient {
+  static final ApiClient _instance = ApiClient._internal();
+  factory ApiClient() => _instance;
+  ApiClient._internal();
+
+  final http.Client _client = http.Client();
+
+  // ── TIMEOUT DURATION ──
+  static const Duration _timeout = Duration(seconds: 30);
+
+  // ── BUILD HEADERS ──────────────────────────────────────────
+  Future<Map<String, String>> _buildHeaders({bool requireAuth = true}) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    if (requireAuth) {
+      final token = await StorageHelper.getToken();
+      if (token != null && token.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+    }
+
+    return headers;
+  }
+
+  // ── LOG REQUEST (hanya di debug mode) ──────────────────────
+  void _logRequest(String method, String url, {dynamic body}) {
+    assert(() {
+      print('── API REQUEST ──────────────────────');
+      print('$method $url');
+      if (body != null) print('Body: $body');
+      print('─────────────────────────────────────');
+      return true;
+    }());
+  }
+
+  void _logResponse(http.Response response) {
+    assert(() {
+      print('── API RESPONSE ─────────────────────');
+      print('Status: ${response.statusCode}');
+      print('Body: ${response.body}');
+      print('─────────────────────────────────────');
+      return true;
+    }());
+  }
+
+  // ── HANDLE RESPONSE ────────────────────────────────────────
+  ApiResponse<Map<String, dynamic>> _handleResponse(http.Response response) {
+    _logResponse(response);
+
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+
+    switch (response.statusCode) {
+      case 200:
+      case 201:
+        return ApiResponse(
+          success: true,
+          statusCode: response.statusCode,
+          data: body,
+          message: body['message'] as String?,
+        );
+
+      case 401:
+        throw UnauthorizedException();
+
+      case 422:
+        // Validation error dari Laravel
+        final errors = body['errors'];
+        final msg = errors != null
+            ? (errors as Map).values.first[0].toString()
+            : body['message'] ?? 'Validasi gagal';
+        throw ApiException(msg, statusCode: 422);
+
+      case 404:
+        throw ApiException('Data tidak ditemukan', statusCode: 404);
+
+      case 500:
+        throw ServerException(body['message'] ?? 'Terjadi kesalahan server');
+
+      default:
+        throw ApiException(
+          body['message'] ?? 'Terjadi kesalahan',
+          statusCode: response.statusCode,
+        );
+    }
+  }
+
+  // ── GET ────────────────────────────────────────────────────
+  Future<ApiResponse<Map<String, dynamic>>> get(
+    String endpoint, {
+    bool requireAuth = true,
+    Map<String, String>? queryParams,
+  }) async {
+    try {
+      var uri = Uri.parse('${Endpoints.baseUrl}$endpoint');
+      if (queryParams != null) {
+        uri = uri.replace(queryParameters: queryParams);
+      }
+
+      _logRequest('GET', uri.toString());
+
+      final headers = await _buildHeaders(requireAuth: requireAuth);
+      final response = await _client
+          .get(uri, headers: headers)
+          .timeout(_timeout);
+
+      return _handleResponse(response);
+    } on SocketException {
+      throw NetworkException();
+    } on HttpException {
+      throw NetworkException();
+    }
+  }
+
+  // ── POST ───────────────────────────────────────────────────
+  Future<ApiResponse<Map<String, dynamic>>> post(
+    String endpoint, {
+    required Map<String, dynamic> body,
+    bool requireAuth = true,
+  }) async {
+    try {
+      final uri = Uri.parse('${Endpoints.baseUrl}$endpoint');
+      final encodedBody = jsonEncode(body);
+
+      _logRequest('POST', uri.toString(), body: encodedBody);
+
+      final headers = await _buildHeaders(requireAuth: requireAuth);
+      final response = await _client
+          .post(uri, headers: headers, body: encodedBody)
+          .timeout(_timeout);
+
+      return _handleResponse(response);
+    } on SocketException {
+      throw NetworkException();
+    } on HttpException {
+      throw NetworkException();
+    }
+  }
+
+  // ── PUT ────────────────────────────────────────────────────
+  Future<ApiResponse<Map<String, dynamic>>> put(
+    String endpoint, {
+    required Map<String, dynamic> body,
+    bool requireAuth = true,
+  }) async {
+    try {
+      final uri = Uri.parse('${Endpoints.baseUrl}$endpoint');
+      final encodedBody = jsonEncode(body);
+
+      _logRequest('PUT', uri.toString(), body: encodedBody);
+
+      final headers = await _buildHeaders(requireAuth: requireAuth);
+      final response = await _client
+          .put(uri, headers: headers, body: encodedBody)
+          .timeout(_timeout);
+
+      return _handleResponse(response);
+    } on SocketException {
+      throw NetworkException();
+    } on HttpException {
+      throw NetworkException();
+    }
+  }
+
+  // ── DELETE ─────────────────────────────────────────────────
+  Future<ApiResponse<Map<String, dynamic>>> delete(
+    String endpoint, {
+    bool requireAuth = true,
+  }) async {
+    try {
+      final uri = Uri.parse('${Endpoints.baseUrl}$endpoint');
+
+      _logRequest('DELETE', uri.toString());
+
+      final headers = await _buildHeaders(requireAuth: requireAuth);
+      final response = await _client
+          .delete(uri, headers: headers)
+          .timeout(_timeout);
+
+      return _handleResponse(response);
+    } on SocketException {
+      throw NetworkException();
+    } on HttpException {
+      throw NetworkException();
+    }
+  }
+
+  // ── DISPOSE ────────────────────────────────────────────────
+  void dispose() => _client.close();
+}
