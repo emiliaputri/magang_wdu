@@ -16,7 +16,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
-  final _emailController    = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   late AnimationController _animController;
@@ -30,11 +30,11 @@ class _LoginPageState extends State<LoginPage>
       vsync: this,
       duration: const Duration(milliseconds: 700),
     );
-    _fadeAnim  = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
-    _slideAnim = Tween<Offset>(
-      begin: const Offset(0, 0.15),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic));
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+        );
     _animController.forward();
   }
 
@@ -59,7 +59,10 @@ class _LoginPageState extends State<LoginPage>
     if (success) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const DashboardPage()),
+        MaterialPageRoute(
+          settings: const RouteSettings(name: '/dashboard'),
+          builder: (_) => const DashboardPage(),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -67,7 +70,9 @@ class _LoginPageState extends State<LoginPage>
           content: const Text('Email atau password salah'),
           backgroundColor: Colors.red.shade600,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
           margin: const EdgeInsets.all(16),
         ),
       );
@@ -127,15 +132,18 @@ class _LoginPageState extends State<LoginPage>
     return Stack(
       children: [
         Positioned(
-          top: -70, right: -70,
+          top: -70,
+          right: -70,
           child: _blob(240, AppTheme.primaryColor, 0.22),
         ),
         Positioned(
-          top: 50, right: 20,
+          top: 50,
+          right: 20,
           child: _blob(100, AppTheme.primaryColor, 0.13),
         ),
         Positioned(
-          bottom: -90, left: -60,
+          bottom: -90,
+          left: -60,
           child: _blob(220, AppTheme.darkGreenColor, 0.14),
         ),
       ],
@@ -273,7 +281,9 @@ class _LoginPageState extends State<LoginPage>
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.primaryColor,
           disabledBackgroundColor: AppTheme.primaryColor.withOpacity(0.55),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
           elevation: 0,
         ),
         child: provider.loading

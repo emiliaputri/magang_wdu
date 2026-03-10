@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/theme/app_theme.dart';
-import '../models/user_project_model.dart';
 import '../providers/dashboard_provider.dart';
 import '../widgets/dashboard_surveys/client_card.dart';
 import '../widgets/dashboard_surveys/project_card.dart';
 import '../widgets/dashboard_surveys/section_header.dart';
-import '../pages/list_survey_page.dart';
 
 // ── ENTRY POINT ───────────────────────────────────────────────
 class DashboardPage extends StatelessWidget {
@@ -41,8 +39,7 @@ class _DashboardViewState extends State<_DashboardView>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    _fadeAnim =
-        CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
 
     final provider = context.read<DashboardProvider>();
     if (!provider.loading) {
@@ -144,9 +141,10 @@ class _DashboardViewState extends State<_DashboardView>
               child: Text(
                 'SIS',
                 style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 11),
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                ),
               ),
             ),
           ),
@@ -190,8 +188,11 @@ class _ClientsSection extends StatelessWidget {
                       color: AppTheme.dashSage500,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.people_alt_rounded,
-                        color: Colors.white, size: 20),
+                    child: const Icon(
+                      Icons.people_alt_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   const Expanded(
@@ -210,7 +211,9 @@ class _ClientsSection extends StatelessWidget {
                         Text(
                           'Manage your client portfolio',
                           style: TextStyle(
-                              fontSize: 12, color: AppTheme.dashTextLight),
+                            fontSize: 12,
+                            color: AppTheme.dashTextLight,
+                          ),
                         ),
                       ],
                     ),
@@ -221,16 +224,22 @@ class _ClientsSection extends StatelessWidget {
                       backgroundColor: AppTheme.dashSage100,
                       foregroundColor: AppTheme.dashSage500,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                         side: const BorderSide(color: AppTheme.dashSage200),
                       ),
                     ),
                     icon: const Icon(Icons.add_rounded, size: 16),
-                    label: const Text('Create',
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.w600)),
+                    label: const Text(
+                      'Create',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -238,17 +247,26 @@ class _ClientsSection extends StatelessWidget {
               TextField(
                 onChanged: provider.updateSearch,
                 style: const TextStyle(
-                    fontSize: 13, color: AppTheme.dashTextDark),
+                  fontSize: 13,
+                  color: AppTheme.dashTextDark,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Search clients...',
                   hintStyle: const TextStyle(
-                      color: AppTheme.dashSage200, fontSize: 13),
-                  prefixIcon: const Icon(Icons.search_rounded,
-                      color: AppTheme.dashTextLight, size: 18),
+                    color: AppTheme.dashSage200,
+                    fontSize: 13,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    color: AppTheme.dashTextLight,
+                    size: 18,
+                  ),
                   filled: true,
                   fillColor: AppTheme.dashSage50,
                   contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 10),
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(9),
                     borderSide: BorderSide.none,
@@ -260,7 +278,9 @@ class _ClientsSection extends StatelessWidget {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(9),
                     borderSide: const BorderSide(
-                        color: AppTheme.dashSage500, width: 1.5),
+                      color: AppTheme.dashSage500,
+                      width: 1.5,
+                    ),
                   ),
                 ),
               ),
@@ -288,27 +308,34 @@ class _ClientsSection extends StatelessWidget {
             ),
             child: const Column(
               children: [
-                Icon(Icons.search_off_rounded,
-                    size: 36, color: AppTheme.dashSage200),
+                Icon(
+                  Icons.search_off_rounded,
+                  size: 36,
+                  color: AppTheme.dashSage200,
+                ),
                 SizedBox(height: 10),
-                Text('No clients found',
-                    style: TextStyle(
-                        fontSize: 13, color: AppTheme.dashTextLight)),
+                Text(
+                  'No clients found',
+                  style: TextStyle(fontSize: 13, color: AppTheme.dashTextLight),
+                ),
               ],
             ),
           )
         else
-          SizedBox(
-            height: 260,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.only(right: 4),
-              itemCount: provider.filteredClients.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (context, index) => ClientCard(
-                client: provider.filteredClients[index],
-              ),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(bottom: 24),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio:
+                  0.9, // Adjust childAspectRatio directly if needed
             ),
+            itemCount: provider.filteredClients.length,
+            itemBuilder: (context, index) =>
+                ClientCard(client: provider.filteredClients[index]),
           ),
       ],
     );

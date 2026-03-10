@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/client_model.dart';
+import '../../pages/project_tj_page.dart';
 
 class ClientCard extends StatelessWidget {
   final Client client;
 
   const ClientCard({super.key, required this.client});
 
-  static const double cardWidth = 220;
+  static const double cardWidth = double.infinity;
 
   void _navigateToProjects(BuildContext context) {
-    // TODO: navigasi ke project list page
-  }
-
-  void _navigateToProfile(BuildContext context) {
-    // TODO: navigasi ke client profile page
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        settings: RouteSettings(
+          name: '/project_list',
+          arguments: {'client': client.toJson()},
+        ),
+        builder: (_) => ProjectListPage(client: client),
+      ),
+    );
   }
 
   void _showClientOptions(BuildContext context) {
@@ -37,16 +43,22 @@ class ClientCard extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.edit_outlined,
-                  color: AppTheme.dashSage500),
+              leading: const Icon(
+                Icons.edit_outlined,
+                color: AppTheme.dashSage500,
+              ),
               title: const Text('Edit Client'),
               onTap: () => Navigator.pop(context),
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline_rounded,
-                  color: Color(0xFFE53935)),
-              title: const Text('Delete Client',
-                  style: TextStyle(color: Color(0xFFE53935))),
+              leading: const Icon(
+                Icons.delete_outline_rounded,
+                color: Color(0xFFE53935),
+              ),
+              title: const Text(
+                'Delete Client',
+                style: TextStyle(color: Color(0xFFE53935)),
+              ),
               onTap: () => Navigator.pop(context),
             ),
             const SizedBox(height: 8),
@@ -85,57 +97,60 @@ class ClientCard extends StatelessWidget {
             ),
 
             // ── INFO ──
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      client.clientName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.dashSage500,
-                      ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    client.clientName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.dashSage500,
                     ),
-                    const SizedBox(height: 7),
-                    if (client.alamat != null) ...[
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Icon(Icons.location_on_outlined,
-                              size: 13, color: AppTheme.dashTextLight),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              client.alamat!,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  fontSize: 10.5,
-                                  color: AppTheme.dashTextLight,
-                                  height: 1.4),
+                  ),
+                  const SizedBox(height: 7),
+                  if (client.alamat != null) ...[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          Icons.location_on_outlined,
+                          size: 13,
+                          color: AppTheme.dashTextLight,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            client.alamat!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 10.5,
+                              color: AppTheme.dashTextLight,
+                              height: 1.4,
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                    ],
-                    if (client.desc != null)
-                      Text(
-                        client.desc!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 10.5,
-                            color: AppTheme.dashTextLight,
-                            height: 1.4),
-                      ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
                   ],
-                ),
+                  if (client.desc != null)
+                    Text(
+                      client.desc!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 10.5,
+                        color: AppTheme.dashTextLight,
+                        height: 1.4,
+                      ),
+                    ),
+                ],
               ),
             ),
 
@@ -146,13 +161,6 @@ class ClientCard extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               child: Row(
                 children: [
-                  Expanded(
-                    child: _ActionBtn(
-                      label: 'Profile',
-                      onTap: () => _navigateToProfile(context),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
                   Expanded(
                     child: _ActionBtn(
                       label: 'Projects',
@@ -173,8 +181,11 @@ class ClientCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(7),
                           border: Border.all(color: AppTheme.dashSage100),
                         ),
-                        child: const Icon(Icons.more_vert_rounded,
-                            size: 16, color: AppTheme.dashTextLight),
+                        child: const Icon(
+                          Icons.more_vert_rounded,
+                          size: 16,
+                          color: AppTheme.dashTextLight,
+                        ),
                       ),
                     ),
                   ),
@@ -207,16 +218,20 @@ class ClientCard extends StatelessWidget {
                 color: Colors.white.withOpacity(0.65),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.business_rounded,
-                  size: 20, color: AppTheme.dashSage500),
+              child: const Icon(
+                Icons.business_rounded,
+                size: 20,
+                color: AppTheme.dashSage500,
+              ),
             ),
             const SizedBox(height: 6),
             Text(
               name,
               style: const TextStyle(
-                  fontSize: 10,
-                  color: AppTheme.dashSage500,
-                  fontWeight: FontWeight.w500),
+                fontSize: 10,
+                color: AppTheme.dashSage500,
+                fontWeight: FontWeight.w500,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -248,9 +263,10 @@ class _ActionBtn extends StatelessWidget {
             child: Text(
               label,
               style: const TextStyle(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white),
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
             ),
           ),
         ),

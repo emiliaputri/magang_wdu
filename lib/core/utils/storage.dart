@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 // ─────────────────────────────────────────────────────────────
 // StorageHelper
@@ -17,13 +18,15 @@ class StorageHelper {
   );
 
   // ── KEY CONSTANTS ─────────────────────────────────────────
-  static const _keyToken  = 'auth_token';
+  static const _keyToken = 'auth_token';
   static const _keyUserId = 'user_id';
 
-  static const _keyOnboarded   = 'is_onboarded';
-  static const _keyRememberMe  = 'remember_me';
-  static const _keyLastEmail   = 'last_email';
+  static const _keyOnboarded = 'is_onboarded';
+  static const _keyRememberMe = 'remember_me';
+  static const _keyLastEmail = 'last_email';
   static const _keyAppLanguage = 'app_language';
+  static const _keyLastRouteName = 'last_route_name';
+  static const _keyLastRouteArgs = 'last_route_args';
 
   // ═══════════════════════════════════════════════════════════
   // SECURE — TOKEN
@@ -112,6 +115,45 @@ class StorageHelper {
   static Future<String> getLanguage() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_keyAppLanguage) ?? 'id';
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // SHARED PREFERENCES — NAVIGATION
+  // ═══════════════════════════════════════════════════════════
+
+  static Future<void> saveLastRoute(String? name, Object? args) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (name == null) {
+      await prefs.remove(_keyLastRouteName);
+      await prefs.remove(_keyLastRouteArgs);
+      return;
+    }
+    await prefs.setString(_keyLastRouteName, name);
+    if (args != null) {
+      try {
+        await prefs.setString(_keyLastRouteArgs, jsonEncode(args));
+      } catch (_) {
+        await prefs.remove(_keyLastRouteArgs);
+      }
+    } else {
+      await prefs.remove(_keyLastRouteArgs);
+    }
+  }
+
+  static Future<String?> getLastRouteName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyLastRouteName);
+  }
+
+  static Future<Map<String, dynamic>?> getLastRouteArgs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonStr = prefs.getString(_keyLastRouteArgs);
+    if (jsonStr == null) return null;
+    try {
+      return jsonDecode(jsonStr) as Map<String, dynamic>?;
+    } catch (_) {
+      return null;
+    }
   }
 
   // ═══════════════════════════════════════════════════════════

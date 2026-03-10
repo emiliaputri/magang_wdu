@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/monitoring_provider.dart';
+import '../../pages/cek_edit_monitor.dart';
+import '../../pages/detail_responden_bpk_page.dart';
+import '../../pages/detail_responden_transjakarta_page.dart';
 
 class ListResponWidget extends StatelessWidget {
   final List<Map<String, dynamic>> responses;
@@ -20,7 +25,7 @@ class ListResponWidget extends StatelessWidget {
 
   List<Map<String, dynamic>> get _paged {
     final start = (currentPage - 1) * perPage;
-    final end   = (start + perPage).clamp(0, responses.length);
+    final end = (start + perPage).clamp(0, responses.length);
     if (start >= responses.length) return [];
     return responses.sublist(start, end);
   }
@@ -33,15 +38,19 @@ class ListResponWidget extends StatelessWidget {
         // ── Header label ─────────────────────────────────────
         Row(
           children: [
-            const Icon(Icons.list_alt_outlined,
-                size: 16, color: Color(0xFF333333)),
+            const Icon(
+              Icons.list_alt_outlined,
+              size: 16,
+              color: Color(0xFF333333),
+            ),
             const SizedBox(width: 6),
             const Text(
               'List Respon',
               style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF111827)),
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF111827),
+              ),
             ),
           ],
         ),
@@ -67,14 +76,16 @@ class ListResponWidget extends StatelessWidget {
                 Container(
                   color: const Color(0xFF2D9E6B),
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 9),
+                    horizontal: 12,
+                    vertical: 9,
+                  ),
                   child: Row(
                     children: const [
-                      _H('WAKTU',    flex: 3),
-                      _H('SUMBER',   flex: 3),
+                      _H('WAKTU', flex: 3),
+                      _H('SUMBER', flex: 3),
                       _H('PROVINSI', flex: 3),
-                      _H('ROLE',     flex: 2),
-                      _H('ACTION',   flex: 3, center: true),
+                      _H('ROLE', flex: 2),
+                      _H('ACTION', flex: 4, center: true),
                     ],
                   ),
                 ),
@@ -84,16 +95,22 @@ class ListResponWidget extends StatelessWidget {
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 32),
                     child: Center(
-                      child: Text('Belum ada data respon',
-                          style: TextStyle(
-                              fontSize: 12, color: Color(0xFF9CA3AF))),
+                      child: Text(
+                        'Belum ada data respon',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF9CA3AF),
+                        ),
+                      ),
                     ),
                   )
                 else
-                  ..._paged.asMap().entries.map((e) => _Row(
-                        response: e.value,
-                        isLast: e.key == _paged.length - 1,
-                      )),
+                  ..._paged.asMap().entries.map(
+                    (e) => _Row(
+                      response: e.value,
+                      isLast: e.key == _paged.length - 1,
+                    ),
+                  ),
               ],
             ),
           ),
@@ -109,11 +126,10 @@ class ListResponWidget extends StatelessWidget {
                 totalData == 0
                     ? 'Menampilkan 0 dari 0 hasil'
                     : 'Menampilkan '
-                      '${(currentPage - 1) * perPage + 1}–'
-                      '${(currentPage * perPage).clamp(0, totalData)} '
-                      'dari $totalData hasil',
-                style: const TextStyle(
-                    fontSize: 10, color: Color(0xFF6B7280)),
+                          '${(currentPage - 1) * perPage + 1}–'
+                          '${(currentPage * perPage).clamp(0, totalData)} '
+                          'dari $totalData hasil',
+                style: const TextStyle(fontSize: 10, color: Color(0xFF6B7280)),
               ),
             ),
             _Pagination(
@@ -137,18 +153,18 @@ class _H extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Expanded(
-        flex: flex,
-        child: Text(
-          text,
-          textAlign: center ? TextAlign.center : TextAlign.left,
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: 0.4,
-          ),
-        ),
-      );
+    flex: flex,
+    child: Text(
+      text,
+      textAlign: center ? TextAlign.center : TextAlign.left,
+      style: const TextStyle(
+        fontSize: 10,
+        fontWeight: FontWeight.w700,
+        color: Colors.white,
+        letterSpacing: 0.4,
+      ),
+    ),
+  );
 }
 
 // ── Data row ─────────────────────────────────────────────────
@@ -159,23 +175,25 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user      = response['user'] as Map<String, dynamic>?;
-    final biodata   = user?['biodata'] as Map<String, dynamic>?;
-    final sessionId = response['guest_session_id'] as String? ?? '-';
-    final isGuest   = user == null;
+    final provider = context.read<MonitoringProvider>();
+    final clientSlug = provider.clientSlug;
+    final projectSlug = provider.projectSlug;
 
-    final waktu    = _fmtDate(response['created_at'] ?? '');
-    final nama     = isGuest ? 'Guest' : (user?['name'] ?? '-');
-    final token    = isGuest ? 'Token: $sessionId' : (user?['email'] ?? '');
+    final user = response['user'] as Map<String, dynamic>?;
+    final biodata = user?['biodata'] as Map<String, dynamic>?;
+
+    final waktu = _fmtDate(response['created_at'] ?? '');
+    final nama = user?['name'] ?? '-';
+    final token = user?['email'] ?? '';
     final provinsi = _provinsi(biodata);
-    final role     = _role(user);
+    final role = _role(user);
 
     return Container(
       decoration: isLast
           ? null
           : const BoxDecoration(
-              border: Border(
-                  bottom: BorderSide(color: Color(0xFFE5E7EB)))),
+              border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
+            ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -183,9 +201,10 @@ class _Row extends StatelessWidget {
           // WAKTU
           Expanded(
             flex: 3,
-            child: Text(waktu,
-                style: const TextStyle(
-                    fontSize: 10, color: Color(0xFF374151))),
+            child: Text(
+              waktu,
+              style: const TextStyle(fontSize: 10, color: Color(0xFF374151)),
+            ),
           ),
 
           // SUMBER
@@ -197,32 +216,43 @@ class _Row extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                      width: 20, height: 20,
+                      width: 20,
+                      height: 20,
                       decoration: BoxDecoration(
                         color: const Color(0xFFECFDF5),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Icon(Icons.person_outline,
-                          size: 12, color: Color(0xFF2D9E6B)),
+                      child: const Icon(
+                        Icons.person_outline,
+                        size: 12,
+                        color: Color(0xFF2D9E6B),
+                      ),
                     ),
                     const SizedBox(width: 4),
                     Expanded(
-                      child: Text(nama,
-                          style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF111827)),
-                          overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        nama,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF111827),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
                 if (token.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 1, left: 24),
-                    child: Text(token,
-                        style: const TextStyle(
-                            fontSize: 9, color: Color(0xFF9CA3AF)),
-                        overflow: TextOverflow.ellipsis),
+                    child: Text(
+                      token,
+                      style: const TextStyle(
+                        fontSize: 9,
+                        color: Color(0xFF9CA3AF),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
               ],
             ),
@@ -231,37 +261,39 @@ class _Row extends StatelessWidget {
           // PROVINSI
           Expanded(
             flex: 3,
-            child: Text(provinsi,
-                style: const TextStyle(
-                    fontSize: 10, color: Color(0xFF374151)),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2),
+            child: Text(
+              provinsi,
+              style: const TextStyle(fontSize: 10, color: Color(0xFF374151)),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
           ),
 
           // ROLE
           Expanded(
             flex: 2,
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 5, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
               decoration: BoxDecoration(
                 color: const Color(0xFFECFDF5),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Text(role,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF059669),
-                  ),
-                  overflow: TextOverflow.ellipsis),
+              child: Text(
+                role,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF059669),
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
 
           // ACTION
           Expanded(
-            flex: 3,
+            flex: 4,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -269,7 +301,50 @@ class _Row extends StatelessWidget {
                   icon: Icons.visibility_outlined,
                   label: 'Lihat',
                   color: const Color(0xFF2D9E6B),
-                  onTap: () {},
+                  onTap: () {
+                    final isBpk = clientSlug.toLowerCase().contains('bpk');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        settings: RouteSettings(
+                          name: isBpk
+                              ? '/detail_responden_bpk'
+                              : '/detail_responden_tj',
+                        ),
+                        builder: (_) => isBpk
+                            ? const DetailRespondenSurveyBpkPage()
+                            : const DetailRespondenSurveyTransjakartaPage(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(width: 4),
+                _ActionBtn(
+                  icon: Icons.edit_outlined,
+                  label: 'Edit',
+                  color: const Color(0xFF0284C7),
+                  onTap: () {
+                    final responseId =
+                        response['id'] ?? response['response_id'] ?? 0;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        settings: RouteSettings(
+                          name: '/cek_edit_monitor',
+                          arguments: {
+                            'surveyId': responseId.toString(),
+                            'clientSlug': clientSlug,
+                            'projectSlug': projectSlug,
+                          },
+                        ),
+                        builder: (_) => CekEditMonitorPage(
+                          surveyId: responseId.toString(),
+                          clientSlug: clientSlug,
+                          projectSlug: projectSlug,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -283,12 +358,27 @@ class _Row extends StatelessWidget {
     if (raw.isEmpty) return '-';
     try {
       final dt = DateTime.parse(raw).toLocal();
-      final m = ['','Jan','Feb','Mar','Apr','Mei','Jun',
-                  'Jul','Agu','Sep','Okt','Nov','Des'];
-      return '${dt.day.toString().padLeft(2,'0')} ${m[dt.month]} ${dt.year}\n'
-             '${dt.hour.toString().padLeft(2,'0')}.'
-             '${dt.minute.toString().padLeft(2,'0')}';
-    } catch (_) { return raw; }
+      final m = [
+        '',
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'Mei',
+        'Jun',
+        'Jul',
+        'Agu',
+        'Sep',
+        'Okt',
+        'Nov',
+        'Des',
+      ];
+      return '${dt.day.toString().padLeft(2, '0')} ${m[dt.month]} ${dt.year}\n'
+          '${dt.hour.toString().padLeft(2, '0')}.'
+          '${dt.minute.toString().padLeft(2, '0')}';
+    } catch (_) {
+      return raw;
+    }
   }
 
   String _provinsi(Map<String, dynamic>? b) {
@@ -301,10 +391,14 @@ class _Row extends StatelessWidget {
   String _role(Map<String, dynamic>? u) {
     if (u == null) return 'Lainnya';
     switch ((u['usertype'] as String? ?? '').toLowerCase()) {
-      case 'superadmin': return 'S.Admin';
-      case 'admin':      return 'Admin';
-      case 'enumerator': return 'Enum.';
-      default:           return 'Lainnya';
+      case 'superadmin':
+        return 'S.Admin';
+      case 'admin':
+        return 'Admin';
+      case 'enumerator':
+        return 'Enum.';
+      default:
+        return 'Lainnya';
     }
   }
 }
@@ -315,36 +409,40 @@ class _ActionBtn extends StatelessWidget {
   final String label;
   final Color color;
   final VoidCallback onTap;
-  const _ActionBtn(
-      {required this.icon,
-      required this.label,
-      required this.color,
-      required this.onTap});
+  const _ActionBtn({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: color.withOpacity(0.3)),
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11, color: color),
+          const SizedBox(width: 2),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 11, color: color),
-              const SizedBox(width: 2),
-              Text(label,
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: color)),
-            ],
-          ),
-        ),
-      );
+        ],
+      ),
+    ),
+  );
 }
 
 // ── Pagination ───────────────────────────────────────────────
@@ -352,10 +450,11 @@ class _Pagination extends StatelessWidget {
   final int currentPage;
   final int totalPages;
   final ValueChanged<int> onPageChanged;
-  const _Pagination(
-      {required this.currentPage,
-      required this.totalPages,
-      required this.onPageChanged});
+  const _Pagination({
+    required this.currentPage,
+    required this.totalPages,
+    required this.onPageChanged,
+  });
 
   List<int> get _pages {
     if (totalPages <= 5) return List.generate(totalPages, (i) => i + 1);
@@ -371,48 +470,56 @@ class _Pagination extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _PBtn(
-              child: const Icon(Icons.chevron_left,
-                  size: 13, color: Color(0xFF6B7280)),
-              onTap: currentPage > 1
-                  ? () => onPageChanged(currentPage - 1)
-                  : null),
-          const SizedBox(width: 3),
-          ..._pages.map((p) {
-            if (p == -1) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 2),
-                child: Text('…',
-                    style: TextStyle(
-                        fontSize: 10, color: Color(0xFF6B7280))),
-              );
-            }
-            final active = p == currentPage;
-            return Padding(
-              padding: const EdgeInsets.only(right: 3),
-              child: _PBtn(
-                isActive: active,
-                onTap: () => onPageChanged(p),
-                child: Text('$p',
-                    style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: active
-                            ? Colors.white
-                            : const Color(0xFF374151))),
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      _PBtn(
+        child: const Icon(
+          Icons.chevron_left,
+          size: 13,
+          color: Color(0xFF6B7280),
+        ),
+        onTap: currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
+      ),
+      const SizedBox(width: 3),
+      ..._pages.map((p) {
+        if (p == -1) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 2),
+            child: Text(
+              '…',
+              style: TextStyle(fontSize: 10, color: Color(0xFF6B7280)),
+            ),
+          );
+        }
+        final active = p == currentPage;
+        return Padding(
+          padding: const EdgeInsets.only(right: 3),
+          child: _PBtn(
+            isActive: active,
+            onTap: () => onPageChanged(p),
+            child: Text(
+              '$p',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: active ? Colors.white : const Color(0xFF374151),
               ),
-            );
-          }),
-          _PBtn(
-              child: const Icon(Icons.chevron_right,
-                  size: 13, color: Color(0xFF6B7280)),
-              onTap: currentPage < totalPages
-                  ? () => onPageChanged(currentPage + 1)
-                  : null),
-        ],
-      );
+            ),
+          ),
+        );
+      }),
+      _PBtn(
+        child: const Icon(
+          Icons.chevron_right,
+          size: 13,
+          color: Color(0xFF6B7280),
+        ),
+        onTap: currentPage < totalPages
+            ? () => onPageChanged(currentPage + 1)
+            : null,
+      ),
+    ],
+  );
 }
 
 class _PBtn extends StatelessWidget {
@@ -423,21 +530,18 @@ class _PBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: 26, height: 26,
-          decoration: BoxDecoration(
-            color: isActive
-                ? const Color(0xFF2D9E6B)
-                : const Color(0xFFF9FAFB),
-            borderRadius: BorderRadius.circular(5),
-            border: Border.all(
-              color: isActive
-                  ? const Color(0xFF2D9E6B)
-                  : const Color(0xFFE5E7EB),
-            ),
-          ),
-          child: Center(child: child),
+    onTap: onTap,
+    child: Container(
+      width: 26,
+      height: 26,
+      decoration: BoxDecoration(
+        color: isActive ? const Color(0xFF2D9E6B) : const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(
+          color: isActive ? const Color(0xFF2D9E6B) : const Color(0xFFE5E7EB),
         ),
-      );
+      ),
+      child: Center(child: child),
+    ),
+  );
 }

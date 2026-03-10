@@ -4,7 +4,8 @@ import '../models/project_model.dart';
 import '../pages/list_survey_page.dart'; // ✅ tambah import
 
 class ProjectListPage extends StatefulWidget {
-  final Client client; // ✅ client diteruskan dari luar, tidak rely pada project.client
+  final Client
+  client; // ✅ client diteruskan dari luar, tidak rely pada project.client
 
   const ProjectListPage({super.key, required this.client});
 
@@ -13,10 +14,10 @@ class ProjectListPage extends StatefulWidget {
 }
 
 class _ProjectListPageState extends State<ProjectListPage> {
-  static const _green    = Color(0xFF4CAF50);
+  static const _green = Color(0xFF4CAF50);
   static const _textDark = Color(0xFF1A2340);
   static const _textGrey = Color(0xFF7A869A);
-  static const _bgPage   = Color(0xFFF4F6F8);
+  static const _bgPage = Color(0xFFF4F6F8);
 
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -24,8 +25,9 @@ class _ProjectListPageState extends State<ProjectListPage> {
   List<Project> get _projects => widget.client.projects ?? [];
 
   List<Project> get _filtered => _projects
-      .where((p) =>
-          p.projectName.toLowerCase().contains(_searchQuery.toLowerCase()))
+      .where(
+        (p) => p.projectName.toLowerCase().contains(_searchQuery.toLowerCase()),
+      )
       .toList();
 
   @override
@@ -75,7 +77,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
 class _ClientCard extends StatelessWidget {
   final Client client;
 
-  static const _green    = Color(0xFF4CAF50);
+  static const _green = Color(0xFF4CAF50);
   static const _textDark = Color(0xFF1A2340);
   static const _textGrey = Color(0xFF7A869A);
 
@@ -161,14 +163,20 @@ class _ClientCard extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.location_on_outlined,
-                          size: 13, color: _textGrey),
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 13,
+                        color: _textGrey,
+                      ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           client.alamat!,
                           style: const TextStyle(
-                              fontSize: 12, color: _textGrey, height: 1.4),
+                            fontSize: 12,
+                            color: _textGrey,
+                            height: 1.4,
+                          ),
                         ),
                       ),
                     ],
@@ -186,7 +194,7 @@ class _ClientCard extends StatelessWidget {
 // ── Projects Section ──────────────────────────────────────────────────────────
 
 class _ProjectsSection extends StatelessWidget {
-  static const _green    = Color(0xFF4CAF50);
+  static const _green = Color(0xFF4CAF50);
   static const _textDark = Color(0xFF1A2340);
   static const _textGrey = Color(0xFF7A869A);
 
@@ -284,7 +292,9 @@ class _ProjectsSection extends StatelessWidget {
                 Container(
                   color: _green,
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 12),
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   child: const Row(
                     children: [
                       SizedBox(width: 28),
@@ -292,20 +302,23 @@ class _ProjectsSection extends StatelessWidget {
                       Expanded(
                         flex: 5,
                         child: _HeaderCell(
-                            icon: Icons.assignment_outlined,
-                            label: 'PROJECT NAME'),
+                          icon: Icons.assignment_outlined,
+                          label: 'PROJECT NAME',
+                        ),
                       ),
                       Expanded(
                         flex: 5,
                         child: _HeaderCell(
-                            icon: Icons.notes_outlined,
-                            label: 'DESCRIPTION'),
+                          icon: Icons.notes_outlined,
+                          label: 'DESCRIPTION',
+                        ),
                       ),
                       SizedBox(
                         width: 80,
                         child: _HeaderCell(
-                            icon: Icons.list_alt_outlined,
-                            label: 'SURVEYS'),
+                          icon: Icons.list_alt_outlined,
+                          label: 'SURVEYS',
+                        ),
                       ),
                     ],
                   ),
@@ -373,7 +386,7 @@ class _HeaderCell extends StatelessWidget {
 class _ProjectRow extends StatelessWidget {
   static const _textDark = Color(0xFF1A2340);
   static const _textGrey = Color(0xFF7A869A);
-  static const _green    = Color(0xFF4CAF50);
+  static const _green = Color(0xFF4CAF50);
 
   final int index;
   final Project project;
@@ -436,7 +449,10 @@ class _ProjectRow extends StatelessWidget {
               child: Text(
                 project.desc ?? '-',
                 style: const TextStyle(
-                    fontSize: 12, color: _textGrey, height: 1.4),
+                  fontSize: 12,
+                  color: _textGrey,
+                  height: 1.4,
+                ),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -454,13 +470,11 @@ class _ProjectRow extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   onTap: () => _navigateToSurveys(context),
                   child: const Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.list_alt_outlined,
-                            size: 13, color: _green),
+                        Icon(Icons.list_alt_outlined, size: 13, color: _green),
                         SizedBox(width: 4),
                         Text(
                           'Surveys',
@@ -487,9 +501,18 @@ class _ProjectRow extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
+        settings: RouteSettings(
+          name: '/surveys',
+          arguments: {
+            'clientSlug': client.slug!,
+            'clientName': client.clientName,
+            'projectSlug': project.slug!,
+            'projectTitle': project.projectName,
+          },
+        ),
         builder: (_) => SurveyListPage(
-          clientSlug: client.slug!,       // ✅ dari client parent
-          clientName: client.clientName,  // ✅ dari client parent
+          clientSlug: client.slug!, // ✅ dari client parent
+          clientName: client.clientName, // ✅ dari client parent
           projectSlug: project.slug!,
           projectTitle: project.projectName,
         ),

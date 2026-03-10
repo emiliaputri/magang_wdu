@@ -51,10 +51,19 @@ class _ProjectCardState extends State<ProjectCard>
     Navigator.push(
       context,
       MaterialPageRoute(
+        settings: RouteSettings(
+          name: '/surveys',
+          arguments: {
+            'clientSlug': widget.project.clientSlug,
+            'clientName': widget.project.clientName,
+            'projectSlug': widget.project.slug,
+            'projectTitle': widget.project.projectName,
+          },
+        ),
         builder: (_) => SurveyListPage(
-          clientSlug:   widget.project.clientSlug,
-          clientName:   widget.project.clientName,
-          projectSlug:  widget.project.slug,
+          clientSlug: widget.project.clientSlug,
+          clientName: widget.project.clientName,
+          projectSlug: widget.project.slug,
           projectTitle: widget.project.projectName,
         ),
       ),
@@ -163,21 +172,30 @@ class _ProjectCardState extends State<ProjectCard>
                 // ── FOOTER ──
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 10),
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   child: Row(
                     children: [
-                      const Icon(Icons.access_time_rounded,
-                          size: 13, color: AppTheme.dashSage200),
+                      const Icon(
+                        Icons.access_time_rounded,
+                        size: 13,
+                        color: AppTheme.dashSage200,
+                      ),
                       const SizedBox(width: 5),
                       Text(
                         p.updatedAt ?? '-',
                         style: const TextStyle(
-                            fontSize: 11.5, color: AppTheme.dashSage200),
+                          fontSize: 11.5,
+                          color: AppTheme.dashSage200,
+                        ),
                       ),
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 9, vertical: 4),
+                          horizontal: 9,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: AppTheme.dashSage100,
                           borderRadius: BorderRadius.circular(7),
@@ -185,8 +203,11 @@ class _ProjectCardState extends State<ProjectCard>
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.assignment_outlined,
-                                size: 12, color: AppTheme.dashSage500),
+                            const Icon(
+                              Icons.assignment_outlined,
+                              size: 12,
+                              color: AppTheme.dashSage500,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               '${p.surveyCount} survei',
@@ -218,13 +239,16 @@ class _ProjectCardState extends State<ProjectCard>
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                       icon: const Icon(Icons.arrow_forward_rounded, size: 16),
                       label: const Text(
                         'View Surveys',
                         style: TextStyle(
-                            fontSize: 13.5, fontWeight: FontWeight.w600),
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),

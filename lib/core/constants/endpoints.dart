@@ -2,7 +2,7 @@ class Endpoints {
   // ── BASE URL ──────────────────────────────────────────────
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://127.0.0.1:8000/api',
+    defaultValue: 'https://sis.wahanadata.co.id/api',
   );
 
   // ── AUTH ──────────────────────────────────────────────────
