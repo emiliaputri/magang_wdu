@@ -11,9 +11,9 @@ class MonitoringSurveyPage extends StatefulWidget {
   final String projectSlug;
   final String surveySlug;
 
-  final int    totalRespon;
+  final int totalRespon;
   final String targetLocation;
-  final bool   isOpen;
+  final bool isOpen;
 
   const MonitoringSurveyPage({
     super.key,
@@ -21,9 +21,9 @@ class MonitoringSurveyPage extends StatefulWidget {
     required this.clientSlug,
     required this.projectSlug,
     required this.surveySlug,
-    this.totalRespon    = 0,
+    this.totalRespon = 0,
     this.targetLocation = '-',
-    this.isOpen         = true,
+    this.isOpen = true,
   });
 
   @override
@@ -33,8 +33,8 @@ class MonitoringSurveyPage extends StatefulWidget {
 class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
-  late Animation<double>   _fadeAnim;
-  late Animation<Offset>   _slideAnim;
+  late Animation<double> _fadeAnim;
+  late Animation<Offset> _slideAnim;
 
   int _currentPage = 1;
 
@@ -45,9 +45,11 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    _fadeAnim  = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
-    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    _slideAnim = Tween<Offset>(
+      begin: const Offset(0, 0.08),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
   }
 
@@ -61,10 +63,10 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => MonitoringProvider(
-        surveyName:  widget.surveyName,
-        clientSlug:  widget.clientSlug,
+        surveyName: widget.surveyName,
+        clientSlug: widget.clientSlug,
         projectSlug: widget.projectSlug,
-        surveySlug:  widget.surveySlug,
+        surveySlug: widget.surveySlug,
       )..loadSurvey(),
       child: Consumer<MonitoringProvider>(
         builder: (context, provider, _) {
@@ -77,34 +79,38 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                   child: provider.isLoading
                       ? const Center(
                           child: CircularProgressIndicator(
-                              color: AppTheme.monGreenMid),
+                            color: AppTheme.monGreenMid,
+                          ),
                         )
                       : provider.errorMessage != null
-                          ? _buildError(context, provider)
-                          : FadeTransition(
-                              opacity: _fadeAnim,
-                              child: SlideTransition(
-                                position: _slideAnim,
-                                child: RefreshIndicator(
-                                  color: AppTheme.monGreenMid,
-                                  onRefresh: provider.loadSurvey,
-                                  child: SingleChildScrollView(
-                                    physics:
-                                        const AlwaysScrollableScrollPhysics(),
-                                    padding: const EdgeInsets.fromLTRB(
-                                        16, 20, 16, 32),
-                                    child: ListResponWidget(
-                                      responses:     provider.responses,
-                                      currentPage:   _currentPage,
-                                      totalData:     provider.totalRespon,
-                                      perPage:       10,
-                                      onPageChanged: (page) =>
-                                          setState(() => _currentPage = page),
-                                    ),
-                                  ),
+                      ? _buildError(context, provider)
+                      : FadeTransition(
+                          opacity: _fadeAnim,
+                          child: SlideTransition(
+                            position: _slideAnim,
+                            child: RefreshIndicator(
+                              color: AppTheme.monGreenMid,
+                              onRefresh: provider.loadSurvey,
+                              child: SingleChildScrollView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  20,
+                                  16,
+                                  32,
+                                ),
+                                child: ListResponWidget(
+                                  responses: provider.responses,
+                                  currentPage: _currentPage,
+                                  totalData: provider.totalRespon,
+                                  perPage: 10,
+                                  onPageChanged: (page) =>
+                                      setState(() => _currentPage = page),
                                 ),
                               ),
                             ),
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -135,10 +141,13 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.monGreenMid,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-              child: const Text('Coba Lagi',
-                  style: TextStyle(color: Colors.white)),
+              child: const Text(
+                'Coba Lagi',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -179,8 +188,6 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                       ),
                       const Spacer(),
                       _statusBadge(provider.isOpen),
-                      const Spacer(),
-                      _circleBtn(Icons.more_vert_rounded),
                     ],
                   ),
                   const SizedBox(height: 14),
@@ -229,76 +236,82 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
   }
 
   Widget _blob(double size, double opacity) => Container(
-        width: size, height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white.withOpacity(opacity),
-        ),
-      );
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: Colors.white.withOpacity(opacity),
+    ),
+  );
 
   Widget _circleBtn(IconData icon) => Container(
-        width: 36, height: 36,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white.withOpacity(0.18),
-        ),
-        child: Icon(icon, color: Colors.white, size: 17),
-      );
+    width: 36,
+    height: 36,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: Colors.white.withOpacity(0.18),
+    ),
+    child: Icon(icon, color: Colors.white, size: 17),
+  );
 
   Widget _statusBadge(bool open) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(0.35)),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    decoration: BoxDecoration(
+      color: Colors.white.withOpacity(0.2),
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: Colors.white.withOpacity(0.35)),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        PulseDot(active: open),
+        const SizedBox(width: 6),
+        Text(
+          open ? 'DIBUKA' : 'DITUTUP',
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+            letterSpacing: 0.5,
+          ),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            PulseDot(active: open),
-            const SizedBox(width: 6),
-            Text(
-              open ? 'DIBUKA' : 'DITUTUP',
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ],
-        ),
-      );
+      ],
+    ),
+  );
 
   String _locationLabel(String raw) {
     if (raw.isEmpty || raw == '-') return 'Semua Wilayah';
-    final parts = raw.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+    final parts = raw
+        .split(',')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
     if (parts.length == 1) return parts.first;
     return '${parts.length} Provinsi';
   }
 
   Widget _headerChip(IconData icon, String label) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(0.25)),
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    decoration: BoxDecoration(
+      color: Colors.white.withOpacity(0.15),
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: Colors.white.withOpacity(0.25)),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 13, color: Colors.white70),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+          overflow: TextOverflow.ellipsis,
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 13, color: Colors.white70),
-            const SizedBox(width: 5),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      );
+      ],
+    ),
+  );
 }

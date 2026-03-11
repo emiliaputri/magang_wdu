@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/monitoring_provider.dart';
 import '../../pages/cek_edit_monitor.dart';
-import '../../pages/detail_responden_bpk_page.dart';
-import '../../pages/detail_responden_transjakarta_page.dart';
+
+import '../../pages/lihat_monitor_page.dart';
 
 class ListResponWidget extends StatelessWidget {
   final List<Map<String, dynamic>> responses;
@@ -302,18 +302,24 @@ class _Row extends StatelessWidget {
                   label: 'Lihat',
                   color: const Color(0xFF2D9E6B),
                   onTap: () {
-                    final isBpk = clientSlug.toLowerCase().contains('bpk');
+                    final responseId =
+                        response['id'] ?? response['response_id'] ?? 0;
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         settings: RouteSettings(
-                          name: isBpk
-                              ? '/detail_responden_bpk'
-                              : '/detail_responden_tj',
+                          name: '/lihat_monitor',
+                          arguments: {
+                            'surveyId': responseId.toString(),
+                            'clientSlug': clientSlug,
+                            'projectSlug': projectSlug,
+                          },
                         ),
-                        builder: (_) => isBpk
-                            ? const DetailRespondenSurveyBpkPage()
-                            : const DetailRespondenSurveyTransjakartaPage(),
+                        builder: (_) => LihatMonitorPage(
+                          surveyId: responseId.toString(),
+                          clientSlug: clientSlug,
+                          projectSlug: projectSlug,
+                        ),
                       ),
                     );
                   },

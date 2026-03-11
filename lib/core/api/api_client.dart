@@ -30,7 +30,8 @@ class ApiException implements Exception {
 }
 
 class UnauthorizedException extends ApiException {
-  UnauthorizedException() : super('Sesi habis, silakan login kembali', statusCode: 401);
+  UnauthorizedException()
+    : super('Sesi habis, silakan login kembali', statusCode: 401);
 }
 
 class NetworkException extends ApiException {
@@ -94,7 +95,17 @@ class ApiClient {
   ApiResponse<Map<String, dynamic>> _handleResponse(http.Response response) {
     _logResponse(response);
 
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    Map<String, dynamic> body = {};
+    try {
+      if (response.body.isNotEmpty) {
+        body = jsonDecode(response.body) as Map<String, dynamic>;
+      }
+    } catch (e) {
+      // Jika response bukan JSON (misal HTML 404/500 error page dari Laravel)
+      throw ServerException(
+        'Gagal memproses data server (Error ${response.statusCode}). Pastikan endpoint API sudah benar.',
+      );
+    }
 
     switch (response.statusCode) {
       case 200:
@@ -118,14 +129,19 @@ class ApiClient {
         throw ApiException(msg, statusCode: 422);
 
       case 404:
-        throw ApiException('Data tidak ditemukan', statusCode: 404);
+        throw ApiException(
+          'Data atau Endpoint tidak ditemukan (404)',
+          statusCode: 404,
+        );
 
       case 500:
-        throw ServerException(body['message'] ?? 'Terjadi kesalahan server');
+        throw ServerException(
+          body['message'] ?? 'Terjadi kesalahan internal server (500)',
+        );
 
       default:
         throw ApiException(
-          body['message'] ?? 'Terjadi kesalahan',
+          body['message'] ?? 'Terjadi kesalahan sistem',
           statusCode: response.statusCode,
         );
     }
