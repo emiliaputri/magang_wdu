@@ -6,53 +6,44 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
-## [1.1.0] - 11 Maret 2026
-### Ditambahkan
-- menampilkan image client yang sebelumnya belum berhasil tampil
+## [1.2.1] - 2026-03-11
+### Fixed
+- Fixed client image display issues.
 
-### Diubah
-- Mengubah tampilan halaman cek dan edit
-- 
+### Changed
+- Updated the UI for the check and edit pages.
 
+## [1.2.0] - 2026-03-08
+### Added
+- Added `survey_question` dummy data model while waiting for the endpoint.
+- Added `dummy_service` as a temporary mock service.
+- Added a cross-project check/edit page.
 
-## [1.1.0] - 08 Maret 2026
-### Ditambahkan
-- menambahkan model data dummy dikarenakan endpoint nya blm ada, namanya survey_question
-- menambahkan service dummy juga yang bernama kan dummy_service
-- menambahkan page cek/edit yang terhubung kesemua project
+## [1.1.9] - 2026-03-06
+### Added
+- Added survey list page as per previous briefing.
 
-## [1.1.0] - 06 Maret 2026
-### Ditambahkan
-- menambahkan page list survey sesuai dengan isi briefing sebelumnya
+### Removed
+- Removed unused buttons: Add Question, Create Client, and Add Questionnaire.
 
-### Dihapus
-- Menghapus beberapa tombol yang tidak digunakan lagi, yaitu Add Question, Create Client, dan Add Kuisioner.
+## [1.1.8] - 2026-03-04
+### Added
+- Added new files in the widget folder to better structure UI components.
 
+### Changed
+- Updated the login page background color to white for a cleaner look.
 
+### Removed
+- Removed deprecated files (List Survey Page BPK and Transjakarta) after merging them into a single structured file.
 
-## [1.1.0] - 04 Maret 2026
-### Ditambahkan
-- Menambahkan beberapa file baru di dalam folder widget untuk memisahkan komponen UI agar lebih terstruktur.
+## [1.1.7] - 2026-03-02
+### Added
+- Added `core` folder containing `api`, `constant`, `theme`, and `utils` subfolders.
+- Added `provider` folder for state management.
 
-### Diubah
-- Mengubah warna background halaman login menjadi putih agar tampilannya lebih sederhana dan bersih.
-
-### Dihapus
-- Menghapus beberapa file yang sudah tidak digunakan, seperti List Survey Page BPK dan List Survey Page Transjakarta, karena keduanya sudah digabungkan menjadi satu file agar lebih terstruktur.
-
-
-## [1.1.0] - 02 Maret 2026
-### Ditambahkan
-- Menambahkan beberapa folder baru, yaitu folder core yang berisi subfolder api, constant, theme, dan utils, serta menambahkan folder provider untuk pengelolaan state.
-
-
-### Diubah
-- Melakukan penyesuaian pada folder model, sehingga model sekarang mengikuti struktur data dari Laravel. Data sudah tidak di-hardcode lagi dan sudah terhubung langsung dengan endpoint API Laravel.
-- Membuat ulang struktur folder project agar sesuai dengan konsep Clean Architecture sehingga kode lebih rapi dan mudah dikelola.
-
-
-### Dihapus
--
+### Changed
+- Updated the `model` folder to match Laravel data structure (removed hardcoded data, connected to API).
+- Refactored the project folder structure to follow Clean Architecture principles.
 
 ## [1.2.0] - 2026-03-02
 ### Added
@@ -92,9 +83,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [1.1.0] - 2026-02-24
 ### Added
-- `add_question` page for adding questions to the survey.
-- `cek_edit_survey` page to view and modify survey data.
-- `monitor_survey` page to monitor responses and survey filling activities.
+- Created `add_question` page for adding questions to the survey.
+- Created `cek_edit_survey` page to view and modify survey data.
+- Created `monitor_survey` page to monitor responses and survey filling activities.
 
 ---
 
