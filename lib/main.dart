@@ -10,6 +10,7 @@ import 'pages/province_target_page.dart';
 import 'pages/project_tj_page.dart';
 import 'pages/detail_responden_bpk_page.dart';
 import 'pages/detail_responden_transjakarta_page.dart';
+import 'providers/auth_provider.dart'; // ← TAMBAHKAN IMPORT INI
 import 'providers/survey_provider.dart';
 import 'models/client_model.dart';
 import 'models/provinsi_model.dart';
@@ -48,7 +49,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => SurveyProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => SurveyProvider()),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         navigatorObservers: [AppRouteObserver()],
@@ -105,10 +109,12 @@ class MyApp extends StatelessWidget {
                   arguments: safeArgs,
                 ),
                 builder: (_) => CekEditMonitorPage(
-                  surveySlug: (safeArgs['surveySlug'] ?? '').toString(), // ← surveySlug
+                  surveySlug: (safeArgs['surveySlug'] ?? '').toString(),
                   clientSlug: safeArgs['clientSlug'] ?? '',
                   projectSlug: safeArgs['projectSlug'] ?? '',
-                  responseId: int.tryParse(safeArgs['responseId']?.toString() ?? '') ?? 0, // ← int
+                  responseId:
+                      int.tryParse(safeArgs['responseId']?.toString() ?? '') ??
+                      0,
                 ),
               );
 
@@ -120,13 +126,14 @@ class MyApp extends StatelessWidget {
                   arguments: safeArgs,
                 ),
                 builder: (_) => CekEditSurveyPage(
-                  surveySlug: (safeArgs['surveySlug'] ?? '').toString(), // ← surveySlug
+                  surveySlug: (safeArgs['surveySlug'] ?? '').toString(),
                   clientSlug: safeArgs['clientSlug'] ?? '',
                   projectSlug: safeArgs['projectSlug'] ?? '',
-                  responseId: int.tryParse(safeArgs['responseId']?.toString() ?? '') ?? 0, // ← int
+                  responseId:
+                      int.tryParse(safeArgs['responseId']?.toString() ?? '') ??
+                      0,
                 ),
               );
-
             case '/province_target':
               final safeArgs = args ?? {};
               final provincesRaw = safeArgs['provinces'] as List? ?? [];

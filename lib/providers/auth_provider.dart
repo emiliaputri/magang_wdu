@@ -4,16 +4,16 @@ import '../service/auth_service.dart';
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
 
-  bool _loading      = false;
-  bool _rememberMe   = false;
+  bool _loading         = false;
+  bool _rememberMe      = false;
   bool _obscurePassword = true;
 
-  // ── GETTERS ──
+  // ── GETTERS ───────────────────────────────────────────────
   bool get loading         => _loading;
   bool get rememberMe      => _rememberMe;
   bool get obscurePassword => _obscurePassword;
 
-  // ── TOGGLE ──
+  // ── TOGGLE ────────────────────────────────────────────────
   void toggleRememberMe() {
     _rememberMe = !_rememberMe;
     notifyListeners();
@@ -24,7 +24,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ── LOGIN ──
+  // ── LOGIN ─────────────────────────────────────────────────
   /// Mengembalikan true jika login berhasil, false jika gagal
   Future<bool> login(String email, String password) async {
     _loading = true;
@@ -36,5 +36,11 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     return success;
+  }
+
+  // ── LOGOUT ────────────────────────────────────────────────
+  Future<void> logout() async {
+    await _authService.logout();
+    notifyListeners();
   }
 }

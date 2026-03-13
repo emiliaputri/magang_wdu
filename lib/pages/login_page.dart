@@ -16,7 +16,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
-  final _emailController = TextEditingController();
+  final _emailController    = TextEditingController();
   final _passwordController = TextEditingController();
 
   late AnimationController _animController;
@@ -30,11 +30,16 @@ class _LoginPageState extends State<LoginPage>
       vsync: this,
       duration: const Duration(milliseconds: 700),
     );
-    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
-    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero)
-        .animate(
-          CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
-        );
+    _fadeAnim = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOut,
+    );
+    _slideAnim = Tween<Offset>(
+      begin: const Offset(0, 0.15),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+    );
     _animController.forward();
   }
 
@@ -46,11 +51,16 @@ class _LoginPageState extends State<LoginPage>
     super.dispose();
   }
 
-  Future<void> _handleLogin(AuthProvider provider) async {
+  // ── HANDLE LOGIN ──────────────────────────────────────────
+  // Tidak perlu parameter provider, ambil langsung dari context
+  Future<void> _handleLogin() async {
     FocusScope.of(context).unfocus();
 
+    // Gunakan context.read agar tidak trigger rebuild saat action
+    final provider = context.read<AuthProvider>();
+
     final success = await provider.login(
-      _emailController.text,
+      _emailController.text.trim(),
       _passwordController.text,
     );
 
@@ -81,53 +91,49 @@ class _LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthProvider(),
-      child: Consumer<AuthProvider>(
-        builder: (context, provider, _) {
-          return Scaffold(
-            backgroundColor: const Color(0xFFF8F8F6),
-            body: Stack(
-              children: [
-                // ── DECORATIVE BACKGROUND ──
-                _buildBackgroundBlobs(),
+    // Ambil AuthProvider dari MultiProvider di main.dart (tidak dibuat ulang)
+    final provider = context.watch<AuthProvider>();
 
-                // ── MAIN CONTENT ──
-                SafeArea(
-                  child: SingleChildScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 28),
-                      child: FadeTransition(
-                        opacity: _fadeAnim,
-                        child: SlideTransition(
-                          position: _slideAnim,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const SizedBox(height: 64),
-                              const Center(child: SisLogo()),
-                              const SizedBox(height: 52),
-                              _buildCard(context, provider),
-                              const SizedBox(height: 32),
-                              _buildFooter(),
-                              const SizedBox(height: 24),
-                            ],
-                          ),
-                        ),
-                      ),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F8F6),
+      body: Stack(
+        children: [
+          // ── DECORATIVE BACKGROUND ──
+          _buildBackgroundBlobs(),
+
+          // ── MAIN CONTENT ──
+          SafeArea(
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 28),
+                child: FadeTransition(
+                  opacity: _fadeAnim,
+                  child: SlideTransition(
+                    position: _slideAnim,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 64),
+                        const Center(child: SisLogo()),
+                        const SizedBox(height: 52),
+                        _buildCard(context, provider),
+                        const SizedBox(height: 32),
+                        _buildFooter(),
+                        const SizedBox(height: 24),
+                      ],
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
 
-  // ── BACKGROUND BLOBS ──
+  // ── BACKGROUND BLOBS ──────────────────────────────────────
   Widget _buildBackgroundBlobs() {
     return Stack(
       children: [
@@ -161,7 +167,7 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  // ── LOGIN CARD ──
+  // ── LOGIN CARD ────────────────────────────────────────────
   Widget _buildCard(BuildContext context, AuthProvider provider) {
     return Container(
       decoration: BoxDecoration(
@@ -227,7 +233,7 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  // ── REMEMBER ME ROW ──
+  // ── REMEMBER ME ROW ───────────────────────────────────────
   Widget _buildRememberRow(AuthProvider provider) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -272,12 +278,13 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  // ── LOGIN BUTTON ──
+  // ── LOGIN BUTTON ──────────────────────────────────────────
   Widget _buildLoginButton(AuthProvider provider) {
     return SizedBox(
       height: 52,
       child: ElevatedButton(
-        onPressed: provider.loading ? null : () => _handleLogin(provider),
+        // Tidak perlu pass provider ke _handleLogin
+        onPressed: provider.loading ? null : _handleLogin,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.primaryColor,
           disabledBackgroundColor: AppTheme.primaryColor.withOpacity(0.55),
@@ -308,7 +315,7 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  // ── FOOTER ──
+  // ── FOOTER ────────────────────────────────────────────────
   Widget _buildFooter() {
     return Center(
       child: Text(
