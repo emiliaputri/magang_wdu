@@ -1,3 +1,4 @@
+import 'dart:convert';
 import '../models/provinsi_model.dart';
 
 class SurveyModel {
@@ -38,9 +39,22 @@ class SurveyModel {
   });
 
   factory SurveyModel.fromJson(Map<String, dynamic> json) {
-    final rawProvinces = json['province_targets'] as List? ?? [];
-    final provinces =
-        rawProvinces.map((e) => ProvinceTarget.fromJson(e)).toList();
+    // ✅ Handle province_targets sebagai List langsung atau String JSON
+    List<dynamic> rawProvinces = [];
+    final raw = json['province_targets'];
+    if (raw is List) {
+      rawProvinces = raw;
+    } else if (raw is String && raw.isNotEmpty && raw != '[]') {
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is List) rawProvinces = decoded;
+      } catch (_) {}
+    }
+
+    final provinces = rawProvinces
+        .whereType<Map<String, dynamic>>()
+        .map((e) => ProvinceTarget.fromJson(e))
+        .toList();
 
     return SurveyModel(
       id: json['id'],
@@ -55,13 +69,13 @@ class SurveyModel {
       provinceTargets: provinces,
       spreadsheetUrl: json['spreadsheet_url'],
       spreadsheetUpdatedAt: json['spreadsheet_updated_at'] != null
-          ? DateTime.parse(json['spreadsheet_updated_at'])
+          ? DateTime.tryParse(json['spreadsheet_updated_at'].toString())
           : null,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
+          ? DateTime.tryParse(json['created_at'].toString())
           : null,
       updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'])
+          ? DateTime.tryParse(json['updated_at'].toString())
           : null,
       responseCount: json['response_count'] ?? json['responses_count'] ?? 0,
     );

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -97,11 +98,24 @@ class ApiClient {
 
     Map<String, dynamic> body = {};
     try {
-      if (response.body.isNotEmpty) {
-        body = jsonDecode(response.body) as Map<String, dynamic>;
+      final String trimmedBody = response.body.trim();
+      if (trimmedBody.isNotEmpty) {
+        final decoded = jsonDecode(trimmedBody);
+        if (decoded is Map<String, dynamic>) {
+          body = decoded;
+        } else {
+          body = {'data': decoded};
+        }
       }
     } catch (e) {
-      // Jika response bukan JSON (misal HTML 404/500 error page dari Laravel)
+      debugPrint('── API DECODE ERROR ─────────────────');
+      debugPrint('Status: ${response.statusCode}');
+      debugPrint('URL: ${response.request?.url}');
+      debugPrint('Error: $e');
+      debugPrint(
+        'Body Snippet: ${response.body.length > 500 ? response.body.substring(0, 500) + "..." : response.body}',
+      );
+      debugPrint('─────────────────────────────────────');
       throw ServerException(
         'Gagal memproses data server (Error ${response.statusCode}). Pastikan endpoint API sudah benar.',
       );
@@ -224,7 +238,33 @@ class ApiClient {
     }
   }
 
+  // ── PATCH ──────────────────────────────────────────────────
+  Future<ApiResponse<Map<String, dynamic>>> patch(
+    String endpoint, {
+    required Map<String, dynamic> body,
+    bool requireAuth = true,
+  }) async {
+    try {
+      final uri = Uri.parse('${Endpoints.baseUrl}$endpoint');
+      final encodedBody = jsonEncode(body);
+
+      _logRequest('PATCH', uri.toString(), body: encodedBody);
+
+      final headers = await _buildHeaders(requireAuth: requireAuth);
+      final response = await _client
+          .patch(uri, headers: headers, body: encodedBody)
+          .timeout(_timeout);
+
+      return _handleResponse(response);
+    } on SocketException {
+      throw NetworkException();
+    } on HttpException {
+      throw NetworkException();
+    }
+  }
+
   // ── DELETE ─────────────────────────────────────────────────
+
   Future<ApiResponse<Map<String, dynamic>>> delete(
     String endpoint, {
     bool requireAuth = true,

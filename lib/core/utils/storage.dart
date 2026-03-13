@@ -3,12 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 // ─────────────────────────────────────────────────────────────
-// StorageHelper
-//
-// Pemisahan tanggung jawab:
-//   • flutter_secure_storage → data SENSITIF (token JWT, user id)
-//   • shared_preferences     → data TIDAK SENSITIF (settings, flags)
-// ─────────────────────────────────────────────────────────────
 
 class StorageHelper {
   // ── SECURE STORAGE (untuk data sensitif) ──────────────────

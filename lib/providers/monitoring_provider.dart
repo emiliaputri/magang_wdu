@@ -133,7 +133,9 @@ class MonitoringProvider extends ChangeNotifier {
 
       // ── responses dari /all-report ─────────────────────────
       final rawResponses = allReport['responses'];
-      if (rawResponses is List) {
+      if (rawResponses is List && rawResponses.isNotEmpty) {
+        debugPrint('SAMPLE RESPONSE FULL: ${rawResponses.first}');
+        debugPrint('SAMPLE RESPONSE KEYS: ${rawResponses.first.keys.toList()}');
         responses = rawResponses
             .whereType<Map>()
             .map((e) => Map<String, dynamic>.from(e))

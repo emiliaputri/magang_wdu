@@ -63,10 +63,7 @@ class ViewSurveyCard extends StatelessWidget {
                 GestureDetector(
                   onTap: onTapResponden,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: const Color(0xFF4CAF50),
                       borderRadius: BorderRadius.circular(20),
@@ -74,11 +71,7 @@ class ViewSurveyCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
-                          Icons.bar_chart_rounded,
-                          color: Colors.white,
-                          size: 16,
-                        ),
+                        const Icon(Icons.bar_chart_rounded, color: Colors.white, size: 16),
                         const SizedBox(width: 4),
                         Text(
                           '${survey.responseCount}',
@@ -113,30 +106,19 @@ class ViewSurveyCard extends StatelessWidget {
             // ── LOCATION + STATUS ──
             Row(
               children: [
-                const Icon(
-                  Icons.location_on_outlined,
-                  size: 14,
-                  color: Color(0xFFAAAAAA),
-                ),
+                const Icon(Icons.location_on_outlined, size: 14, color: Color(0xFFAAAAAA)),
                 const SizedBox(width: 4),
                 if (survey.provinceTargets.isEmpty)
                   Expanded(
                     child: Text(
                       survey.targetLocation,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFFAAAAAA),
-                      ),
+                      style: const TextStyle(fontSize: 12, color: Color(0xFFAAAAAA)),
                     ),
                   )
                 else
                   const Spacer(),
-                // Status badge
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: isOpen
                         ? const Color(0xFF4CAF50).withOpacity(0.1)
@@ -221,20 +203,14 @@ class ViewSurveyCard extends StatelessWidget {
                   ),
                 ),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 14,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: const Color(0xFFE0E0E0)),
                   ),
                   child: Row(
                     children: [
-                      const Text(
-                        'All Provinces',
-                        style: TextStyle(fontSize: 13),
-                      ),
+                      const Text('All Provinces', style: TextStyle(fontSize: 13)),
                       const Spacer(),
                       Text(
                         'View all',
@@ -256,7 +232,7 @@ class ViewSurveyCard extends StatelessWidget {
             const Divider(height: 1, color: Color(0xFFF0F0F0)),
             const SizedBox(height: 10),
 
-            // ── ACTION BUTTONS (Cek/Edit + Monitor saja) ──
+            // ── ACTION BUTTONS ──
             Row(
               children: [
                 Expanded(
@@ -270,15 +246,17 @@ class ViewSurveyCard extends StatelessWidget {
                           settings: RouteSettings(
                             name: '/cek_edit_survey',
                             arguments: {
-                              'surveyId': survey.slug,
+                              'surveySlug': survey.slug,   // ← surveySlug
                               'clientSlug': clientSlug,
                               'projectSlug': projectSlug,
+                              'responseId': 0,             // ← int, 0 = belum pilih responden
                             },
                           ),
                           builder: (_) => CekEditSurveyPage(
-                            surveyId: survey.slug,
+                            surveySlug: survey.slug,       // ← surveySlug
                             clientSlug: clientSlug,
                             projectSlug: projectSlug,
+                            responseId: 0,                 // ← int
                           ),
                         ),
                       );
@@ -327,7 +305,6 @@ class ViewSurveyCard extends StatelessWidget {
   }
 }
 
-// ── Action Button ─────────────────────────────────────────
 class _ActionBtn extends StatelessWidget {
   final String label;
   final Color color;

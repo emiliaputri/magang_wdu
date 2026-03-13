@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/monitoring_provider.dart';
 import '../../pages/cek_edit_monitor.dart';
-
 import '../../pages/lihat_monitor_page.dart';
 
 class ListResponWidget extends StatelessWidget {
@@ -35,14 +34,9 @@ class ListResponWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Header label ─────────────────────────────────────
         Row(
           children: [
-            const Icon(
-              Icons.list_alt_outlined,
-              size: 16,
-              color: Color(0xFF333333),
-            ),
+            const Icon(Icons.list_alt_outlined, size: 16, color: Color(0xFF333333)),
             const SizedBox(width: 6),
             const Text(
               'List Respon',
@@ -60,8 +54,6 @@ class ListResponWidget extends StatelessWidget {
           style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
         ),
         const SizedBox(height: 10),
-
-        // ── Table ────────────────────────────────────────────
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -72,13 +64,9 @@ class ListResponWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             child: Column(
               children: [
-                // Header row
                 Container(
                   color: const Color(0xFF2D9E6B),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 9,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                   child: Row(
                     children: const [
                       _H('WAKTU', flex: 3),
@@ -89,18 +77,13 @@ class ListResponWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-
-                // Data rows
                 if (_paged.isEmpty)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 32),
                     child: Center(
                       child: Text(
                         'Belum ada data respon',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF9CA3AF),
-                        ),
+                        style: TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
                       ),
                     ),
                   )
@@ -115,8 +98,6 @@ class ListResponWidget extends StatelessWidget {
             ),
           ),
         ),
-
-        // ── Pagination ───────────────────────────────────────
         const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -144,7 +125,6 @@ class ListResponWidget extends StatelessWidget {
   }
 }
 
-// ── Header cell ──────────────────────────────────────────────
 class _H extends StatelessWidget {
   final String text;
   final int flex;
@@ -167,7 +147,6 @@ class _H extends StatelessWidget {
   );
 }
 
-// ── Data row ─────────────────────────────────────────────────
 class _Row extends StatelessWidget {
   final Map<String, dynamic> response;
   final bool isLast;
@@ -198,7 +177,6 @@ class _Row extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // WAKTU
           Expanded(
             flex: 3,
             child: Text(
@@ -206,8 +184,6 @@ class _Row extends StatelessWidget {
               style: const TextStyle(fontSize: 10, color: Color(0xFF374151)),
             ),
           ),
-
-          // SUMBER
           Expanded(
             flex: 3,
             child: Column(
@@ -247,18 +223,13 @@ class _Row extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 1, left: 24),
                     child: Text(
                       token,
-                      style: const TextStyle(
-                        fontSize: 9,
-                        color: Color(0xFF9CA3AF),
-                      ),
+                      style: const TextStyle(fontSize: 9, color: Color(0xFF9CA3AF)),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
               ],
             ),
           ),
-
-          // PROVINSI
           Expanded(
             flex: 3,
             child: Text(
@@ -268,8 +239,6 @@ class _Row extends StatelessWidget {
               maxLines: 2,
             ),
           ),
-
-          // ROLE
           Expanded(
             flex: 2,
             child: Container(
@@ -290,8 +259,6 @@ class _Row extends StatelessWidget {
               ),
             ),
           ),
-
-          // ACTION
           Expanded(
             flex: 4,
             child: Row(
@@ -303,16 +270,19 @@ class _Row extends StatelessWidget {
                   color: const Color(0xFF2D9E6B),
                   onTap: () {
                     final responseId =
-                        response['id'] ?? response['response_id'] ?? 0;
+                        int.tryParse(
+                          (response['id'] ?? response['response_id'] ?? 0).toString(),
+                        ) ?? 0;
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         settings: RouteSettings(
                           name: '/lihat_monitor',
                           arguments: {
-                            'surveyId': responseId.toString(),
+                            'surveySlug': provider.surveySlug, // ← surveySlug
                             'clientSlug': clientSlug,
                             'projectSlug': projectSlug,
+                            'responseId': responseId,
                           },
                         ),
                         builder: (_) => LihatMonitorPage(
@@ -331,22 +301,26 @@ class _Row extends StatelessWidget {
                   color: const Color(0xFF0284C7),
                   onTap: () {
                     final responseId =
-                        response['id'] ?? response['response_id'] ?? 0;
+                        int.tryParse(
+                          (response['id'] ?? response['response_id'] ?? 0).toString(),
+                        ) ?? 0;
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         settings: RouteSettings(
                           name: '/cek_edit_monitor',
                           arguments: {
-                            'surveyId': responseId.toString(),
+                            'surveySlug': provider.surveySlug, // ← surveySlug
                             'clientSlug': clientSlug,
                             'projectSlug': projectSlug,
+                            'responseId': responseId,             // ← int langsung
                           },
                         ),
                         builder: (_) => CekEditMonitorPage(
-                          surveyId: responseId.toString(),
+                          surveySlug: provider.surveySlug,  // ← surveySlug
                           clientSlug: clientSlug,
                           projectSlug: projectSlug,
+                          responseId: responseId,           // ← int langsung
                         ),
                       ),
                     );
@@ -364,21 +338,8 @@ class _Row extends StatelessWidget {
     if (raw.isEmpty) return '-';
     try {
       final dt = DateTime.parse(raw).toLocal();
-      final m = [
-        '',
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'Mei',
-        'Jun',
-        'Jul',
-        'Agu',
-        'Sep',
-        'Okt',
-        'Nov',
-        'Des',
-      ];
+      final m = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+                  'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
       return '${dt.day.toString().padLeft(2, '0')} ${m[dt.month]} ${dt.year}\n'
           '${dt.hour.toString().padLeft(2, '0')}.'
           '${dt.minute.toString().padLeft(2, '0')}';
@@ -397,19 +358,14 @@ class _Row extends StatelessWidget {
   String _role(Map<String, dynamic>? u) {
     if (u == null) return 'Lainnya';
     switch ((u['usertype'] as String? ?? '').toLowerCase()) {
-      case 'superadmin':
-        return 'S.Admin';
-      case 'admin':
-        return 'Admin';
-      case 'enumerator':
-        return 'Enum.';
-      default:
-        return 'Lainnya';
+      case 'superadmin': return 'S.Admin';
+      case 'admin':      return 'Admin';
+      case 'enumerator': return 'Enum.';
+      default:           return 'Lainnya';
     }
   }
 }
 
-// ── Action button ────────────────────────────────────────────
 class _ActionBtn extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -451,7 +407,6 @@ class _ActionBtn extends StatelessWidget {
   );
 }
 
-// ── Pagination ───────────────────────────────────────────────
 class _Pagination extends StatelessWidget {
   final int currentPage;
   final int totalPages;
@@ -479,11 +434,7 @@ class _Pagination extends StatelessWidget {
     mainAxisSize: MainAxisSize.min,
     children: [
       _PBtn(
-        child: const Icon(
-          Icons.chevron_left,
-          size: 13,
-          color: Color(0xFF6B7280),
-        ),
+        child: const Icon(Icons.chevron_left, size: 13, color: Color(0xFF6B7280)),
         onTap: currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
       ),
       const SizedBox(width: 3),
@@ -491,10 +442,7 @@ class _Pagination extends StatelessWidget {
         if (p == -1) {
           return const Padding(
             padding: EdgeInsets.symmetric(horizontal: 2),
-            child: Text(
-              '…',
-              style: TextStyle(fontSize: 10, color: Color(0xFF6B7280)),
-            ),
+            child: Text('…', style: TextStyle(fontSize: 10, color: Color(0xFF6B7280))),
           );
         }
         final active = p == currentPage;
@@ -515,14 +463,8 @@ class _Pagination extends StatelessWidget {
         );
       }),
       _PBtn(
-        child: const Icon(
-          Icons.chevron_right,
-          size: 13,
-          color: Color(0xFF6B7280),
-        ),
-        onTap: currentPage < totalPages
-            ? () => onPageChanged(currentPage + 1)
-            : null,
+        child: const Icon(Icons.chevron_right, size: 13, color: Color(0xFF6B7280)),
+        onTap: currentPage < totalPages ? () => onPageChanged(currentPage + 1) : null,
       ),
     ],
   );

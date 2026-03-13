@@ -105,9 +105,10 @@ class MyApp extends StatelessWidget {
                   arguments: safeArgs,
                 ),
                 builder: (_) => CekEditMonitorPage(
-                  surveyId: (safeArgs['surveyId'] ?? '').toString(),
+                  surveySlug: (safeArgs['surveySlug'] ?? '').toString(), // ← surveySlug
                   clientSlug: safeArgs['clientSlug'] ?? '',
                   projectSlug: safeArgs['projectSlug'] ?? '',
+                  responseId: int.tryParse(safeArgs['responseId']?.toString() ?? '') ?? 0, // ← int
                 ),
               );
 
@@ -119,9 +120,10 @@ class MyApp extends StatelessWidget {
                   arguments: safeArgs,
                 ),
                 builder: (_) => CekEditSurveyPage(
-                  surveyId: (safeArgs['surveyId'] ?? '').toString(),
+                  surveySlug: (safeArgs['surveySlug'] ?? '').toString(), // ← surveySlug
                   clientSlug: safeArgs['clientSlug'] ?? '',
                   projectSlug: safeArgs['projectSlug'] ?? '',
+                  responseId: int.tryParse(safeArgs['responseId']?.toString() ?? '') ?? 0, // ← int
                 ),
               );
 
