@@ -2,6 +2,14 @@ import 'survey_model.dart';
 import 'project_model.dart';
 import 'client_model.dart';
 
+int? _toInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is String) return int.tryParse(value);
+  if (value is double) return value.toInt();
+  return null;
+}
+
 /// Model utama untuk response dari endpoint:
 /// GET /clients/{clientSlug}/projects/{projectSlug}/surveys/{slug}/edit-answer/{userId}
 class SurveyResponseDetail {
@@ -11,6 +19,7 @@ class SurveyResponseDetail {
   final List<SurveyPageData> pages;
   final List<SurveyAnswerData> answers;
   final DateTime? editedAt;
+  final int? responseId; // ← ID respons dari level top JSON
 
   SurveyResponseDetail({
     this.survey,
@@ -19,6 +28,7 @@ class SurveyResponseDetail {
     required this.pages,
     required this.answers,
     this.editedAt,
+    this.responseId,
   });
 
   factory SurveyResponseDetail.fromJson(Map<String, dynamic> json) {
@@ -55,6 +65,12 @@ class SurveyResponseDetail {
       editedAt: json['edited_at'] != null
           ? DateTime.tryParse(json['edited_at'].toString())
           : null,
+      responseId: _toInt(json['response_id'] ??
+          json['id'] ??
+          json['responseId'] ??
+          json['id_response'] ??
+          json['responses']?['id'] ??
+          json['response']?['id']),
     );
   }
 }
@@ -290,9 +306,13 @@ class SurveyAnswerData {
 
   factory SurveyAnswerData.fromJson(Map<String, dynamic> json) {
     return SurveyAnswerData(
-      id: json['id'] ?? 0,
-      responseId: json['response_id'] ?? 0,
-      questionId: json['question_id'] ?? 0,
+      id: _toInt(json['id']) ?? 0,
+      responseId: _toInt(json['response_id'] ??
+              json['responseId'] ??
+              json['id_response'] ??
+              json['res_id']) ??
+          0,
+      questionId: _toInt(json['question_id'] ?? json['questionId']) ?? 0,
       answer: json['answer']?.toString() ?? '',
     );
   }

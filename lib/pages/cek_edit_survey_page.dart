@@ -68,9 +68,21 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
       if (data != null) {
         surveyData = data;
 
-        // Ambil responseId dari data jawaban pertama jika ada
-        if (data.answers.isNotEmpty) {
-          _activeResponseId = data.answers.first.responseId;
+        // Ambil responseId dari top-level atau cari dari jawaban yang ada
+        _activeResponseId = (data.responseId != null && data.responseId! > 0)
+            ? data.responseId
+            : null;
+
+        if ((_activeResponseId == null || _activeResponseId == 0) &&
+            data.answers.isNotEmpty) {
+          // Cari jawaban pertama yang punya responseId > 0
+          try {
+            _activeResponseId = data.answers
+                .firstWhere((a) => a.responseId > 0)
+                .responseId;
+          } catch (_) {
+            _activeResponseId = data.answers.first.responseId;
+          }
         }
 
         final parsed = _editService.parseExistingAnswers(
