@@ -167,7 +167,34 @@ class EditAnswerService {
           result[questionId] = _decodeMatrixAnswer(raw, question.matrixType);
           break;
 
-        default: // Semua tipe lain → ambil value pertama
+        case 2: // Radio
+        case 7: // Dropdown
+          if (answerList.isNotEmpty) {
+            final rawAns = answerList.first;
+            // Cek apakah rawAns adalah salah satu ID dari choices
+            final existsAsId =
+                question.choices.any((c) => c.id.toString() == rawAns);
+
+            if (existsAsId) {
+              result[questionId] = rawAns;
+            } else {
+              // Jika tidak ada ID yang cocok, coba cari berdasarkan label (case-insensitive)
+              try {
+                final matchedChoice = question.choices.firstWhere(
+                  (c) => c.value.toLowerCase() == rawAns.toLowerCase(),
+                );
+                result[questionId] = matchedChoice.id.toString();
+              } catch (_) {
+                // Jika tidak ada yang cocok sama sekali, biarkan apa adanya
+                result[questionId] = rawAns;
+              }
+            }
+          } else {
+            result[questionId] = '';
+          }
+          break;
+
+        default: // Semua tipe lain (Text, Paragraph, etc.)
           result[questionId] = answerList.isNotEmpty ? answerList.first : '';
           break;
       }

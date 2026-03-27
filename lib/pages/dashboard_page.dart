@@ -5,6 +5,7 @@ import '../providers/dashboard_provider.dart';
 import '../widgets/dashboard_surveys/client_card.dart';
 import '../widgets/dashboard_surveys/project_card.dart';
 import '../widgets/dashboard_surveys/section_header.dart';
+import '../providers/auth_provider.dart';
 
 // ── ENTRY POINT ───────────────────────────────────────────────
 class DashboardPage extends StatelessWidget {
@@ -150,10 +151,44 @@ class _DashboardViewState extends State<_DashboardView>
           ),
         ),
       ),
-      actions: const [],
+      actions: [
+        IconButton(
+          onPressed: () => _showLogoutDialog(context),
+          icon: const Icon(Icons.logout_rounded, color: AppTheme.dashSage500),
+          tooltip: 'Logout',
+        ),
+      ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1),
         child: Container(height: 1, color: AppTheme.dashSage100),
+      ),
+    );
+  }
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Apakah Anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal', style: TextStyle(color: AppTheme.dashTextMid)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context); // Tutup dialog
+              await context.read<AuthProvider>().logout();
+              if (context.mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+              }
+            },
+            child: const Text(
+              'Logout',
+              style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -331,7 +366,7 @@ class _ClientsSection extends StatelessWidget {
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
               childAspectRatio:
-                  0.9, // Adjust childAspectRatio directly if needed
+                  0.68, // Adjust childAspectRatio directly if needed
             ),
             itemCount: provider.filteredClients.length,
             itemBuilder: (context, index) =>

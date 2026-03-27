@@ -1,9 +1,14 @@
 class Endpoints {
   // ── BASE URL ──────────────────────────────────────────────
-  static const String baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://127.0.0.1:8000/api',
-  );
+  // Digunakan untuk mendeteksi IP yang tepat (Emulator vs HP Fisik)
+  static String get baseUrl {
+    const fromEnv = String.fromEnvironment('API_BASE_URL');
+    if (fromEnv.isNotEmpty) return fromEnv;
+
+    // Untuk HP Fisik: Gunakan IP Komputer (10.95.52.99)
+    // Untuk Emulator: Gunakan 10.0.2.2
+    return 'https://sis.wahanadata.co.id/api';
+  }
 
   // ── AUTH ──────────────────────────────────────────────────
   // POST /api/login
@@ -23,26 +28,42 @@ class Endpoints {
 
   // GET /api/clients/{clientSlug}/projects/{projectSlug}/surveys/{slug}/detail
   static String surveyDetail(
-          String clientSlug, String projectSlug, String slug) =>
-      '/clients/$clientSlug/projects/$projectSlug/surveys/$slug/detail';
+    String clientSlug,
+    String projectSlug,
+    String slug,
+  ) => '/clients/$clientSlug/projects/$projectSlug/surveys/$slug/detail';
 
   // GET /api/clients/{clientSlug}/projects/{projectSlug}/surveys/{slug}/all-report
   static String surveyAllReport(
-          String clientSlug, String projectSlug, String slug) =>
-      '/clients/$clientSlug/projects/$projectSlug/surveys/$slug/all-report';
+    String clientSlug,
+    String projectSlug,
+    String slug,
+  ) => '/clients/$clientSlug/projects/$projectSlug/surveys/$slug/all-report';
 
   // GET /api/clients/{clientSlug}/projects/{projectSlug}/surveys/{slug}/report/{responseId}
   static String surveyReport(
-          String clientSlug, String projectSlug, String slug, int responseId) =>
+    String clientSlug,
+    String projectSlug,
+    String slug,
+    int responseId,
+  ) =>
       '/clients/$clientSlug/projects/$projectSlug/surveys/$slug/report/$responseId';
 
   // GET /api/clients/{clientSlug}/projects/{projectSlug}/surveys/{Survey:slug}/edit-answer/{userId}
   static String editAnswer(
-          String clientSlug, String projectSlug, String slug, int userId) =>
+    String clientSlug,
+    String projectSlug,
+    String slug,
+    int userId,
+  ) =>
       '/clients/$clientSlug/projects/$projectSlug/surveys/$slug/edit-answer/$userId';
 
   // PATCH /api/clients/{clientSlug}/projects/{projectSlug}/surveys/{Survey:slug}/change-answer/{responseId}
   static String changeAnswer(
-          String clientSlug, String projectSlug, String slug, int responseId) =>
+    String clientSlug,
+    String projectSlug,
+    String slug,
+    int responseId,
+  ) =>
       '/clients/$clientSlug/projects/$projectSlug/surveys/$slug/change-answer/$responseId';
 }

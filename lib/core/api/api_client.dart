@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 import 'package:http/http.dart' as http;
 import '../constants/endpoints.dart';
 import '../utils/storage.dart';
@@ -72,7 +73,12 @@ class ApiClient {
   }
 
   // ── LOG REQUEST (hanya di debug mode) ──────────────────────
-  void _logRequest(String method, String url, {dynamic body, Map<String, String>? headers}) {
+  void _logRequest(
+    String method,
+    String url, {
+    dynamic body,
+    Map<String, String>? headers,
+  }) {
     assert(() {
       print('── API REQUEST ──────────────────────');
       print('$method $url');
@@ -190,7 +196,15 @@ class ApiClient {
 
       return _handleResponse(response);
     } on SocketException {
-      throw NetworkException();
+      throw ApiException(
+        'Tidak dapat terhubung ke server. Pastikan backend menyala dan IP/Firewall benar.',
+        statusCode: 0,
+      );
+    } on TimeoutException {
+      throw ApiException(
+        'Koneksi ke server timeout (30s). Periksa koneksi internet atau Firewall Anda.',
+        statusCode: 408,
+      );
     } on HttpException {
       throw NetworkException();
     }
@@ -214,7 +228,15 @@ class ApiClient {
 
       return _handleResponse(response);
     } on SocketException {
-      throw NetworkException();
+      throw ApiException(
+        'Tidak dapat terhubung ke server. Pastikan backend menyala dan IP/Firewall benar.',
+        statusCode: 0,
+      );
+    } on TimeoutException {
+      throw ApiException(
+        'Koneksi ke server timeout (30s). Periksa koneksi internet atau Firewall Anda.',
+        statusCode: 408,
+      );
     } on HttpException {
       throw NetworkException();
     }
@@ -238,7 +260,15 @@ class ApiClient {
 
       return _handleResponse(response);
     } on SocketException {
-      throw NetworkException();
+      throw ApiException(
+        'Tidak dapat terhubung ke server. Pastikan backend menyala dan IP/Firewall benar.',
+        statusCode: 0,
+      );
+    } on TimeoutException {
+      throw ApiException(
+        'Koneksi ke server timeout (30s). Periksa koneksi internet atau Firewall Anda.',
+        statusCode: 408,
+      );
     } on HttpException {
       throw NetworkException();
     }
@@ -262,7 +292,15 @@ class ApiClient {
 
       return _handleResponse(response);
     } on SocketException {
-      throw NetworkException();
+      throw ApiException(
+        'Tidak dapat terhubung ke server. Pastikan backend menyala dan IP/Firewall benar.',
+        statusCode: 0,
+      );
+    } on TimeoutException {
+      throw ApiException(
+        'Koneksi ke server timeout (30s). Periksa koneksi internet atau Firewall Anda.',
+        statusCode: 408,
+      );
     } on HttpException {
       throw NetworkException();
     }
@@ -285,7 +323,15 @@ class ApiClient {
 
       return _handleResponse(response);
     } on SocketException {
-      throw NetworkException();
+      throw ApiException(
+        'Tidak dapat terhubung ke server. Pastikan backend menyala dan IP/Firewall benar.',
+        statusCode: 0,
+      );
+    } on TimeoutException {
+      throw ApiException(
+        'Koneksi ke server timeout (30s). Periksa koneksi internet atau Firewall Anda.',
+        statusCode: 408,
+      );
     } on HttpException {
       throw NetworkException();
     }

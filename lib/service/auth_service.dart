@@ -8,38 +8,34 @@ class AuthService {
   // ── LOGIN ─────────────────────────────────────────────────
   // POST /api/login
   Future<bool> login(String email, String password) async {
-    try {
-      final response = await _api.post(
-        Endpoints.login,
-        body: {'email': email, 'password': password},
-        requireAuth: false,
-      );
+    final response = await _api.post(
+      Endpoints.login,
+      body: {'email': email, 'password': password},
+      requireAuth: false,
+    );
 
-      final token  = response.data?['token'] as String?;
-      final userId = response.data?['user']?['id']?.toString();
+    final token = response.data?['token'] as String?;
+    final userId = response.data?['user']?['id']?.toString();
 
-      if (token == null) return false;
-
-      await StorageHelper.saveToken(token);
-      if (userId != null) await StorageHelper.saveUserId(userId);
-
-      final rememberMe = await StorageHelper.getRememberMe();
-      if (rememberMe) await StorageHelper.saveLastEmail(email);
-
-      return true;
-    } on UnauthorizedException {
-      return false;
-    } on ApiException {
-      return false;
+    if (token == null) {
+      throw ApiException('Token tidak ditemukan dalam respons server');
     }
+
+    await StorageHelper.saveToken(token);
+    if (userId != null) await StorageHelper.saveUserId(userId);
+
+    final rememberMe = await StorageHelper.getRememberMe();
+    if (rememberMe) await StorageHelper.saveLastEmail(email);
+
+    return true;
   }
 
   // ── GET USER ──────────────────────────────────────────────
-  
+
   Future<Map<String, dynamic>?> getUser() async {
     try {
       final response = await _api.get(Endpoints.me);
-      return response.data;              
+      return response.data;
     } on UnauthorizedException {
       await logout();
       return null;

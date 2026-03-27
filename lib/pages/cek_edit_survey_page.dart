@@ -433,20 +433,28 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
   }
 
   Widget _buildDropdown(SurveyQuestionData q) {
+    final dropdownItems = q.choices
+        .map(
+          (opt) => DropdownMenuItem(
+            value: opt.id.toString(),
+            child: Text(opt.value, style: const TextStyle(fontSize: 15)),
+          ),
+        )
+        .toList();
+
+    // Safety Check: Pastikan 'value' yang diberikan ada di dalam list 'items'.
+    // Jika tidak ada, paksa 'value' jadi null supaya tidak crash (Assertion Error).
+    final String? currentValue = answers[q.id]?.toString();
+    final bool valueExists = dropdownItems.any((item) => item.value == currentValue);
+    final String? safeValue = valueExists ? currentValue : null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildLabel(q),
         DropdownButtonFormField<String>(
-          value: answers[q.id]?.toString(),
-          items: q.choices
-              .map(
-                (opt) => DropdownMenuItem(
-                  value: opt.id.toString(),
-                  child: Text(opt.value, style: const TextStyle(fontSize: 15)),
-                ),
-              )
-              .toList(),
+          value: safeValue,
+          items: dropdownItems,
           onChanged: (val) => setState(() => answers[q.id] = val),
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(

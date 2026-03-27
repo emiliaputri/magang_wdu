@@ -84,7 +84,7 @@ class ClientCard extends StatelessWidget {
           children: [
             // ── IMAGE ──
             SizedBox(
-              height: 96,
+              height: 85,
               width: double.infinity,
               child: Builder(
                 builder: (context) {

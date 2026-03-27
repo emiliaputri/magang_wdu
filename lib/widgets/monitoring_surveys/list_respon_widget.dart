@@ -54,47 +54,51 @@ class ListResponWidget extends StatelessWidget {
           style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
         ),
         const SizedBox(height: 10),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Column(
-              children: [
-                Container(
-                  color: const Color(0xFF2D9E6B),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-                  child: Row(
-                    children: const [
-                      _H('WAKTU', flex: 3),
-                      _H('SUMBER', flex: 3),
-                      _H('PROVINSI', flex: 3),
-                      _H('ROLE', flex: 2),
-                      _H('ACTION', flex: 4, center: true),
-                    ],
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Container(
+            width: 600, // Minimal width agar kolom tidak terlalu gepeng
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFE5E7EB)),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Column(
+                children: [
+                  Container(
+                    color: const Color(0xFF2D9E6B),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    child: Row(
+                      children: const [
+                        _H('WAKTU', flex: 3),
+                        _H('SUMBER', flex: 4),
+                        _H('PROVINSI', flex: 3),
+                        _H('ROLE', flex: 2),
+                        _H('ACTION', flex: 4, center: true),
+                      ],
+                    ),
                   ),
-                ),
-                if (_paged.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 32),
-                    child: Center(
-                      child: Text(
-                        'Belum ada data respon',
-                        style: TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+                  if (_paged.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 32),
+                      child: Center(
+                        child: Text(
+                          'Belum ada data respon',
+                          style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
+                        ),
+                      ),
+                    )
+                  else
+                    ..._paged.asMap().entries.map(
+                      (e) => _Row(
+                        response: e.value,
+                        isLast: e.key == _paged.length - 1,
                       ),
                     ),
-                  )
-                else
-                  ..._paged.asMap().entries.map(
-                    (e) => _Row(
-                      response: e.value,
-                      isLast: e.key == _paged.length - 1,
-                    ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -138,7 +142,7 @@ class _H extends StatelessWidget {
       text,
       textAlign: center ? TextAlign.center : TextAlign.left,
       style: const TextStyle(
-        fontSize: 10,
+        fontSize: 9,
         fontWeight: FontWeight.w700,
         color: Colors.white,
         letterSpacing: 0.4,
@@ -173,7 +177,7 @@ class _Row extends StatelessWidget {
           : const BoxDecoration(
               border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
             ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -181,26 +185,26 @@ class _Row extends StatelessWidget {
             flex: 3,
             child: Text(
               waktu,
-              style: const TextStyle(fontSize: 10, color: Color(0xFF374151)),
+              style: const TextStyle(fontSize: 9.5, color: Color(0xFF374151)),
             ),
           ),
           Expanded(
-            flex: 3,
+            flex: 4,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     Container(
-                      width: 20,
-                      height: 20,
+                      width: 18,
+                      height: 18,
                       decoration: BoxDecoration(
                         color: const Color(0xFFECFDF5),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Icon(
                         Icons.person_outline,
-                        size: 12,
+                        size: 11,
                         color: Color(0xFF2D9E6B),
                       ),
                     ),
@@ -209,7 +213,7 @@ class _Row extends StatelessWidget {
                       child: Text(
                         nama,
                         style: const TextStyle(
-                          fontSize: 10,
+                          fontSize: 9.5,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF111827),
                         ),
@@ -220,10 +224,10 @@ class _Row extends StatelessWidget {
                 ),
                 if (token.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.only(top: 1, left: 24),
+                    padding: const EdgeInsets.only(top: 1, left: 22),
                     child: Text(
                       token,
-                      style: const TextStyle(fontSize: 9, color: Color(0xFF9CA3AF)),
+                      style: const TextStyle(fontSize: 8.5, color: Color(0xFF9CA3AF)),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -234,7 +238,7 @@ class _Row extends StatelessWidget {
             flex: 3,
             child: Text(
               provinsi,
-              style: const TextStyle(fontSize: 10, color: Color(0xFF374151)),
+              style: const TextStyle(fontSize: 9.5, color: Color(0xFF374151)),
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
             ),
@@ -242,7 +246,7 @@ class _Row extends StatelessWidget {
           Expanded(
             flex: 2,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
               decoration: BoxDecoration(
                 color: const Color(0xFFECFDF5),
                 borderRadius: BorderRadius.circular(20),
@@ -251,7 +255,7 @@ class _Row extends StatelessWidget {
                 role,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontSize: 9,
+                  fontSize: 8.5,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF059669),
                 ),

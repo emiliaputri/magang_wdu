@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [1.2.3] - 2026-03-27
+### Added
+- Logout button in the dashboard page
+
+## [1.2.2] - 2026-03-26
+### Changed
+- survey card size to prevent bottom overflow
+- Resized the table in monitoring data; it is now horizontally scrollable to the left to view all data
+
 ## [1.2.2] - 2026-03-13
 ### Added
 - project_list folder inside the widget directory, containing header_cell, project_client_card, project_row, and project_section files for better project file structure
