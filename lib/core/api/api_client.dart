@@ -1,10 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import '../constants/endpoints.dart';
 import '../utils/storage.dart';
+import '../utils/logger.dart';
 
 // ── RESPONSE WRAPPER ──────────────────────────────────────────
 class ApiResponse<T> {
@@ -122,15 +122,17 @@ class ApiClient {
           body = {'data': decoded};
         }
       }
-    } catch (e) {
-      debugPrint('── API DECODE ERROR ─────────────────');
-      debugPrint('Status: ${response.statusCode}');
-      debugPrint('URL: ${response.request?.url}');
-      debugPrint('Error: $e');
-      debugPrint(
-        'Body Snippet: ${response.body.length > 500 ? response.body.substring(0, 500) + "..." : response.body}',
+    } catch (e, st) {
+      AppLogger.error(
+        'API DECODE ERROR - Status: ${response.statusCode}, URL: ${response.request?.url}',
+        error: e,
+        stackTrace: st,
+        category: 'API',
       );
-      debugPrint('─────────────────────────────────────');
+      AppLogger.warning(
+        'Response Body Snippet: ${response.body.length > 500 ? response.body.substring(0, 500) + "..." : response.body}',
+        category: 'API',
+      );
       throw ServerException(
         'Gagal memproses data server (Error ${response.statusCode}). Pastikan endpoint API sudah benar.',
       );
@@ -195,18 +197,44 @@ class ApiClient {
           .timeout(_timeout);
 
       return _handleResponse(response);
-    } on SocketException {
+    } on SocketException catch (e, st) {
+      AppLogger.error(
+        'SocketException pada GET $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
       throw ApiException(
         'Tidak dapat terhubung ke server. Pastikan backend menyala dan IP/Firewall benar.',
         statusCode: 0,
       );
-    } on TimeoutException {
+    } on TimeoutException catch (e, st) {
+      AppLogger.error(
+        'TimeoutException pada GET $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
       throw ApiException(
         'Koneksi ke server timeout (30s). Periksa koneksi internet atau Firewall Anda.',
         statusCode: 408,
       );
-    } on HttpException {
+    } on HttpException catch (e, st) {
+      AppLogger.error(
+        'HttpException pada GET $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
       throw NetworkException();
+    } catch (e, st) {
+      AppLogger.error(
+        'Unexpected error pada GET $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
+      rethrow;
     }
   }
 
@@ -227,18 +255,44 @@ class ApiClient {
           .timeout(_timeout);
 
       return _handleResponse(response);
-    } on SocketException {
+    } on SocketException catch (e, st) {
+      AppLogger.error(
+        'SocketException pada POST $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
       throw ApiException(
         'Tidak dapat terhubung ke server. Pastikan backend menyala dan IP/Firewall benar.',
         statusCode: 0,
       );
-    } on TimeoutException {
+    } on TimeoutException catch (e, st) {
+      AppLogger.error(
+        'TimeoutException pada POST $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
       throw ApiException(
         'Koneksi ke server timeout (30s). Periksa koneksi internet atau Firewall Anda.',
         statusCode: 408,
       );
-    } on HttpException {
+    } on HttpException catch (e, st) {
+      AppLogger.error(
+        'HttpException pada POST $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
       throw NetworkException();
+    } catch (e, st) {
+      AppLogger.error(
+        'Unexpected error pada POST $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
+      rethrow;
     }
   }
 
@@ -259,18 +313,44 @@ class ApiClient {
           .timeout(_timeout);
 
       return _handleResponse(response);
-    } on SocketException {
+    } on SocketException catch (e, st) {
+      AppLogger.error(
+        'SocketException pada PUT $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
       throw ApiException(
         'Tidak dapat terhubung ke server. Pastikan backend menyala dan IP/Firewall benar.',
         statusCode: 0,
       );
-    } on TimeoutException {
+    } on TimeoutException catch (e, st) {
+      AppLogger.error(
+        'TimeoutException pada PUT $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
       throw ApiException(
         'Koneksi ke server timeout (30s). Periksa koneksi internet atau Firewall Anda.',
         statusCode: 408,
       );
-    } on HttpException {
+    } on HttpException catch (e, st) {
+      AppLogger.error(
+        'HttpException pada PUT $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
       throw NetworkException();
+    } catch (e, st) {
+      AppLogger.error(
+        'Unexpected error pada PUT $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
+      rethrow;
     }
   }
 
@@ -291,18 +371,44 @@ class ApiClient {
           .timeout(_timeout);
 
       return _handleResponse(response);
-    } on SocketException {
+    } on SocketException catch (e, st) {
+      AppLogger.error(
+        'SocketException pada PATCH $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
       throw ApiException(
         'Tidak dapat terhubung ke server. Pastikan backend menyala dan IP/Firewall benar.',
         statusCode: 0,
       );
-    } on TimeoutException {
+    } on TimeoutException catch (e, st) {
+      AppLogger.error(
+        'TimeoutException pada PATCH $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
       throw ApiException(
         'Koneksi ke server timeout (30s). Periksa koneksi internet atau Firewall Anda.',
         statusCode: 408,
       );
-    } on HttpException {
+    } on HttpException catch (e, st) {
+      AppLogger.error(
+        'HttpException pada PATCH $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
       throw NetworkException();
+    } catch (e, st) {
+      AppLogger.error(
+        'Unexpected error pada PATCH $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
+      rethrow;
     }
   }
 
@@ -322,18 +428,44 @@ class ApiClient {
           .timeout(_timeout);
 
       return _handleResponse(response);
-    } on SocketException {
+    } on SocketException catch (e, st) {
+      AppLogger.error(
+        'SocketException pada DELETE $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
       throw ApiException(
         'Tidak dapat terhubung ke server. Pastikan backend menyala dan IP/Firewall benar.',
         statusCode: 0,
       );
-    } on TimeoutException {
+    } on TimeoutException catch (e, st) {
+      AppLogger.error(
+        'TimeoutException pada DELETE $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
       throw ApiException(
         'Koneksi ke server timeout (30s). Periksa koneksi internet atau Firewall Anda.',
         statusCode: 408,
       );
-    } on HttpException {
+    } on HttpException catch (e, st) {
+      AppLogger.error(
+        'HttpException pada DELETE $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
       throw NetworkException();
+    } catch (e, st) {
+      AppLogger.error(
+        'Unexpected error pada DELETE $endpoint',
+        error: e,
+        stackTrace: st,
+        category: 'API',
+      );
+      rethrow;
     }
   }
 

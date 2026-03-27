@@ -7,6 +7,7 @@ class Endpoints {
 
     // Untuk HP Fisik: Gunakan IP Komputer (10.95.52.99)
     // Untuk Emulator: Gunakan 10.0.2.2
+    // Screenshot anda menunjukkan HP Fisik, jadi kita gunakan 10.95.52.99
     return 'https://sis.wahanadata.co.id/api';
   }
 

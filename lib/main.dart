@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'pages/login_page.dart';
 import 'pages/dashboard_page.dart';
@@ -10,16 +11,41 @@ import 'pages/province_target_page.dart';
 import 'pages/project_page.dart';
 import 'pages/detail_responden_bpk_page.dart';
 import 'pages/detail_responden_transjakarta_page.dart';
-import 'providers/auth_provider.dart'; // ← TAMBAHKAN IMPORT INI
+import 'providers/auth_provider.dart';
 import 'providers/survey_provider.dart';
 import 'models/client_model.dart';
 import 'models/provinsi_model.dart';
 
 import 'core/utils/storage.dart';
 import 'core/utils/route_observer.dart';
+import 'core/utils/logger.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (kDebugMode) {
+    FlutterError.onError = (details) {
+      AppLogger.error(
+        'FlutterError caught by main.dart',
+        error: details.exceptionAsString(),
+        stackTrace: details.stack,
+        category: 'FlutterError',
+      );
+      FlutterError.presentError(details);
+    };
+
+    PlatformDispatcher.instance.onError = (error, stackTrace) {
+      AppLogger.error(
+        'Platform error caught in main.dart',
+        error: error,
+        stackTrace: stackTrace,
+        category: 'Platform',
+      );
+      return true;
+    };
+  }
+
+  AppLogger.info('App started', category: 'App');
 
   final isLoggedIn = await StorageHelper.hasToken();
   final lastRoute = await StorageHelper.getLastRouteName();
