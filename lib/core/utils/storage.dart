@@ -156,8 +156,13 @@ class StorageHelper {
 
   /// Hapus semua data sensitif (dipanggil saat logout)
   static Future<void> clearSecure() async {
-    await _secure.delete(key: _keyToken);
-    await _secure.delete(key: _keyUserId);
+    try {
+      await _secure.delete(key: _keyToken);
+      await _secure.delete(key: _keyUserId);
+    } catch (e) {
+      // Abaikan error pada SecureStorage Android (sering terjadi karena isu Keystore)
+      // agar proses logout tetap bisa dilanjutkan.
+    }
   }
 
   static Future<void> clearLastRoute() async {
