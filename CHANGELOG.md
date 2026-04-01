@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Auto-calculate duration from start and end time difference
 - Reduce size for mobile responsive display
 
+## fixes
+- Fix: update production api url and fix logout handling android
+
+
 ## [1.2.5] - 2026-03-31
 ### Added
 - Monitoring Page - View: Display respondent location information including IP Address, region (city/province), latitude, and longitude
