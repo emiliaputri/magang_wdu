@@ -177,11 +177,18 @@ class _DashboardViewState extends State<_DashboardView>
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context); // Tutup dialog
-              await context.read<AuthProvider>().logout();
-              if (context.mounted) {
-                Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+              final nav = Navigator.of(context, rootNavigator: true);
+              final auth = context.read<AuthProvider>();
+
+              nav.pop(); // Tutup dialog
+
+              try {
+                await auth.logout();
+              } catch (e) {
+                debugPrint('Logout error: $e');
               }
+
+              nav.pushNamedAndRemoveUntil('/', (route) => false);
             },
             child: const Text(
               'Logout',
@@ -366,7 +373,7 @@ class _ClientsSection extends StatelessWidget {
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
               childAspectRatio:
-                  0.68, // Adjust childAspectRatio directly if needed
+              0.68, // Adjust childAspectRatio directly if needed
             ),
             itemCount: provider.filteredClients.length,
             itemBuilder: (context, index) =>
