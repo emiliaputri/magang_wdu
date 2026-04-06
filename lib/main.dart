@@ -11,6 +11,8 @@ import 'pages/province_target_page.dart';
 import 'pages/project_page.dart';
 import 'pages/detail_responden_bpk_page.dart';
 import 'pages/detail_responden_transjakarta_page.dart';
+import 'pages/submission_page.dart';
+import 'pages/biodata_page.dart';
 import 'providers/auth_provider.dart';
 import 'providers/survey_provider.dart';
 import 'models/client_model.dart';
@@ -203,6 +205,40 @@ class MyApp extends StatelessWidget {
               return MaterialPageRoute(
                 settings: const RouteSettings(name: '/detail_responden_tj'),
                 builder: (_) => const DetailRespondenSurveyTransjakartaPage(),
+              );
+
+            case '/submission':
+              final safeArgs = args ?? {};
+              final provinceTargetsRaw =
+                  safeArgs['provinceTargets'] as List? ?? [];
+              final provinceTargets = provinceTargetsRaw
+                  .map(
+                    (p) => ProvinceTarget.fromJson(p as Map<String, dynamic>),
+                  )
+                  .toList();
+              return MaterialPageRoute(
+                settings: RouteSettings(
+                  name: '/submission',
+                  arguments: safeArgs,
+                ),
+                builder: (_) => SubmissionPage(
+                  surveySlug: (safeArgs['surveySlug'] ?? '').toString(),
+                  clientSlug: safeArgs['clientSlug'] ?? '',
+                  projectSlug: safeArgs['projectSlug'] ?? '',
+                  biodata: safeArgs['biodata'] as Map<String, dynamic>?,
+                  surveyTitle: safeArgs['surveyTitle'] ?? '',
+                ),
+              );
+
+            case '/biodata':
+              final safeArgs = args ?? {};
+              return MaterialPageRoute(
+                settings: RouteSettings(name: '/biodata', arguments: safeArgs),
+                builder: (_) => BiodataPage(
+                  surveySlug: (safeArgs['surveySlug'] ?? '').toString(),
+                  clientSlug: safeArgs['clientSlug'] ?? '',
+                  projectSlug: safeArgs['projectSlug'] ?? '',
+                ),
               );
 
             default:

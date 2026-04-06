@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../models/survey_model.dart';
+import '../../core/theme/app_theme.dart';
 import '../../pages/monitor_survey_page.dart';
 import '../../pages/province_target_page.dart';
 import '../../pages/cek_edit_survey_page.dart';
+import '../../pages/biodata_page.dart';
+import '../../models/survey_model.dart';
 
 class ViewSurveyCard extends StatelessWidget {
   final SurveyModel survey;
@@ -12,6 +14,7 @@ class ViewSurveyCard extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback onTapResponden;
   final VoidCallback onCekEdit;
+  final bool hasAnswered;
 
   const ViewSurveyCard({
     super.key,
@@ -22,6 +25,7 @@ class ViewSurveyCard extends StatelessWidget {
     required this.onDelete,
     required this.onTapResponden,
     required this.onCekEdit,
+    this.hasAnswered = false,
   });
 
   @override
@@ -260,30 +264,52 @@ class ViewSurveyCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _ActionBtn(
-                    label: 'Cek / Isi Kuisioner',
+                    label: hasAnswered ? 'Cek / Edit' : 'Isi Kuisioner',
                     color: const Color(0xFF4CAF50),
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          settings: RouteSettings(
-                            name: '/cek_edit_survey',
-                            arguments: {
-                              'surveySlug': survey.slug, // ← surveySlug
-                              'clientSlug': clientSlug,
-                              'projectSlug': projectSlug,
-                              'responseId':
-                                  0, // ← int, 0 = belum pilih responden
-                            },
+                      if (hasAnswered) {
+                        // Already answered - go to edit page
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            settings: RouteSettings(
+                              name: '/cek_edit_survey',
+                              arguments: {
+                                'surveySlug': survey.slug,
+                                'clientSlug': clientSlug,
+                                'projectSlug': projectSlug,
+                                'responseId': 0,
+                              },
+                            ),
+                            builder: (_) => CekEditSurveyPage(
+                              surveySlug: survey.slug,
+                              clientSlug: clientSlug,
+                              projectSlug: projectSlug,
+                              responseId: 0,
+                            ),
                           ),
-                          builder: (_) => CekEditSurveyPage(
-                            surveySlug: survey.slug, // ← surveySlug
-                            clientSlug: clientSlug,
-                            projectSlug: projectSlug,
-                            responseId: 0, // ← int
+                        );
+                      } else {
+                        // Not yet answered - go to biodata first
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            settings: RouteSettings(
+                              name: '/biodata',
+                              arguments: {
+                                'surveySlug': survey.slug,
+                                'clientSlug': clientSlug,
+                                'projectSlug': projectSlug,
+                              },
+                            ),
+                            builder: (_) => BiodataPage(
+                              surveySlug: survey.slug,
+                              clientSlug: clientSlug,
+                              projectSlug: projectSlug,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     },
                   ),
                 ),

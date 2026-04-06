@@ -1,8 +1,12 @@
 import 'package:flutter/foundation.dart';
 import '../models/survey_model.dart';
 import '../service/survey_service.dart';
+import '../service/edit_answer_service.dart';
+import '../core/utils/storage.dart';
+
 class SurveyProvider extends ChangeNotifier {
   final _service = SurveyService();
+  final _editService = EditAnswerService();
 
   // ── STATE ─────────────────────────────────────────────────
   List<SurveyModel> _surveys = [];
@@ -10,6 +14,9 @@ class SurveyProvider extends ChangeNotifier {
   Map<String, dynamic> _surveyDetail = {};
   Map<String, dynamic> _allReport = {};
   Map<String, dynamic> _surveyResponse = {};
+
+  // Map untuk menyimpan status jawaban user per survey slug
+  Map<String, bool> _userAnswerStatus = {};
 
   bool _isLoading = false;
   bool _isLoadingDetail = false;
@@ -33,6 +40,10 @@ class SurveyProvider extends ChangeNotifier {
   bool get hasError => _errorMessage != null;
   bool get isEmpty => _surveys.isEmpty && !_isLoading;
 
+  // Getter untuk status jawaban user per survey
+  bool hasUserAnswered(String surveySlug) =>
+      _userAnswerStatus[surveySlug] ?? false;
+
   // ── LOAD SURVEYS ──────────────────────────────────────────
   Future<void> loadSurveys(
     String clientSlug,
@@ -54,6 +65,42 @@ class SurveyProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  // ── CEK STATUS JAWABAN USER PER SURVEY ───────────────────────
+  Future<void> loadUserAnswerStatus(
+    String clientSlug,
+    String projectSlug,
+  ) async {
+    try {
+      final userIdStr = await StorageHelper.getUserId();
+      final userId = int.tryParse(userIdStr ?? '') ?? 0;
+
+      if (userId == 0) return;
+
+      for (final survey in _surveys) {
+        try {
+          final hasAnswered = await _editService.hasUserAnswered(
+            clientSlug: clientSlug,
+            projectSlug: projectSlug,
+            surveySlug: survey.slug,
+            userId: userId,
+          );
+          _userAnswerStatus[survey.slug] = hasAnswered;
+        } catch (e) {
+          _userAnswerStatus[survey.slug] = false;
+        }
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading user answer status: $e');
+    }
+  }
+
+  // ── UPDATE STATUS SETELAH SUBMIT ──────────────────────────────
+  void updateAnswerStatus(String surveySlug, bool hasAnswered) {
+    _userAnswerStatus[surveySlug] = hasAnswered;
+    notifyListeners();
   }
 
   // ── LOAD SURVEY DETAIL ────────────────────────────────────

@@ -7,6 +7,26 @@ import '../models/survey_response_detail_model.dart';
 class EditAnswerService {
   final _api = ApiClient();
 
+  // ── CEK APAKAH USER SUDAH MENJAWAB ───────────────────────────
+  Future<bool> hasUserAnswered({
+    required String clientSlug,
+    required String projectSlug,
+    required String surveySlug,
+    required int userId,
+  }) async {
+    try {
+      final response = await _api.get(
+        Endpoints.editAnswer(clientSlug, projectSlug, surveySlug, userId),
+      );
+      return response.data != null && response.data!.isNotEmpty;
+    } on ApiException catch (e) {
+      if (e.statusCode == 404) return false;
+      rethrow;
+    } catch (e) {
+      return false;
+    }
+  }
+
   // ── AMBIL DATA UNTUK FORM EDIT ────────────────────────────
   // GET /api/clients/{clientSlug}/projects/{projectSlug}/surveys/{slug}/edit-answer/{userId}
   Future<SurveyResponseDetail?> getEditAnswerData({
@@ -51,6 +71,7 @@ class EditAnswerService {
       );
       return true;
     } catch (e) {
+      print("Error submitChanges: $e");
       return false;
     }
   }
@@ -74,10 +95,7 @@ class EditAnswerService {
           final List<SurveyPageData> parsedPages = pagesList
               .map((e) => SurveyPageData.fromJson(e as Map<String, dynamic>))
               .toList();
-          return SurveyResponseDetail(
-            pages: parsedPages,
-            answers: [],
-          );
+          return SurveyResponseDetail(pages: parsedPages, answers: []);
         }
         return SurveyResponseDetail.fromJson(data);
       }
@@ -102,9 +120,12 @@ class EditAnswerService {
     try {
       final payload = _buildPayload(pages, currentAnswers);
 
+      // Wrap payload dalam field "data" sesuai format backend
+      final wrappedPayload = {'data': jsonEncode(payload)};
+
       await _api.post(
         Endpoints.submitAnswer(clientSlug, projectSlug, surveyId),
-        body: payload,
+        body: wrappedPayload,
       );
       return true;
     } catch (e) {
@@ -233,8 +254,9 @@ class EditAnswerService {
           if (answerList.isNotEmpty) {
             final rawAns = answerList.first;
             // Cek apakah rawAns adalah salah satu ID dari choices
-            final existsAsId =
-                question.choices.any((c) => c.id.toString() == rawAns);
+            final existsAsId = question.choices.any(
+              (c) => c.id.toString() == rawAns,
+            );
 
             if (existsAsId) {
               result[questionId] = rawAns;

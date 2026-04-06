@@ -91,4 +91,11 @@ class Endpoints {
     int responseId,
   ) =>
       '/clients/$clientSlug/projects/$projectSlug/surveys/$slug/responses/$responseId';
+
+  // GET /api/clients/{clientSlug}/projects/{projectSlug}/surveys/{slug}/submission
+  static String surveySubmission(
+    String clientSlug,
+    String projectSlug,
+    String slug,
+  ) => '/clients/$clientSlug/projects/$projectSlug/surveys/$slug/submission';
 }

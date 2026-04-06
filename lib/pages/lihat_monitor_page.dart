@@ -1074,24 +1074,32 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
   Widget _buildQuestionCard(SurveyQuestionData q, String answer) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        border: Border.all(color: Colors.grey.withOpacity(0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            q.plainText,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-              color: Color(0xFF333333),
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  q.plainText,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Color(0xFF202124),
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           _buildAnswerDisplay(q, answer),
         ],
       ),
@@ -1332,90 +1340,110 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
         selectedIds.add(answer);
       }
 
-      // Get selected choice values
-      final List<String> selectedValues = [];
-      for (var choice in q.choices) {
-        if (selectedIds.contains(choice.id.toString())) {
-          selectedValues.add(choice.value);
-        }
-      }
-
-      if (selectedValues.isEmpty) {
-        return Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppTheme.monBgColor,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(answer, style: const TextStyle(fontSize: 13)),
-        );
-      }
-
-      return Column(
-        children: q.choices.map((opt) {
-          final optId = opt.id.toString();
-          final isChecked = selectedIds.contains(optId);
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: isChecked ? AppTheme.monGreenPale : Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: isChecked ? AppTheme.monGreenMid : Colors.grey.shade300,
-                width: isChecked ? 1.5 : 1,
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 22,
-                  height: 22,
-                  decoration: BoxDecoration(
-                    color: isChecked
-                        ? AppTheme.monGreenMid
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                      color: isChecked
-                          ? AppTheme.monGreenMid
-                          : Colors.grey.shade400,
-                      width: 1.5,
-                    ),
-                  ),
-                  child: isChecked
-                      ? const Icon(Icons.check, size: 16, color: Colors.white)
-                      : null,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    opt.value,
-                    style: TextStyle(
-                      color: isChecked
-                          ? AppTheme.monTextDark
-                          : Colors.grey.shade700,
-                      fontWeight: isChecked
-                          ? FontWeight.w500
-                          : FontWeight.normal,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      );
-    } catch (e) {
       return Container(
-        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppTheme.monBgColor,
+          border: Border.all(color: Colors.grey.shade300),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Text(answer, style: const TextStyle(fontSize: 13)),
+        child: Column(
+          children: q.choices
+              .asMap()
+              .map((index, opt) {
+                final optId = opt.id.toString();
+                final isChecked = selectedIds.contains(optId);
+                final isLast = index == q.choices.length - 1;
+
+                return MapEntry(
+                  index,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isChecked
+                          ? const Color(0xFFF0F7FF)
+                          : Colors.transparent,
+                      border: Border(
+                        bottom: !isLast
+                            ? BorderSide(color: Colors.grey.shade200)
+                            : BorderSide.none,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: isChecked
+                                ? const Color(0xFF4285F4)
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color: isChecked
+                                  ? const Color(0xFF4285F4)
+                                  : Colors.grey.shade400,
+                              width: 2,
+                            ),
+                          ),
+                          child: isChecked
+                              ? const Icon(
+                                  Icons.check,
+                                  size: 14,
+                                  color: Colors.white,
+                                )
+                              : null,
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            opt.value,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isChecked
+                                  ? const Color(0xFF202124)
+                                  : Colors.grey.shade700,
+                              fontWeight: isChecked
+                                  ? FontWeight.w500
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              })
+              .values
+              .toList(),
+        ),
       );
+    } catch (e) {
+      return _buildTextInputAnswer(answer);
     }
+  }
+
+  Widget _buildTextInputAnswer(String answer) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.text_fields, size: 16, color: Colors.grey[400]),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              answer.isEmpty ? 'Tidak dijawab' : answer,
+              style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildRadioAnswer(SurveyQuestionData q, String answer) {
@@ -1423,7 +1451,6 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
       return _buildEmptyAnswer();
     }
 
-    // Find matching choice
     String? selectedValue;
     for (var choice in q.choices) {
       if (choice.id.toString() == answer) {
@@ -1432,32 +1459,86 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
       }
     }
 
+    final displayValue = selectedValue ?? answer;
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       decoration: BoxDecoration(
-        color: AppTheme.monGreenMid.withOpacity(0.1),
+        border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.monGreenMid.withOpacity(0.3)),
       ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.radio_button_checked,
-            size: 18,
-            color: AppTheme.monGreenDark,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              selectedValue ?? answer,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.monGreenDark,
-              ),
-            ),
-          ),
-        ],
+      child: Column(
+        children: q.choices
+            .asMap()
+            .map((index, choice) {
+              final isSelected =
+                  choice.value == selectedValue ||
+                  choice.id.toString() == answer;
+              final isLast = index == q.choices.length - 1;
+
+              return MapEntry(
+                index,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? const Color(0xFFF0F7FF)
+                        : Colors.transparent,
+                    border: Border(
+                      bottom: !isLast
+                          ? BorderSide(color: Colors.grey.shade200)
+                          : BorderSide.none,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isSelected
+                              ? const Color(0xFF4285F4)
+                              : Colors.white,
+                          border: Border.all(
+                            color: isSelected
+                                ? const Color(0xFF4285F4)
+                                : Colors.grey.shade400,
+                            width: 2,
+                          ),
+                        ),
+                        child: isSelected
+                            ? const Icon(
+                                Icons.circle,
+                                size: 10,
+                                color: Colors.white,
+                              )
+                            : null,
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Text(
+                          choice.value,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isSelected
+                                ? const Color(0xFF202124)
+                                : Colors.grey.shade700,
+                            fontWeight: isSelected
+                                ? FontWeight.w500
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            })
+            .values
+            .toList(),
       ),
     );
   }

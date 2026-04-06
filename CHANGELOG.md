@@ -5,6 +5,20 @@ All notable changes to this Flutter project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
+## [1.2.8] - 2026-04-06
+### Features
+- Add Biodata page for respondent data input before survey
+- Dynamic button labels (Isi Kuisioner / Cek Edit) based on answer status
+- Local storage draft for answers (saves before database submission)
+### Bug Fixes
+- Fix submit payload format (wrap in "data" field)
+- Fix edit answer payload (separate question & answer arrays)
+- Fix province dropdown (use fallback data when API returns empty)
+- Improve answer display design in Monitor (Google Forms style)
+### Changes
+- Auto-refresh status after survey submission
+- Add auto-save draft when navigating between pages
+
 
 ## [1.2.7] - 2026-04-02
 ### Added
