@@ -14,8 +14,14 @@ class ListResponWidget extends StatelessWidget {
     String surveySlug,
     String clientSlug,
     String projectSlug,
-  )?
-  onDeleteResponse;
+  )? onDeleteResponse;
+  final void Function(
+    int responseId,
+    String surveySlug,
+    String clientSlug,
+    String projectSlug,
+    Map<String, dynamic> responseData,
+  )? onEditResponse;
 
   const ListResponWidget({
     super.key,
@@ -25,6 +31,7 @@ class ListResponWidget extends StatelessWidget {
     required this.perPage,
     required this.onPageChanged,
     this.onDeleteResponse,
+    this.onEditResponse,
   });
 
   int get totalPages => totalData == 0 ? 1 : (totalData / perPage).ceil();
@@ -39,151 +46,96 @@ class ListResponWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            const Icon(
-              Icons.list_alt_outlined,
-              size: 16,
-              color: Color(0xFF333333),
-            ),
-            const SizedBox(width: 6),
-            const Text(
-              'List Respon',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF111827),
+        // Search Box Container
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 30,
+                offset: const Offset(0, 8),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 2),
-        Text(
-          'Total $totalData respon',
-          style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
-        ),
-        const SizedBox(height: 10),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+            ],
+          ),
+          padding: const EdgeInsets.all(16),
           child: Container(
-            width: 750, // Lebar ditambah untuk menampung kolom Status di akhir
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFE5E7EB)),
+              color: const Color(0xFFF2F4F2), // surface-container-low
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Column(
-                children: [
-                  Container(
-                    color: const Color(0xFF2D9E6B),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      children: const [
-                        _H('WAKTU', flex: 3),
-                        _H('SUMBER', flex: 4),
-                        _H('PROVINSI', flex: 3),
-                        _H('ROLE', flex: 2),
-                        _H('ACTION', flex: 4, center: true),
-                        _H('STATUS', flex: 2, center: true),
-                      ],
-                    ),
-                  ),
-                  if (_paged.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 32),
-                      child: Center(
-                        child: Text(
-                          'Belum ada data respon',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Color(0xFF9CA3AF),
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    ..._paged.asMap().entries.map(
-                      (e) => _Row(
-                        response: e.value,
-                        isLast: e.key == _paged.length - 1,
-                        onDeleteResponse: onDeleteResponse,
-                      ),
-                    ),
-                ],
+            child: const TextField(
+              decoration: InputDecoration(
+                hintText: 'Cari survey atau provinsi...',
+                hintStyle: TextStyle(fontSize: 14, color: Color(0xFF6F7A6B)),
+                prefixIcon: Icon(Icons.search, color: Color(0xFF6F7A6B)),
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
+        const SizedBox(height: 24),
+        // Cards List
+        if (_paged.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 32),
+            child: Center(
               child: Text(
-                totalData == 0
-                    ? 'Menampilkan 0 dari 0 hasil'
-                    : 'Menampilkan '
-                          '${(currentPage - 1) * perPage + 1}–'
-                          '${(currentPage * perPage).clamp(0, totalData)} '
-                          'dari $totalData hasil',
-                style: const TextStyle(fontSize: 10, color: Color(0xFF6B7280)),
+                'Belum ada data respon',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF6F7A6B),
+                ),
               ),
             ),
-            _Pagination(
-              currentPage: currentPage,
-              totalPages: totalPages,
-              onPageChanged: onPageChanged,
+          )
+        else
+          ..._paged.map(
+            (r) => _CardWidget(
+              response: r,
+              onDeleteResponse: onDeleteResponse,
+              onEditResponse: onEditResponse,
             ),
-          ],
+          ),
+        const SizedBox(height: 16),
+        // Pagination
+        Align(
+          alignment: Alignment.center,
+          child: _Pagination(
+            currentPage: currentPage,
+            totalPages: totalPages,
+            onPageChanged: onPageChanged,
+          ),
         ),
       ],
     );
   }
 }
 
-class _H extends StatelessWidget {
-  final String text;
-  final int flex;
-  final bool center;
-  const _H(this.text, {required this.flex, this.center = false});
-
-  @override
-  Widget build(BuildContext context) => Expanded(
-    flex: flex,
-    child: Text(
-      text,
-      textAlign: center ? TextAlign.center : TextAlign.left,
-      style: const TextStyle(
-        fontSize: 9,
-        fontWeight: FontWeight.w700,
-        color: Colors.white,
-        letterSpacing: 0.4,
-      ),
-    ),
-  );
-}
-
-class _Row extends StatelessWidget {
+class _CardWidget extends StatelessWidget {
   final Map<String, dynamic> response;
-  final bool isLast;
   final void Function(
     int responseId,
     String surveySlug,
     String clientSlug,
     String projectSlug,
-  )?
-  onDeleteResponse;
-  const _Row({
+  )? onDeleteResponse;
+  final void Function(
+    int responseId,
+    String surveySlug,
+    String clientSlug,
+    String projectSlug,
+    Map<String, dynamic> responseData,
+  )? onEditResponse;
+
+  const _CardWidget({
     required this.response,
-    required this.isLast,
     this.onDeleteResponse,
+    this.onEditResponse,
   });
 
   @override
@@ -201,195 +153,227 @@ class _Row extends StatelessWidget {
     final provinsi = _provinsi(biodata);
     final role = _role(user);
 
+    final responseId = int.tryParse((response['id'] ?? response['response_id'] ?? 0).toString()) ?? 0;
+
     return Container(
-      decoration: isLast
-          ? null
-          : const BoxDecoration(
-              border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
-            ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            flex: 3,
-            child: Text(
-              waktu,
-              style: const TextStyle(fontSize: 9.5, color: Color(0xFF374151)),
-            ),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE1E3E1).withValues(alpha: 0.3)), // outline-variant
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x05000000), // 0.02 opacity
+            blurRadius: 20,
+            offset: Offset(0, 4),
           ),
-          Expanded(
-            flex: 4,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 18,
-                      height: 18,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFECFDF5),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Icon(
-                        Icons.person_outline,
-                        size: 11,
-                        color: Color(0xFF2D9E6B),
+                    const Text(
+                      'SOURCE & TIME',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF6F7A6B),
+                        letterSpacing: 1.5,
+                        fontFamily: 'Inter',
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        nama,
-                        style: const TextStyle(
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF111827),
-                        ),
-                        overflow: TextOverflow.ellipsis,
+                    const SizedBox(height: 4),
+                    Text(
+                      token.isNotEmpty ? token : nama,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF191C1B),
+                        fontFamily: 'Inter',
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      waktu,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF6F7A6B),
+                        fontFamily: 'Inter',
                       ),
                     ),
                   ],
                 ),
-                if (token.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 1, left: 22),
-                    child: Text(
-                      token,
-                      style: const TextStyle(
-                        fontSize: 8.5,
-                        color: Color(0xFF9CA3AF),
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              provinsi,
-              style: const TextStyle(fontSize: 9.5, color: Color(0xFF374151)),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 2,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              decoration: BoxDecoration(
-                color: const Color(0xFFECFDF5),
-                borderRadius: BorderRadius.circular(20),
               ),
-              child: Text(
-                role,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 8.5,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF059669),
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 4,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _ActionBtn(
-                  icon: Icons.visibility_outlined,
-                  label: 'Lihat',
-                  color: const Color(0xFF2D9E6B),
-                  onTap: () {
-                    final responseId =
-                        int.tryParse(
-                          (response['id'] ?? response['response_id'] ?? 0)
-                              .toString(),
-                        ) ??
-                        0;
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        settings: RouteSettings(
-                          name: '/lihat_monitor',
-                          arguments: {
-                            'surveySlug': provider.surveySlug,
-                            'clientSlug': clientSlug,
-                            'projectSlug': projectSlug,
-                            'responseId': responseId,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  _StatusBadge(status: _getModerationStatus(response)),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (onEditResponse != null)
+                        IconButton(
+                          icon: const Icon(Icons.edit_outlined, size: 18, color: Color(0xFF006B1B)),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () => onEditResponse!(
+                            responseId,
+                            provider.surveySlug,
+                            clientSlug,
+                            projectSlug,
+                            response,
+                          ),
+                        ),
+                      if (onEditResponse != null && onDeleteResponse != null) const SizedBox(width: 8),
+                      if (onDeleteResponse != null)
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline, size: 18, color: Color(0xFFBA1A1A)),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('Hapus Data'),
+                                content: const Text('Apakah Anda yakin ingin menghapus data ini?'),
+                                actions: [
+                                  TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(ctx);
+                                      onDeleteResponse!(responseId, provider.surveySlug, clientSlug, projectSlug);
+                                    },
+                                    child: const Text('Hapus', style: TextStyle(color: Colors.red)),
+                                  ),
+                                ],
+                              ),
+                            );
                           },
                         ),
-                        builder: (_) => LihatMonitorPage(
-                          responseId: responseId,
-                          surveySlug: provider.surveySlug,
-                          clientSlug: clientSlug,
-                          projectSlug: projectSlug,
-                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Divider Replacement (border-y)
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(color: const Color(0xFFE1E3E1).withValues(alpha: 0.5)),
+                bottom: BorderSide(color: const Color(0xFFE1E3E1).withValues(alpha: 0.5)),
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'PROVINCE',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF6F7A6B), letterSpacing: 1.5),
                       ),
-                    );
-                  },
-                ),
-                const SizedBox(width: 4),
-                _ActionBtn(
-                  icon: Icons.delete_outline,
-                  label: 'Hapus',
-                  color: Colors.red,
-                  onTap: () {
-                    final responseId =
-                        int.tryParse(
-                          (response['id'] ?? response['response_id'] ?? 0)
-                              .toString(),
-                        ) ??
-                        0;
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text('Hapus Data'),
-                        content: const Text(
-                          'Apakah Anda yakin ingin menghapus data ini?',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(ctx),
-                            child: const Text('Batal'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(ctx);
-                              final provider = context
-                                  .read<MonitoringProvider>();
-                              if (onDeleteResponse != null) {
-                                onDeleteResponse!(
-                                  responseId,
-                                  provider.surveySlug,
-                                  clientSlug,
-                                  projectSlug,
-                                );
-                              }
-                            },
-                            child: const Text(
-                              'Hapus',
-                              style: TextStyle(color: Colors.red),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on, size: 18, color: Color(0xFF7DDC7A)),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              provinsi,
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF3F4A3D)),
                             ),
                           ),
                         ],
                       ),
-                    );
-                  },
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'ROLE',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF6F7A6B), letterSpacing: 1.5),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.person, size: 18, color: Color(0xFF7DDC7A)),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              role,
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF3F4A3D)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-          Expanded(
-            flex: 2,
-            child: _StatusBadge(
-              // Prioritaskan nilai yang bukan boolean, atau petakan boolean ke PENDING/APPROVE
-              status: _getModerationStatus(response),
+          const SizedBox(height: 16),
+          // Full width button
+          SizedBox(
+            width: double.infinity,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    settings: RouteSettings(
+                      name: '/lihat_monitor',
+                      arguments: {
+                        'surveySlug': provider.surveySlug,
+                        'clientSlug': clientSlug,
+                        'projectSlug': projectSlug,
+                        'responseId': responseId,
+                      },
+                    ),
+                    builder: (_) => LihatMonitorPage(
+                      responseId: responseId,
+                      surveySlug: provider.surveySlug,
+                      clientSlug: clientSlug,
+                      projectSlug: projectSlug,
+                    ),
+                  ),
+                );
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF2F4F2), // surface-container-low
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: const Text(
+                  'View Details',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF006B1B),
+                    fontFamily: 'Manrope',
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -444,23 +428,11 @@ class _Row extends StatelessWidget {
     try {
       final dt = DateTime.parse(raw).toLocal();
       final m = [
-        '',
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'Mei',
-        'Jun',
-        'Jul',
-        'Agu',
-        'Sep',
-        'Okt',
-        'Nov',
-        'Des',
+        '', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+        'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
       ];
-      return '${dt.day.toString().padLeft(2, '0')} ${m[dt.month]} ${dt.year}\n'
-          '${dt.hour.toString().padLeft(2, '0')}.'
-          '${dt.minute.toString().padLeft(2, '0')}';
+      return '${dt.day.toString().padLeft(2, '0')} ${m[dt.month]} ${dt.year} • '
+          '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')} WIB';
     } catch (_) {
       return raw;
     }
@@ -498,92 +470,70 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     String s = status.toUpperCase();
 
-    // Map unexpected values like "TRUE", "false", "0", "1" to human readable labels
     if (s == 'TRUE' || s == '1') {
-      // Jika true/1 dari database, asumsikan PENDING review jika belum ada label lain
       s = 'PENDING';
     } else if (s == 'FALSE' || s == '0' || s == 'NULL' || s.isEmpty) {
       s = 'PENDING';
     }
 
-    // Default PENDING (Gray)
-    Color bgColor = const Color(0xFFF3F4F6); // Light Gray
-    Color textColor = const Color(0xFF6B7280); // Dark Gray
+    Color bgColor = const Color(0xFFFEF9C3); // yellow-50
+    Color textColor = const Color(0xFFA16207); // yellow-700
+    Color borderColor = const Color(0xFFFEF08A); // yellow-200
+    Color dotColor = const Color(0xFFEAB308); // yellow-500
 
     if (s.contains('REVISION')) {
       s = 'REVISION';
-      bgColor = const Color(0xFFFEF3C7); // Light Amber/Orange
-      textColor = const Color(0xFFD97706); // Dark Orange
-    } else if (s.contains('APPROVE')) {
-      s = 'APPROVE';
-      bgColor = const Color(0xFFD1FAE5); // Light Green
-      textColor = const Color(0xFF059669); // Dark Green
+      bgColor = const Color(0xFFFEF2F2); // red-50
+      textColor = const Color(0xFFBA1A1A); // error
+      borderColor = const Color(0xFFFEE2E2); // red-100
+      dotColor = const Color(0xFFBA1A1A); // error
+    } else if (s.contains('APPROVE') || s.contains('ACCEPTED')) {
+      s = 'ACCEPTED';
+      bgColor = const Color(0xFFF0FDF4); // green-50
+      textColor = const Color(0xFF006B1B); // primary
+      borderColor = const Color(0xFFDCFCE7); // green-100
+      dotColor = const Color(0xFF006B1B); // primary
     } else if (s.contains('DECLINE')) {
       s = 'DECLINE';
-      bgColor = const Color(0xFFFEE2E2); // Light Red
-      textColor = const Color(0xFFDC2626); // Dark Red
+      bgColor = const Color(0xFFFEF2F2); // red-50
+      textColor = const Color(0xFFBA1A1A); // error
+      borderColor = const Color(0xFFFEE2E2); // red-100
+      dotColor = const Color(0xFFBA1A1A); // error
     }
 
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text(
-          s,
-          style: TextStyle(
-            fontSize: 9,
-            fontWeight: FontWeight.w700,
-            color: textColor,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionBtn extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-  const _ActionBtn({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withOpacity(0.3)),
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 11, color: color),
-          const SizedBox(width: 2),
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: dotColor,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
           Text(
-            label,
+            s,
             style: TextStyle(
               fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: color,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+              letterSpacing: 0.5,
+              fontFamily: 'Inter',
             ),
           ),
         ],
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _Pagination extends StatelessWidget {
@@ -613,50 +563,38 @@ class _Pagination extends StatelessWidget {
     mainAxisSize: MainAxisSize.min,
     children: [
       _PBtn(
-        child: const Icon(
-          Icons.chevron_left,
-          size: 13,
-          color: Color(0xFF6B7280),
-        ),
+        child: const Icon(Icons.chevron_left, size: 20, color: Color(0xFF6F7A6B)),
         onTap: currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
       ),
-      const SizedBox(width: 3),
+      const SizedBox(width: 8),
       ..._pages.map((p) {
         if (p == -1) {
           return const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 2),
-            child: Text(
-              '…',
-              style: TextStyle(fontSize: 10, color: Color(0xFF6B7280)),
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 4),
+            child: Text('...', style: TextStyle(fontSize: 14, color: Color(0xFF6F7A6B))),
           );
         }
         final active = p == currentPage;
         return Padding(
-          padding: const EdgeInsets.only(right: 3),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           child: _PBtn(
             isActive: active,
             onTap: () => onPageChanged(p),
             child: Text(
               '$p',
               style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: active ? Colors.white : const Color(0xFF374151),
+                fontSize: 14,
+                fontWeight: active ? FontWeight.bold : FontWeight.w500,
+                color: active ? Colors.white : const Color(0xFF3F4A3D),
               ),
             ),
           ),
         );
       }),
+      const SizedBox(width: 8),
       _PBtn(
-        child: const Icon(
-          Icons.chevron_right,
-          size: 13,
-          color: Color(0xFF6B7280),
-        ),
-        onTap: currentPage < totalPages
-            ? () => onPageChanged(currentPage + 1)
-            : null,
+        child: const Icon(Icons.chevron_right, size: 20, color: Color(0xFF6F7A6B)),
+        onTap: currentPage < totalPages ? () => onPageChanged(currentPage + 1) : null,
       ),
     ],
   );
@@ -671,15 +609,14 @@ class _PBtn extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GestureDetector(
     onTap: onTap,
-    child: Container(
-      width: 26,
-      height: 26,
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: 40,
+      height: 40,
       decoration: BoxDecoration(
-        color: isActive ? const Color(0xFF2D9E6B) : const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(5),
-        border: Border.all(
-          color: isActive ? const Color(0xFF2D9E6B) : const Color(0xFFE5E7EB),
-        ),
+        color: isActive ? const Color(0xFF006B1B) : const Color(0xFFFFFFFF),
+        shape: BoxShape.circle,
+        boxShadow: isActive ? [BoxShadow(color: const Color(0xFF006B1B).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))] : null,
       ),
       child: Center(child: child),
     ),

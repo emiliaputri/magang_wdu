@@ -34,7 +34,7 @@ class _ProjectBpkPageState extends State<ProjectBpkPage> {
   String _searchQuery = '';
 
   final List<Project> _projects = [
-    Project(
+    Project(   
       number: 1,
       title: 'Pemeriksaan Keuangan Negara atas LKPP Tahun Anggaran 2025',
       description:
@@ -61,7 +61,7 @@ class _ProjectBpkPageState extends State<ProjectBpkPage> {
   @override
   void dispose() {
     _searchController.dispose();
-    super.dispose();
+    super.dispose(); 
   }
 
   @override
