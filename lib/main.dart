@@ -13,6 +13,7 @@ import 'pages/detail_responden_bpk_page.dart';
 import 'pages/detail_responden_transjakarta_page.dart';
 import 'pages/submission_page.dart';
 import 'pages/biodata_page.dart';
+import 'pages/camera_capture_page.dart';
 import 'providers/auth_provider.dart';
 import 'providers/survey_provider.dart';
 import 'models/client_model.dart';
@@ -238,6 +239,19 @@ class MyApp extends StatelessWidget {
                   surveySlug: (safeArgs['surveySlug'] ?? '').toString(),
                   clientSlug: safeArgs['clientSlug'] ?? '',
                   projectSlug: safeArgs['projectSlug'] ?? '',
+                ),
+              );
+
+            case '/camera_capture':
+              final safeArgs = args ?? {};
+              return MaterialPageRoute(
+                settings: RouteSettings(name: '/camera_capture', arguments: safeArgs),
+                builder: (_) => CameraCapturePage(
+                  surveySlug: (safeArgs['surveySlug'] ?? '').toString(),
+                  clientSlug: safeArgs['clientSlug'] ?? '',
+                  projectSlug: safeArgs['projectSlug'] ?? '',
+                  biodata: safeArgs['biodata'] as Map<String, dynamic>?,
+                  surveyTitle: safeArgs['surveyTitle'] ?? '',
                 ),
               );
 

@@ -706,7 +706,7 @@ class _BiodataPageState extends State<BiodataPage> {
       if (mounted) {
         final result = await Navigator.pushReplacementNamed(
           context,
-          '/submission',
+          '/camera_capture',
           arguments: {
             'surveySlug': widget.surveySlug,
             'clientSlug': widget.clientSlug,
