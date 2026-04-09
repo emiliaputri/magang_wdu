@@ -6,6 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [1.3.1] - 2026-04-09
+### Fixed
+- Shrink grid spacing on survey bento card to remove empty whitespace between action buttons ("Cek / Edit" and "Monitor")
+- Tightened `crossAxisSpacing`, `mainAxisSpacing`, and `childAspectRatio` in the bento grid layout for a cleaner, compact appearance
+
+---
+
+## [1.3.0] - 2026-04-08
+### Features
+- Modernized survey analytics interface with a premium **bento-style grid layout** aligned to the "Digital Architect" design system
+- Replaced legacy table-based survey list with responsive, interactive `SurveyBentoCard` widgets
+- Implemented animated bento grid with staggered card reveal and hover effects
+- Added action buttons ("Cek / Edit" & "Monitor") directly on each survey card for quick access
+
+### Changes
+- Removed SIS branding from survey-specific pages to maintain dashboard exclusivity
+- Fine-tuned color palette to Emerald/Mint tones for a more polished, professional aesthetic
+- Adjusted grid spacing and card proportions for a consistent, premium layout
+
+---
+
 ## [1.2.9] - 2026-04-07
 ### Features
 - Redesign dashboard: update client card and project card design for better UI/UX
