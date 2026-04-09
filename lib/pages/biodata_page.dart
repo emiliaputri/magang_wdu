@@ -704,7 +704,7 @@ class _BiodataPageState extends State<BiodataPage> {
       );
 
       if (mounted) {
-        final result = await Navigator.pushReplacementNamed(
+        final result = await Navigator.pushNamed(
           context,
           '/camera_capture',
           arguments: {

@@ -19,11 +19,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Replaced legacy table-based survey list with responsive, interactive `SurveyBentoCard` widgets
 - Implemented animated bento grid with staggered card reveal and hover effects
 - Added action buttons ("Cek / Edit" & "Monitor") directly on each survey card for quick access
+- Progress fitur camera: add camera capture functionality with `camera_capture_page.dart`
+- Add camera plugin integration for Android and iOS
 
 ### Changes
 - Removed SIS branding from survey-specific pages to maintain dashboard exclusivity
 - Fine-tuned color palette to Emerald/Mint tones for a more polished, professional aesthetic
 - Adjusted grid spacing and card proportions for a consistent, premium layout
+
+### Technical Changes
+- Updated platform-specific configurations for camera plugin (AndroidManifest.xml, Info.plist)
+- Added camera dependencies to pubspec.yaml
+- Updated platform generated files for Linux, macOS, and Windows
 
 ---
 

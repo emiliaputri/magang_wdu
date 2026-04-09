@@ -25,6 +25,7 @@ class StorageHelper {
   // ── DRAFT SURVEY KEYS ───────────────────────────────────────
   static const _keyDraftSurveyPrefix = 'draft_survey_';
   static const _keyDraftBiodataPrefix = 'draft_biodata_';
+  static const _keyDraftPhotoPrefix = 'draft_photo_';
 
   // ═══════════════════════════════════════════════════════════
   // SECURE — TOKEN
@@ -214,14 +215,56 @@ class StorageHelper {
     final prefs = await SharedPreferences.getInstance();
     final key = '$_keyDraftSurveyPrefix$surveySlug';
     final biodataKey = '$_keyDraftBiodataPrefix$surveySlug';
+    final photoKey = '$_keyDraftPhotoPrefix$surveySlug';
     await prefs.remove(key);
     await prefs.remove(biodataKey);
+    await prefs.remove(photoKey);
   }
 
   static Future<bool> hasDraftSurvey(String surveySlug) async {
     final prefs = await SharedPreferences.getInstance();
     final key = '$_keyDraftSurveyPrefix$surveySlug';
     return prefs.containsKey(key);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // DRAFT PHOTO - LOCAL STORAGE
+  // ═══════════════════════════════════════════════════════════
+
+  static Future<void> saveDraftPhoto({
+    required String surveySlug,
+    required String photoPath,
+    required double latitude,
+    required double longitude,
+    required String captureTime,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = '$_keyDraftPhotoPrefix$surveySlug';
+    final data = {
+      'photo_path': photoPath,
+      'latitude': latitude,
+      'longitude': longitude,
+      'capture_time': captureTime,
+    };
+    await prefs.setString(key, jsonEncode(data));
+  }
+
+  static Future<Map<String, dynamic>?> getDraftPhoto(String surveySlug) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = '$_keyDraftPhotoPrefix$surveySlug';
+    final jsonStr = prefs.getString(key);
+    if (jsonStr == null) return null;
+    try {
+      return jsonDecode(jsonStr) as Map<String, dynamic>;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> deleteDraftPhoto(String surveySlug) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = '$_keyDraftPhotoPrefix$surveySlug';
+    await prefs.remove(key);
   }
 
   // ═══════════════════════════════════════════════════════════

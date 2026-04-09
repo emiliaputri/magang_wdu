@@ -854,6 +854,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
       if (mounted) {
         if (success) {
           await _clearDraft();
+          await StorageHelper.deleteDraftPhoto(widget.surveySlug);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Kuisioner berhasil dikirim!"),
