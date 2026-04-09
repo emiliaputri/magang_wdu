@@ -188,7 +188,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
                 'Isi Kuisioner',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1,
                 ),
@@ -221,7 +221,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
                       surveyTitle,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
                       ),
@@ -233,7 +233,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
                       _data?.project?.projectName ?? '',
                       style: const TextStyle(
                         color: Colors.white70,
-                        fontSize: 13,
+                        fontSize: 12,
                       ),
                     ),
                   ],
@@ -286,7 +286,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
           Text(
             'Halaman ${_currentPageIndex + 1} dari $totalPages',
             style: const TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: FontWeight.w500,
               color: AppTheme.monTextMid,
             ),
@@ -317,7 +317,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
                   child: Text(
                     page.pageName,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.monTextDark,
                     ),
@@ -347,7 +347,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
             Text(
               q.plainText,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: AppTheme.monTextDark,
                 height: 1.5,
               ),
@@ -375,7 +375,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
                 child: Text(
                   q.plainText,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.monTextDark,
                   ),
@@ -442,7 +442,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
             title: Text(
               opt.value,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: isSelected
                     ? const Color(0xFF202124)
                     : Colors.grey.shade700,
@@ -494,7 +494,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
             title: Text(
               opt.value,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: isSelected
                     ? const Color(0xFF202124)
                     : Colors.grey.shade700,
@@ -662,7 +662,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                      fontSize: 11,
                     ),
                   ),
                 ),
@@ -677,7 +677,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8),
-                  child: Text(row.label, style: const TextStyle(fontSize: 12)),
+                  child: Text(row.label, style: const TextStyle(fontSize: 11)),
                 ),
                 ...q.matrixColumns.asMap().entries.map((colEntry) {
                   final colIndex = colEntry.key;
@@ -819,7 +819,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
                   SizedBox(width: 6),
                   Text(
                     'Simpan Draft',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),

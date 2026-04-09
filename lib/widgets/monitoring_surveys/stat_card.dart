@@ -51,7 +51,7 @@ class StatCard extends StatelessWidget {
           Text(
             label.toUpperCase(),
             style: const TextStyle(
-              fontSize: 9,
+              fontSize: 10,
               fontWeight: FontWeight.w700,
               color: AppTheme.monTextLight,
               letterSpacing: 0.8,
@@ -61,7 +61,7 @@ class StatCard extends StatelessWidget {
           Text(
             value,
             style: const TextStyle(
-              fontSize: 28,
+              fontSize: 14,
               fontWeight: FontWeight.w800,
               color: AppTheme.monTextDark,
               height: 1,

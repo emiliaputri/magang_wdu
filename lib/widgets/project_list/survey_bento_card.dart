@@ -5,7 +5,6 @@ import '../../models/survey_model.dart';
 import '../../pages/monitor_survey_page.dart';
 import '../../pages/cek_edit_survey_page.dart';
 import '../../pages/biodata_page.dart';
-import '../../pages/camera_capture_page.dart';
 import '../../pages/submission_page.dart';
 
 class SurveyBentoCard extends StatelessWidget {
@@ -21,6 +20,132 @@ class SurveyBentoCard extends StatelessWidget {
     required this.projectSlug,
     this.hasAnswered,
   });
+
+  void _showAllProvinces(BuildContext context) {
+    if (survey.provinceTargets.isEmpty) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.3,
+        maxChildSize: 0.9,
+        builder: (context, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: AppTheme.surfaceContainerLowest,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppTheme.outlineVariant,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'ALL PROVINCES',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.onSurface,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    Text(
+                      '${survey.provinceTargets.length} provinces',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: AppTheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  itemCount: survey.provinceTargets.length,
+                  itemBuilder: (context, index) {
+                    final province = survey.provinceTargets[index];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppTheme.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${index + 1}',
+                                style: GoogleFonts.manrope(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12,
+                                  color: AppTheme.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  province.name,
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                    color: AppTheme.onSurface,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Target: ${province.targetResponse} responden',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 11,
+                                    color: AppTheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,13 +166,12 @@ class SurveyBentoCard extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {}, // Optional: specific detail tap
+          onTap: () {},
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── HEADER: TITLE & BADGES ──
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -58,43 +182,41 @@ class SurveyBentoCard extends StatelessWidget {
                           Text(
                             survey.title,
                             style: GoogleFonts.manrope(
-                              fontSize: 18,
+                              fontSize: 12,
                               fontWeight: FontWeight.w800,
                               color: AppTheme.onSurface,
-                              height: 1.25,
+                              height: 1.2,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 4),
                           Text(
                             survey.desc ??
                                 'Evaluasi pemanfaatan infrastruktur digital nasional.',
                             style: GoogleFonts.inter(
-                              fontSize: 12,
+                              fontSize: 10,
                               color: AppTheme.onSurfaceVariant.withOpacity(0.7),
-                              height: 1.4,
+                              height: 1.3,
                             ),
-                            maxLines: 2,
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         _buildResponseBadge(),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         _buildStatusBadge(),
                       ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-
-                // ── INFO ROW ──
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     _infoEntry(
@@ -103,24 +225,22 @@ class SurveyBentoCard extends StatelessWidget {
                           ? 'Nasional'
                           : '${survey.provinceTargets.length} Provinsi',
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     Container(
-                      height: 16,
+                      height: 12,
                       width: 1,
                       color: AppTheme.outlineVariant.withOpacity(0.2),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     _infoEntry(Icons.calendar_today_rounded, 'Batch 1'),
                   ],
                 ),
-                const SizedBox(height: 24),
-
-                // ── PROVINCES LIST ──
+                const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: AppTheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,26 +251,29 @@ class SurveyBentoCard extends StatelessWidget {
                           Text(
                             'TARGET PROVINCES',
                             style: GoogleFonts.inter(
-                              fontSize: 9,
+                              fontSize: 10,
                               fontWeight: FontWeight.w900,
                               color: AppTheme.onSurfaceVariant.withOpacity(0.6),
                               letterSpacing: 1.2,
                             ),
                           ),
-                          Text(
-                            'View all',
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.primary,
+                          GestureDetector(
+                            onTap: () => _showAllProvinces(context),
+                            child: Text(
+                              'View all',
+                              style: GoogleFonts.inter(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.primary,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
+                        spacing: 6,
+                        runSpacing: 6,
                         children: [
                           ...survey.provinceTargets
                               .take(3)
@@ -166,10 +289,7 @@ class SurveyBentoCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Spacer(),
-                const SizedBox(height: 24),
-
-                // ── ACTIONS ──
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     Expanded(
@@ -214,7 +334,9 @@ class SurveyBentoCard extends StatelessWidget {
                       child: _actionButton(
                         label: 'Monitor',
                         icon: Icons.analytics_rounded,
-                        color: const Color(0xFF00656F),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF006A36), Color(0xFF71F69D)],
+                        ),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -245,7 +367,7 @@ class SurveyBentoCard extends StatelessWidget {
 
   Widget _buildResponseBadge() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: AppTheme.primary.withOpacity(0.1),
         borderRadius: BorderRadius.circular(100),
@@ -255,14 +377,14 @@ class SurveyBentoCard extends StatelessWidget {
         children: [
           const Icon(
             Icons.analytics_rounded,
-            size: 14,
+            size: 12,
             color: AppTheme.primary,
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 3),
           Text(
             '${survey.responseCount}',
             style: GoogleFonts.inter(
-              fontSize: 12,
+              fontSize: 10,
               fontWeight: FontWeight.w800,
               color: AppTheme.primary,
             ),
@@ -275,7 +397,7 @@ class SurveyBentoCard extends StatelessWidget {
   Widget _buildStatusBadge() {
     final bool isActive = survey.isOpen;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: (isActive ? AppTheme.primary : AppTheme.error).withOpacity(0.1),
         borderRadius: BorderRadius.circular(100),
@@ -295,12 +417,12 @@ class SurveyBentoCard extends StatelessWidget {
   Widget _infoEntry(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: AppTheme.onSurfaceVariant.withOpacity(0.6)),
-        const SizedBox(width: 6),
+        Icon(icon, size: 14, color: AppTheme.onSurfaceVariant.withOpacity(0.6)),
+        const SizedBox(width: 4),
         Text(
           text,
           style: GoogleFonts.inter(
-            fontSize: 12,
+            fontSize: 10,
             fontWeight: FontWeight.w600,
             color: AppTheme.onSurfaceVariant.withOpacity(0.8),
           ),
@@ -311,12 +433,12 @@ class SurveyBentoCard extends StatelessWidget {
 
   Widget _chip(String label, {bool isSpecial = false}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: isSpecial
             ? AppTheme.primary.withOpacity(0.05)
             : AppTheme.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: AppTheme.outlineVariant.withOpacity(isSpecial ? 0.3 : 0.1),
         ),
@@ -324,7 +446,7 @@ class SurveyBentoCard extends StatelessWidget {
       child: Text(
         label,
         style: GoogleFonts.inter(
-          fontSize: 10,
+          fontSize: 9,
           fontWeight: isSpecial ? FontWeight.w700 : FontWeight.w500,
           color: isSpecial ? AppTheme.primary : AppTheme.onSurfaceVariant,
         ),
@@ -340,11 +462,11 @@ class SurveyBentoCard extends StatelessWidget {
     Gradient? gradient,
   }) {
     return Container(
-      height: 52,
+      height: 44,
       decoration: BoxDecoration(
         color: color,
         gradient: gradient,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: (color ?? AppTheme.primary).withOpacity(0.2),
@@ -357,17 +479,17 @@ class SurveyBentoCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: Colors.white, size: 20),
-              const SizedBox(width: 8),
+              Icon(icon, color: Colors.white, size: 18),
+              const SizedBox(width: 6),
               Text(
                 label,
                 style: GoogleFonts.manrope(
                   fontWeight: FontWeight.w700,
-                  fontSize: 14,
+                  fontSize: 11,
                   color: Colors.white,
                 ),
               ),

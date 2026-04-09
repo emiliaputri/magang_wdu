@@ -123,7 +123,7 @@ class _DetailRespondenSurveyPageState
                   "Detail Responden Survey",
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 20,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -132,7 +132,7 @@ class _DetailRespondenSurveyPageState
                   "Analisis data responden terdaftar, campaign, dan guest",
                   style: TextStyle(
                     color: Colors.white70,
-                    fontSize: 13,
+                    fontSize: 12,
                   ),
                 ),
               ],
@@ -185,7 +185,7 @@ class _DetailRespondenSurveyPageState
             data['title'] as String,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -194,7 +194,7 @@ class _DetailRespondenSurveyPageState
             '${data['count']}',
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 26,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -240,7 +240,7 @@ class _DetailRespondenSurveyPageState
                     Text(
                       tab['label'] as String,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: isSelected ? Colors.white : const Color(0xFF888888),
                       ),
@@ -293,7 +293,7 @@ class _DetailRespondenSurveyPageState
         const Text(
           "Belum Ada Responden",
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 13,
             fontWeight: FontWeight.bold,
             color: Color(0xFF333333),
           ),
@@ -302,7 +302,7 @@ class _DetailRespondenSurveyPageState
         const Text(
           "Belum ada responden di kategori ini",
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 12,
             color: Color(0xFFAAAAAA),
           ),
         ),

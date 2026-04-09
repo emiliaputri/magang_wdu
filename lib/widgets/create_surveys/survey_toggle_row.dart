@@ -38,7 +38,7 @@ class SurveyToggleRow extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: AppColors.green600,
                 ),
@@ -47,7 +47,7 @@ class SurveyToggleRow extends StatelessWidget {
               Text(
                 subtitle,
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   color: Color(0xFF8AAB8F),
                 ),
               ),

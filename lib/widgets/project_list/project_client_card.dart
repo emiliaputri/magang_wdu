@@ -70,7 +70,7 @@ class ClientCard extends StatelessWidget {
         Text(
           client.clientName,
           style: const TextStyle(
-            fontSize: 20,
+            fontSize: 14,
             fontWeight: FontWeight.w800,
             color: AppTheme.textDark,
           ),
@@ -89,7 +89,7 @@ class ClientCard extends StatelessWidget {
           Text(
             client.desc!,
             style: const TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               color: AppTheme.textGrey,
               fontWeight: FontWeight.w500,
             ),
@@ -110,7 +110,7 @@ class ClientCard extends StatelessWidget {
                 child: Text(
                   client.alamat!,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: AppTheme.textGrey,
                     height: 1.4,
                   ),

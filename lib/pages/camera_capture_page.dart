@@ -153,7 +153,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
       appBar: AppBar(
         title: const Text(
           'Ambil Foto Objek',
-          style: TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: Colors.white, fontSize: 13),
         ),
         backgroundColor: AppTheme.monGreenMid,
         leading: IconButton(
@@ -244,7 +244,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
                           const Text(
                             'KETERANGAN OBJEK',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               fontWeight: FontWeight.bold,
                               color: AppTheme.monTextDark,
                               letterSpacing: 1,
@@ -299,7 +299,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
                       icon: const Icon(Icons.camera_alt),
                       label: const Text(
                         'Jepret Foto Sekarang',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                       ),
                     )
                   else
@@ -323,7 +323,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
                               children: [
                                 Text(
                                   'Lanjutkan ke Form Kuisioner',
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                                 ),
                                 SizedBox(width: 8),
                                 Icon(Icons.arrow_forward_rounded, size: 20),
@@ -341,7 +341,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
                             label: const Text(
                               'Ulangi Foto',
                               style: TextStyle(
-                                fontSize: 16, 
+                                fontSize: 13, 
                                 fontWeight: FontWeight.w600,
                                 color: AppTheme.monGreenMid,
                               ),
@@ -368,13 +368,13 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
             children: [
               Text(
                 label,
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: AppTheme.monTextDark,
                 ),

@@ -272,7 +272,7 @@ class _BiodataPageState extends State<BiodataPage> {
                 'Biodata Responden',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1,
                 ),
@@ -305,7 +305,7 @@ class _BiodataPageState extends State<BiodataPage> {
                       'Data Diri Responden',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
                       ),
@@ -315,7 +315,7 @@ class _BiodataPageState extends State<BiodataPage> {
                       'Mohon isi data diri Anda dengan benar',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 13,
+                        fontSize: 12,
                       ),
                     ),
                   ],
@@ -344,7 +344,7 @@ class _BiodataPageState extends State<BiodataPage> {
             child: Text(
               'Data ini diperlukan untuk mengidentifikasi responden dan memastikan keabsahan data survei.',
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 12,
                 color: Color(0xFFF57C00),
                 height: 1.4,
               ),
@@ -375,7 +375,7 @@ class _BiodataPageState extends State<BiodataPage> {
           const Text(
             'FORM BIODATA',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 12,
               fontWeight: FontWeight.bold,
               color: AppTheme.monTextDark,
               letterSpacing: 1,
@@ -453,7 +453,7 @@ class _BiodataPageState extends State<BiodataPage> {
             Text(
               label,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: AppTheme.monTextDark,
               ),
@@ -475,7 +475,7 @@ class _BiodataPageState extends State<BiodataPage> {
           maxLines: maxLines,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 12),
             prefixIcon: Icon(icon, color: AppTheme.monGreenMid, size: 20),
             filled: true,
             fillColor: Colors.grey.shade50,
@@ -538,7 +538,7 @@ class _BiodataPageState extends State<BiodataPage> {
             Expanded(
               child: Text(
                 'Data provinsi belum tersedia. Silakan coba lagi nanti.',
-                style: TextStyle(fontSize: 13, color: Colors.orange.shade800),
+                style: TextStyle(fontSize: 12, color: Colors.orange.shade800),
               ),
             ),
           ],
@@ -554,7 +554,7 @@ class _BiodataPageState extends State<BiodataPage> {
             Text(
               'Provinsi Asal',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: AppTheme.monTextDark,
               ),
@@ -570,7 +570,7 @@ class _BiodataPageState extends State<BiodataPage> {
           value: _selectedProvinceId,
           decoration: InputDecoration(
             hintText: 'Pilih provinsi',
-            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 12),
             prefixIcon: const Icon(
               Icons.location_on_outlined,
               color: AppTheme.monGreenMid,
@@ -603,7 +603,7 @@ class _BiodataPageState extends State<BiodataPage> {
               value: province['id'] as int,
               child: Text(
                 province['name'] as String,
-                style: const TextStyle(fontSize: 14),
+                style: const TextStyle(fontSize: 12),
               ),
             );
           }).toList(),
@@ -649,7 +649,7 @@ class _BiodataPageState extends State<BiodataPage> {
               children: [
                 Text(
                   'Lanjutkan ke Kuisioner',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                 ),
                 SizedBox(width: 8),
                 Icon(Icons.arrow_forward_rounded, size: 20),
@@ -677,7 +677,7 @@ class _BiodataPageState extends State<BiodataPage> {
                 SizedBox(width: 8),
                 Text(
                   'Simpan Draft',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                 ),
               ],
             ),

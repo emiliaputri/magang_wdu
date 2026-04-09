@@ -81,7 +81,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
             title: Text(
               'Surveys',
               style: GoogleFonts.manrope(
-                fontSize: 18,
+                fontSize: 13,
                 fontWeight: FontWeight.w800,
                 color: AppTheme.primary,
                 letterSpacing: -0.5,
@@ -92,8 +92,12 @@ class _ProjectListPageState extends State<ProjectListPage> {
       ),
       leadingWidth: 40,
       leading: IconButton(
-        icon: const Icon(Icons.menu_rounded, color: AppTheme.primary),
-        onPressed: () {},
+        icon: const Icon(
+          Icons.arrow_back_ios_new_rounded,
+          color: AppTheme.primary,
+          size: 20,
+        ),
+        onPressed: () => Navigator.pop(context),
       ),
       actions: [
         Container(
@@ -112,7 +116,9 @@ class _ProjectListPageState extends State<ProjectListPage> {
         shape: BoxShape.circle,
         border: Border.all(color: AppTheme.primaryContainer, width: 2),
         image: const DecorationImage(
-          image: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuCv34DsqRUZUqKv_NeyCEHI-lhaJDfRIEpGZijfDE-F5WTMy15De2vE2F2U0Tq93p1SgLypDPorL5H6k-2FMPdVtmABiCYFymqzl_Fw9Ce1l4DVRVXkCdAYs5CSIk8HuoBjlBqdd9uiF6yPnhA-m3sAUuNNu_XHQVaNowOjD-z9xFxZRPxYrcMDKpodMPz-0yAshllWST4n8mpc3w0H2K7qZ8nxOXWvQwXv7pwymmdxFFiprjvKqvklL0gebux8nCdyX2O8Tim18Cwx'),
+          image: NetworkImage(
+            'https://lh3.googleusercontent.com/aida-public/AB6AXuCv34DsqRUZUqKv_NeyCEHI-lhaJDfRIEpGZijfDE-F5WTMy15De2vE2F2U0Tq93p1SgLypDPorL5H6k-2FMPdVtmABiCYFymqzl_Fw9Ce1l4DVRVXkCdAYs5CSIk8HuoBjlBqdd9uiF6yPnhA-m3sAUuNNu_XHQVaNowOjD-z9xFxZRPxYrcMDKpodMPz-0yAshllWST4n8mpc3w0H2K7qZ8nxOXWvQwXv7pwymmdxFFiprjvKqvklL0gebux8nCdyX2O8Tim18Cwx',
+          ),
           fit: BoxFit.cover,
         ),
       ),
@@ -142,7 +148,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
           hintStyle: GoogleFonts.inter(
             color: AppTheme.outline.withOpacity(0.6),
             fontWeight: FontWeight.w500,
-            fontSize: 16,
+            fontSize: 13,
           ),
           prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.outline),
           border: InputBorder.none,
@@ -165,26 +171,25 @@ class _ProjectListPageState extends State<ProjectListPage> {
           crossAxisSpacing: 24,
           mainAxisExtent: 460,
         ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            // Placeholder/Create Card
-            if (index == surveys.length) return _buildNewPlaceholder();
+        delegate: SliverChildBuilderDelegate((context, index) {
+          // Placeholder/Create Card
+          if (index == surveys.length) return _buildNewPlaceholder();
 
-            final survey = surveys[index];
-            // Find parent project slug for survey context
-            final parentProject = _projects.firstWhere(
-              (p) => p.surveys?.any((s) => s.id == survey.id) ?? false,
-              orElse: () => _projects.isNotEmpty ? _projects.first : Project(projectName: 'Unknown'),
-            );
+          final survey = surveys[index];
+          // Find parent project slug for survey context
+          final parentProject = _projects.firstWhere(
+            (p) => p.surveys?.any((s) => s.id == survey.id) ?? false,
+            orElse: () => _projects.isNotEmpty
+                ? _projects.first
+                : Project(projectName: 'Unknown'),
+          );
 
-            return SurveyBentoCard(
-              survey: survey,
-              clientSlug: widget.client.slug ?? '',
-              projectSlug: parentProject.slug ?? '',
-            );
-          },
-          childCount: surveys.length + 1,
-        ),
+          return SurveyBentoCard(
+            survey: survey,
+            clientSlug: widget.client.slug ?? '',
+            projectSlug: parentProject.slug ?? '',
+          );
+        }, childCount: surveys.length + 1),
       ),
     );
   }
@@ -210,13 +215,17 @@ class _ProjectListPageState extends State<ProjectListPage> {
               color: AppTheme.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.add_task_rounded, color: AppTheme.primary, size: 40),
+            child: const Icon(
+              Icons.add_task_rounded,
+              color: AppTheme.primary,
+              size: 40,
+            ),
           ),
           const SizedBox(height: 24),
           Text(
             'Buat Kuisioner Baru',
             style: GoogleFonts.manrope(
-              fontSize: 20,
+              fontSize: 14,
               fontWeight: FontWeight.w800,
               color: AppTheme.onSurface,
             ),
@@ -228,7 +237,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
               'Mulai proyek survey baru dengan builder cerdas kami.',
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
-                fontSize: 14,
+                fontSize: 12,
                 color: AppTheme.onSurfaceVariant.withOpacity(0.6),
                 fontWeight: FontWeight.w500,
               ),
@@ -284,18 +293,19 @@ class _ProjectListPageState extends State<ProjectListPage> {
           decoration: BoxDecoration(
             color: isActive ? AppTheme.primary : Colors.transparent,
             borderRadius: BorderRadius.circular(16),
-            gradient: isActive ? const LinearGradient(colors: [Color(0xFF006A36), Color(0xFF71F69D)]) : null,
+            gradient: isActive
+                ? const LinearGradient(
+                    colors: [Color(0xFF006A36), Color(0xFF71F69D)],
+                  )
+                : null,
           ),
-          child: Icon(
-            icon,
-            color: isActive ? Colors.white : AppTheme.outline,
-          ),
+          child: Icon(icon, color: isActive ? Colors.white : AppTheme.outline),
         ),
         const SizedBox(height: 4),
         Text(
           label.toUpperCase(),
           style: GoogleFonts.inter(
-            fontSize: 9,
+            fontSize: 10,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.2,
             color: isActive ? AppTheme.primary : AppTheme.outline,

@@ -43,7 +43,7 @@ class SectionHeader extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: AppTheme.dashTextDark,
                   ),
@@ -52,7 +52,7 @@ class SectionHeader extends StatelessWidget {
                 Text(
                   subtitle,
                   style: const TextStyle(
-                      fontSize: 12, color: AppTheme.dashTextLight),
+                      fontSize: 11, color: AppTheme.dashTextLight),
                 ),
               ],
             ),

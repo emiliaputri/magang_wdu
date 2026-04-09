@@ -53,14 +53,14 @@ class ProjectsSection extends StatelessWidget {
             const Text(
               'Projects',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 14,
                 fontWeight: FontWeight.w800,
                 color: AppTheme.textDark,
               ),
             ),
             Text(
               '${projects.length} project found',
-              style: const TextStyle(fontSize: 12, color: AppTheme.textGrey),
+              style: const TextStyle(fontSize: 11, color: AppTheme.textGrey),
             ),
           ],
         ),
@@ -79,10 +79,10 @@ class ProjectsSection extends StatelessWidget {
       child: TextField(
         controller: searchController,
         onChanged: onSearch,
-        style: const TextStyle(fontSize: 13),
+        style: const TextStyle(fontSize: 12),
         decoration: const InputDecoration(
           hintText: 'Search projects...',
-          hintStyle: TextStyle(color: AppTheme.textGrey, fontSize: 13),
+          hintStyle: TextStyle(color: AppTheme.textGrey, fontSize: 12),
           prefixIcon: Icon(Icons.search, size: 18, color: AppTheme.textGrey),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(vertical: 12),
@@ -115,7 +115,7 @@ class ProjectsSection extends StatelessWidget {
                 child: Center(
                   child: Text(
                     'Tidak ada project ditemukan.',
-                    style: TextStyle(color: AppTheme.textGrey, fontSize: 13),
+                    style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
                   ),
                 ),
               )

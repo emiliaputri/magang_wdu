@@ -185,7 +185,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                 'Monitor Detail',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1,
                 ),
@@ -218,7 +218,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                       "Detail Responden Survey",
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
                       ),
@@ -228,7 +228,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                       "Analisis data responden terdaftar, campaign, dan guest",
                       style: TextStyle(
                         color: Colors.white70,
-                        fontSize: 13,
+                        fontSize: 12,
                         height: 1.4,
                       ),
                     ),
@@ -300,7 +300,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                   "INFORMASI DASAR & LOKASI",
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
-                    fontSize: 12,
+                    fontSize: 11,
                     color: AppTheme.monTextMid,
                     letterSpacing: 0.8,
                   ),
@@ -397,7 +397,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                         : 'G',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 22,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -411,7 +411,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                     Text(
                       name,
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.monTextDark,
                       ),
@@ -420,7 +420,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                     const Text(
                       "Instansi tidak tersedia",
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 12,
                         color: AppTheme.monTextLight,
                       ),
                     ),
@@ -498,7 +498,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                     child: Text(
                       "Alamat tidak tersedia",
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.monTextDark,
                       ),
@@ -552,7 +552,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
             Text(
               value.toString(),
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: color.withOpacity(0.9),
               ),
@@ -668,7 +668,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                   Text(
                     "Geotagging",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 13,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.monTextDark,
                     ),
@@ -772,7 +772,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
         Text(
           label,
           style: const TextStyle(
-            fontSize: 9,
+            fontSize: 10,
             fontWeight: FontWeight.w800,
             color: AppTheme.monTextLight,
             letterSpacing: 0.5,
@@ -794,7 +794,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
               child: Text(
                 value,
                 style: const TextStyle(
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: AppTheme.monTextDark,
                 ),
@@ -815,7 +815,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
         const Text(
           "KOORDINAT",
           style: TextStyle(
-            fontSize: 9,
+            fontSize: 10,
             fontWeight: FontWeight.w800,
             color: AppTheme.monTextLight,
             letterSpacing: 0.5,
@@ -840,7 +840,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                 child: Text(
                   "$lat, $lng",
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.monTextDark,
                   ),
@@ -923,7 +923,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
               SizedBox(height: 12),
               Text(
                 "Peta tidak tersedia",
-                style: TextStyle(color: AppTheme.monTextLight, fontSize: 13),
+                style: TextStyle(color: AppTheme.monTextLight, fontSize: 12),
               ),
             ],
           ),
@@ -1021,7 +1021,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
           child: Text(
             page.pageName.toUpperCase(),
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w800,
               color: Colors.grey,
               letterSpacing: 1.2,
@@ -1091,7 +1091,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                   q.plainText,
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                    fontSize: 12,
                     color: Color(0xFF202124),
                     height: 1.4,
                   ),
@@ -1147,7 +1147,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
             child: Text(
               answer,
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: AppTheme.monGreenDark,
               ),
@@ -1175,7 +1175,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
             color: AppTheme.monBgColor,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(answer, style: const TextStyle(fontSize: 13)),
+          child: Text(answer, style: const TextStyle(fontSize: 12)),
         );
       }
 
@@ -1205,7 +1205,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                       child: Text(
                         'Pernyataan',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: FontWeight.bold,
                           color: Colors.grey.shade700,
                         ),
@@ -1219,7 +1219,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                         child: Text(
                           ['SS', 'S', 'TS', 'STS'][i],
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.bold,
                             color: Colors.grey.shade700,
                           ),
@@ -1253,7 +1253,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                             RegExp(r'^\d+\.\s*'),
                             '',
                           ),
-                          style: const TextStyle(fontSize: 12),
+                          style: const TextStyle(fontSize: 11),
                         ),
                       ),
                     ),
@@ -1303,7 +1303,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
           color: AppTheme.monBgColor,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Text(answer, style: const TextStyle(fontSize: 13)),
+        child: Text(answer, style: const TextStyle(fontSize: 12)),
       );
     }
   }
@@ -1400,7 +1400,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                           child: Text(
                             opt.value,
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               color: isChecked
                                   ? const Color(0xFF202124)
                                   : Colors.grey.shade700,
@@ -1438,7 +1438,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
           Expanded(
             child: Text(
               answer.isEmpty ? 'Tidak dijawab' : answer,
-              style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+              style: TextStyle(fontSize: 12, color: Colors.grey[700]),
             ),
           ),
         ],
@@ -1522,7 +1522,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                         child: Text(
                           choice.value,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 12,
                             color: isSelected
                                 ? const Color(0xFF202124)
                                 : Colors.grey.shade700,
@@ -1557,7 +1557,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
           Text(
             'Tidak dijawab',
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               fontStyle: FontStyle.italic,
               color: Colors.grey[500],
             ),

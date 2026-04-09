@@ -78,13 +78,13 @@ class _ProjectCardState extends State<ProjectCard>
     final p = widget.project;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 16),
       child: FadeTransition(
         opacity: _fade,
         child: SlideTransition(
           position: _slide,
           child: Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppTheme.surfaceContainerLowest,
               borderRadius: BorderRadius.circular(24),
@@ -108,8 +108,8 @@ class _ProjectCardState extends State<ProjectCard>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      width: 48,
-                      height: 48,
+                      width: 40,
+                      height: 40,
                       decoration: BoxDecoration(
                         color: AppTheme.primaryContainer.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(16),
@@ -122,19 +122,16 @@ class _ProjectCardState extends State<ProjectCard>
                         ),
                       ),
                     ),
-                    const StatusBadge(
-                      label: 'Active',
-                      color: AppTheme.primary,
-                    ),
+                    const StatusBadge(label: 'Active', color: AppTheme.primary),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 12),
 
                 // ── TITLES ──
                 Text(
                   p.projectName,
                   style: GoogleFonts.manrope(
-                    fontSize: 22,
+                    fontSize: 13,
                     fontWeight: FontWeight.w800,
                     color: AppTheme.onSurface,
                     height: 1.1,
@@ -144,12 +141,12 @@ class _ProjectCardState extends State<ProjectCard>
                 Text(
                   p.clientName,
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 11,
                     color: AppTheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 12),
 
                 // ── STATS GRID ──
                 Row(
@@ -179,7 +176,7 @@ class _ProjectCardState extends State<ProjectCard>
                                 Text(
                                   '${p.surveyCount}',
                                   style: const TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 13,
                                     fontWeight: FontWeight.w800,
                                     color: AppTheme.onSurface,
                                   ),
@@ -197,7 +194,7 @@ class _ProjectCardState extends State<ProjectCard>
                                   child: const Text(
                                     '+1',
                                     style: TextStyle(
-                                      fontSize: 9,
+                                      fontSize: 10,
                                       fontWeight: FontWeight.w900,
                                       color: AppTheme.onPrimaryContainer,
                                     ),
@@ -232,8 +229,10 @@ class _ProjectCardState extends State<ProjectCard>
                             const SizedBox(height: 4),
                             Text(
                               '${p.surveyCount} survei aktif',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                fontSize: 14,
+                                fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: AppTheme.primary,
                               ),
@@ -251,7 +250,7 @@ class _ProjectCardState extends State<ProjectCard>
                   color: AppTheme.outlineVariant.withOpacity(0.1),
                   height: 1,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
                 // ── FOOTER ──
                 Row(
@@ -268,7 +267,7 @@ class _ProjectCardState extends State<ProjectCard>
                         Text(
                           p.updatedAt ?? 'Baru saja',
                           style: const TextStyle(
-                            fontSize: 11,
+                            fontSize: 10,
                             fontWeight: FontWeight.w500,
                             color: AppTheme.outline,
                           ),
@@ -290,4 +289,3 @@ class _ProjectCardState extends State<ProjectCard>
     );
   }
 }
-

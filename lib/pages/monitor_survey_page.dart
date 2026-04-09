@@ -95,7 +95,7 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                           'SIS',
                           style: TextStyle(
                             fontFamily: 'Manrope',
-                            fontSize: 20,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                             letterSpacing: -0.5,
                             color: Color(0xFF166534),
@@ -213,7 +213,7 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
             Text(
               provider.errorMessage!,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.red.shade400, fontSize: 14),
+              style: TextStyle(color: Colors.red.shade400, fontSize: 12),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -273,7 +273,7 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                 'Monitoring Survey',
                 style: TextStyle(
                   fontFamily: 'Manrope',
-                  fontSize: 28,
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                   letterSpacing: -0.5,
@@ -284,7 +284,7 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                 provider.resolvedName,
                 style: const TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w500,
                   color: Colors.white70,
                 ),
@@ -317,7 +317,7 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
         children: [
           Icon(icon, size: 16, color: Colors.white),
           const SizedBox(width: 6),
-          Text(text, style: const TextStyle(fontFamily: 'Inter', fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
+          Text(text, style: const TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
         ],
       ),
     );

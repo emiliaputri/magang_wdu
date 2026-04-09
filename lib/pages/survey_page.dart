@@ -103,7 +103,6 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
                   ),
                 ),
                 _buildSurveyGrid(filtered, provider),
-                const SliverToBoxAdapter(child: SizedBox(height: 120)),
               ],
             );
           },
@@ -130,7 +129,7 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
             title: Text(
               'Surveys',
               style: GoogleFonts.manrope(
-                fontSize: 18,
+                fontSize: 13,
                 fontWeight: FontWeight.w800,
                 color: AppTheme.primary,
                 letterSpacing: -0.5,
@@ -147,29 +146,6 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
           size: 20,
         ),
         onPressed: () => Navigator.pop(context),
-      ),
-      actions: [
-        Container(
-          margin: const EdgeInsets.only(right: 20),
-          child: _buildUserAvatar(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildUserAvatar() {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: AppTheme.primaryContainer, width: 2),
-        image: const DecorationImage(
-          image: NetworkImage(
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuCv34DsqRUZUqKv_NeyCEHI-lhaJDfRIEpGZijfDE-F5WTMy15De2vE2F2U0Tq93p1SgLypDPorL5H6k-2FMPdVtmABiCYFymqzl_Fw9Ce1l4DVRVXkCdAYs5CSIk8HuoBjlBqdd9uiF6yPnhA-m3sAUuNNu_XHQVaNowOjD-z9xFxZRPxYrcMDKpodMPz-0yAshllWST4n8mpc3w0H2K7qZ8nxOXWvQwXv7pwymmdxFFiprjvKqvklL0gebux8nCdyX2O8Tim18Cwx',
-          ),
-          fit: BoxFit.cover,
-        ),
       ),
     );
   }
@@ -196,7 +172,7 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
           hintStyle: GoogleFonts.inter(
             color: AppTheme.outline.withOpacity(0.6),
             fontWeight: FontWeight.w500,
-            fontSize: 16,
+            fontSize: 13,
           ),
           prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.outline),
           border: InputBorder.none,
@@ -244,9 +220,9 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
       sliver: SliverGrid(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: isDesktop ? 2 : 1,
-          mainAxisSpacing: 24,
-          crossAxisSpacing: 24,
-          mainAxisExtent: 460,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          mainAxisExtent: 260,
         ),
         delegate: SliverChildBuilderDelegate((context, index) {
           final survey = filtered[index];
@@ -318,7 +294,7 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
         Text(
           label.toUpperCase(),
           style: GoogleFonts.inter(
-            fontSize: 9,
+            fontSize: 10,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.2,
             color: isActive ? AppTheme.primary : AppTheme.outline,
@@ -351,7 +327,7 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
                 Text(
                   widget.clientName,
                   style: GoogleFonts.manrope(
-                    fontSize: 24,
+                    fontSize: 14,
                     fontWeight: FontWeight.w800,
                     color: const Color(0xff111827),
                     letterSpacing: -0.5,
@@ -371,7 +347,7 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
                   _clientDescription(widget.clientName),
                   textAlign: TextAlign.justify,
                   style: GoogleFonts.inter(
-                    fontSize: 13.5,
+                    fontSize: 12,
                     height: 1.75,
                     color: const Color(0xff374151),
                   ),
@@ -438,7 +414,7 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
                   widget.projectName,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.manrope(
-                    fontSize: 22,
+                    fontSize: 14,
                     fontWeight: FontWeight.w800,
                     color: const Color(0xff1a7a5e),
                   ),
@@ -491,7 +467,7 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
       Text(
         'Client Logo',
         style: const TextStyle(
-          fontSize: 8,
+          fontSize: 10,
           fontWeight: FontWeight.w600,
           color: Colors.grey,
         ),

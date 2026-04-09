@@ -186,7 +186,7 @@ class _LoginPageState extends State<LoginPage>
             'Login',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 26,
+              fontSize: 14,
               fontWeight: FontWeight.w800,
               color: Color(0xFF1A1A1A),
             ),
@@ -195,7 +195,7 @@ class _LoginPageState extends State<LoginPage>
           const Text(
             'Selamat datang kembali',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: Color(0xFF999999)),
+            style: TextStyle(fontSize: 12, color: Color(0xFF999999)),
           ),
           const SizedBox(height: 28),
 
@@ -254,7 +254,7 @@ class _LoginPageState extends State<LoginPage>
               const SizedBox(width: 8),
               const Text(
                 'Remember me',
-                style: TextStyle(fontSize: 13, color: Color(0xFF555555)),
+                style: TextStyle(fontSize: 12, color: Color(0xFF555555)),
               ),
             ],
           ),
@@ -264,7 +264,7 @@ class _LoginPageState extends State<LoginPage>
           child: const Text(
             'Forgot password?',
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               color: AppTheme.darkGreenColor,
               fontWeight: FontWeight.w600,
             ),
@@ -301,7 +301,7 @@ class _LoginPageState extends State<LoginPage>
             : const Text(
                 'Log In',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                   letterSpacing: 0.8,

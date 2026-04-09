@@ -77,7 +77,7 @@ class _ProjectBpkPageState extends State<ProjectBpkPage> {
           style: TextStyle(
             color: _textDark,
             fontWeight: FontWeight.w700,
-            fontSize: 17,
+            fontSize: 13,
           ),
         ),
         centerTitle: true,
@@ -223,7 +223,7 @@ class _ClientCard extends StatelessWidget {
                 const Text(
                   'BPK RI',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 14,
                     fontWeight: FontWeight.w800,
                     color: _textDark,
                   ),
@@ -241,7 +241,7 @@ class _ClientCard extends StatelessWidget {
                 const Text(
                   'Badan Pemeriksa Keuangan\nRepublik Indonesia',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     color: _textGrey,
                     fontWeight: FontWeight.w500,
                     height: 1.5,
@@ -304,14 +304,14 @@ class _ProjectsSection extends StatelessWidget {
                 const Text(
                   'Projects',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 14,
                     fontWeight: FontWeight.w800,
                     color: _textDark,
                   ),
                 ),
                 Text(
                   '${projects.length} project ditemukan',
-                  style: const TextStyle(fontSize: 12, color: _textGrey),
+                  style: const TextStyle(fontSize: 11, color: _textGrey),
                 ),
               ],
             ),
@@ -333,10 +333,10 @@ class _ProjectsSection extends StatelessWidget {
                 child: TextField(
                   controller: searchController,
                   onChanged: onSearch,
-                  style: const TextStyle(fontSize: 13),
+                  style: const TextStyle(fontSize: 12),
                   decoration: const InputDecoration(
                     hintText: 'Cari project...',
-                    hintStyle: TextStyle(color: _textGrey, fontSize: 13),
+                    hintStyle: TextStyle(color: _textGrey, fontSize: 12),
                     prefixIcon:
                         Icon(Icons.search, size: 18, color: _textGrey),
                     border: InputBorder.none,
@@ -364,7 +364,7 @@ class _ProjectsSection extends StatelessWidget {
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
-                          fontSize: 13,
+                          fontSize: 12,
                         ),
                       ),
                     ],
@@ -429,7 +429,7 @@ class _ProjectsSection extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'Tidak ada project ditemukan.',
-                        style: TextStyle(color: _textGrey, fontSize: 13),
+                        style: TextStyle(color: _textGrey, fontSize: 12),
                       ),
                     ),
                   )
@@ -524,7 +524,7 @@ class _ProjectRow extends StatelessWidget {
             child: Text(
               '${project.number}',
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: _textGrey,
               ),
@@ -538,7 +538,7 @@ class _ProjectRow extends StatelessWidget {
             child: Text(
               project.title,
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: _textDark,
                 height: 1.4,
@@ -554,7 +554,7 @@ class _ProjectRow extends StatelessWidget {
               child: Text(
                 project.description,
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   color: _textGrey,
                   height: 1.4,
                 ),
@@ -667,7 +667,7 @@ class _ProjectDialogState extends State<_ProjectDialog> {
       shape:
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Text(widget.title,
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -718,10 +718,10 @@ class _DialogField extends StatelessWidget {
     return TextField(
       controller: controller,
       maxLines: maxLines,
-      style: const TextStyle(fontSize: 13),
+      style: const TextStyle(fontSize: 12),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(fontSize: 13),
+        labelStyle: const TextStyle(fontSize: 12),
         border:
             OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         focusedBorder: OutlineInputBorder(

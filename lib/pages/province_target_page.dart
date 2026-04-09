@@ -64,7 +64,7 @@ class _ProvinceTargetPageState extends State<ProvinceTargetPage> {
           'Target Provinsi',
           style: TextStyle(
             color: Color(0xFF222222),
-            fontSize: 16,
+            fontSize: 13,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -114,7 +114,7 @@ class _ProvinceTargetPageState extends State<ProvinceTargetPage> {
                           widget.surveyName,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                            fontSize: 12,
                             color: Color(0xFF333333),
                           ),
                         ),
@@ -136,7 +136,7 @@ class _ProvinceTargetPageState extends State<ProvinceTargetPage> {
                           Text(
                             totalTarget.toString(),
                             style: const TextStyle(
-                              fontSize: 26,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: _green,
                             ),
@@ -156,7 +156,7 @@ class _ProvinceTargetPageState extends State<ProvinceTargetPage> {
                       hintText: 'Cari provinsi...',
                       hintStyle: const TextStyle(
                         color: Color(0xFFBBBBBB),
-                        fontSize: 13,
+                        fontSize: 12,
                       ),
                       prefixIcon: const Icon(
                         Icons.search,
@@ -229,7 +229,7 @@ class _ProvinceTargetPageState extends State<ProvinceTargetPage> {
                                       child: Text(
                                         '${index + 1}',
                                         style: const TextStyle(
-                                          fontSize: 12,
+                                          fontSize: 11,
                                           fontWeight: FontWeight.bold,
                                           color: _greenText,
                                         ),
@@ -244,7 +244,7 @@ class _ProvinceTargetPageState extends State<ProvinceTargetPage> {
                                       p.name, // ✅ provinceName → name
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
-                                        fontSize: 13,
+                                        fontSize: 12,
                                         color: Color(0xFF222222),
                                       ),
                                     ),

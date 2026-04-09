@@ -145,7 +145,7 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
         title: const Text(
           "Cek / Edit Monitor",
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.5,
           ),
@@ -193,7 +193,7 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
                     Text(
                       "Update Monitor",
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                         letterSpacing: 0.5,
@@ -254,7 +254,7 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 13,
+                        fontSize: 12,
                       ),
                     ),
                   ),
@@ -263,7 +263,7 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
                     child: Text(
                       q.plainText,
                       style: const TextStyle(
-                        fontSize: 15,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppTheme.monTextDark,
                         height: 1.4,

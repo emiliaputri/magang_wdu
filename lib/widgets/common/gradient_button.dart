@@ -35,7 +35,7 @@ class GradientButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -48,12 +48,12 @@ class GradientButton extends StatelessWidget {
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
-                fontSize: 14,
+                fontSize: 11,
               ),
             ),
             if (icon != null) ...[
               const SizedBox(width: 8),
-              Icon(icon, color: Colors.white, size: 16),
+              Icon(icon, color: Colors.white, size: 14),
             ],
           ],
         ),

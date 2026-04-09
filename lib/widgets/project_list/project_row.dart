@@ -39,7 +39,7 @@ class ProjectRow extends StatelessWidget {
             child: Text(
               project.projectName,
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: AppTheme.textDark,
                 height: 1.4,
@@ -53,7 +53,7 @@ class ProjectRow extends StatelessWidget {
               child: Text(
                 project.desc ?? '-',
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   color: AppTheme.textGrey,
                   height: 1.4,
                 ),
@@ -83,7 +83,7 @@ class ProjectRow extends StatelessWidget {
       child: Text(
         '$index',
         style: const TextStyle(
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: FontWeight.w700,
           color: AppTheme.textGrey,
         ),

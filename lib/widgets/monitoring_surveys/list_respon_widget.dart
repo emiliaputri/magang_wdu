@@ -56,7 +56,7 @@ class ListResponWidget extends StatelessWidget {
               child: Text(
                 'Belum ada data respon',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   color: Color(0xFF6F7A6B),
                 ),
               ),
@@ -164,7 +164,7 @@ class _CardWidget extends StatelessWidget {
                     Text(
                       token.isNotEmpty ? token : nama,
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF191C1B),
                         fontFamily: 'Inter',
@@ -174,7 +174,7 @@ class _CardWidget extends StatelessWidget {
                     Text(
                       waktu,
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0xFF6F7A6B),
                         fontFamily: 'Inter',
                       ),
@@ -263,7 +263,7 @@ class _CardWidget extends StatelessWidget {
                           Expanded(
                             child: Text(
                               provinsi,
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF3F4A3D)),
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF3F4A3D)),
                             ),
                           ),
                         ],
@@ -287,7 +287,7 @@ class _CardWidget extends StatelessWidget {
                           Expanded(
                             child: Text(
                               role,
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF3F4A3D)),
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF3F4A3D)),
                             ),
                           ),
                         ],
@@ -336,7 +336,7 @@ class _CardWidget extends StatelessWidget {
                 child: const Text(
                   'View Details',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF006B1B),
                     fontFamily: 'Manrope',
@@ -540,7 +540,7 @@ class _Pagination extends StatelessWidget {
         if (p == -1) {
           return const Padding(
             padding: EdgeInsets.symmetric(horizontal: 4),
-            child: Text('...', style: TextStyle(fontSize: 14, color: Color(0xFF6F7A6B))),
+            child: Text('...', style: TextStyle(fontSize: 12, color: Color(0xFF6F7A6B))),
           );
         }
         final active = p == currentPage;
@@ -552,7 +552,7 @@ class _Pagination extends StatelessWidget {
             child: Text(
               '$p',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: active ? FontWeight.bold : FontWeight.w500,
                 color: active ? Colors.white : const Color(0xFF3F4A3D),
               ),

@@ -46,10 +46,10 @@ class ClientCard extends StatelessWidget {
           children: [
             // ── IMAGE ──
             AspectRatio(
-              aspectRatio: 1,
+              aspectRatio: 1.6,
               child: Container(
                 color: AppTheme.surfaceContainerLow,
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(12),
                 child: Builder(
                   builder: (context) {
                     final url = client.imageUrl ?? client.image;
@@ -71,63 +71,75 @@ class ClientCard extends StatelessWidget {
               ),
             ),
 
-            // ── INFO ──
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      client.clientName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.manrope(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.onSurface,
-                        height: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      client.alamat ?? 'No address available',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        color: AppTheme.onSurfaceVariant.withOpacity(0.6),
-                        height: 1.4,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const Spacer(),
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(10),
+                child: SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        client.clientName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.manrope(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.onSurface,
+                          height: 1.2,
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'VIEW PROJECTS',
-                              style: GoogleFonts.inter(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w800,
-                                color: AppTheme.primary,
-                                letterSpacing: 0.5,
-                              ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        client.alamat ?? 'No address available',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          color: AppTheme.onSurfaceVariant.withOpacity(0.6),
+                          height: 1.4,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'VIEW PROJECTS',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppTheme.primary,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(
+                                  Icons.arrow_forward_rounded,
+                                  size: 10,
+                                  color: AppTheme.primary,
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 4),
-                            const Icon(Icons.arrow_forward_rounded, size: 10, color: AppTheme.primary),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -158,30 +170,32 @@ class ClientCard extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(12),
       child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.business_rounded,
-              size: 32,
-              color: AppTheme.primary,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              name,
-              maxLines: 2,
-              style: GoogleFonts.inter(
-                fontSize: 11,
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.business_rounded,
+                size: 32,
                 color: AppTheme.primary,
-                fontWeight: FontWeight.w700,
               ),
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+              const SizedBox(height: 12),
+              Text(
+                name,
+                maxLines: 2,
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  color: AppTheme.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-

@@ -282,7 +282,7 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
         appBar: AppBar(
           title: const Text(
             "Cek / Edit Survey",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
           ),
           centerTitle: true,
           elevation: 2,
@@ -302,7 +302,7 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
         appBar: AppBar(
           title: const Text(
             "Cek / Edit Survey",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
           ),
           centerTitle: true,
           elevation: 2,
@@ -324,7 +324,7 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
                 Text(
                   loadError ?? "Data tidak ditemukan",
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 13),
                 ),
               ],
             ),
@@ -342,7 +342,7 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
       appBar: AppBar(
         title: Text(
           isNewSurvey ? "Isi Kuisioner" : "Cek / Edit Survey",
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
         ),
         centerTitle: true,
         elevation: 0,
@@ -400,7 +400,7 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
                 : Text(
                     isNewSurvey ? "Kirim Jawaban" : "Simpan Jawaban",
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 13,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -455,7 +455,7 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
         Text(
           q.plainText,
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
             color: Colors.black87,
             height: 1.4,
@@ -489,7 +489,7 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
               value: opt.id.toString(),
               groupValue: answers[q.id]?.toString(),
               onChanged: (val) => setState(() => answers[q.id] = val),
-              title: Text(opt.value, style: const TextStyle(fontSize: 15)),
+              title: Text(opt.value, style: const TextStyle(fontSize: 12)),
               activeColor: AppTheme.monGreenMid,
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
               shape: RoundedRectangleBorder(
@@ -535,7 +535,7 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
                   answers[q.id] = updated;
                 });
               },
-              title: Text(opt.value, style: const TextStyle(fontSize: 15)),
+              title: Text(opt.value, style: const TextStyle(fontSize: 12)),
               activeColor: AppTheme.monGreenMid,
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
               controlAffinity: ListTileControlAffinity.trailing,
@@ -554,7 +554,7 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
         .map(
           (opt) => DropdownMenuItem(
             value: opt.id.toString(),
-            child: Text(opt.value, style: const TextStyle(fontSize: 15)),
+            child: Text(opt.value, style: const TextStyle(fontSize: 12)),
           ),
         )
         .toList();
@@ -613,10 +613,10 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
               : TextInputType.multiline,
           maxLines: q.typeString == 'paragraph' ? 5 : 1,
           onChanged: (val) => answers[q.id] = val,
-          style: const TextStyle(fontSize: 15),
+          style: const TextStyle(fontSize: 12),
           decoration: InputDecoration(
             hintText: "Masukkan jawaban Anda disini...",
-            hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+            hintStyle: TextStyle(color: Colors.grey[400], fontSize: 12),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,
@@ -700,7 +700,7 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
-                          fontSize: 14,
+                          fontSize: 12,
                         ),
                       ),
                     ),
@@ -723,7 +723,7 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
                         row.label,
                         style: const TextStyle(
                           fontWeight: FontWeight.w500,
-                          fontSize: 13,
+                          fontSize: 12,
                         ),
                       ),
                     ),

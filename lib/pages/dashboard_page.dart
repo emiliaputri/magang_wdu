@@ -6,6 +6,7 @@ import '../core/theme/app_theme.dart';
 import '../providers/dashboard_provider.dart';
 import '../widgets/dashboard_surveys/client_card.dart';
 import '../widgets/dashboard_surveys/project_card.dart';
+import 'login_page.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -70,9 +71,7 @@ class _DashboardViewState extends State<_DashboardView>
     if (provider.loading) {
       return const Scaffold(
         backgroundColor: AppTheme.background,
-        body: Center(
-          child: CircularProgressIndicator(color: AppTheme.primary),
-        ),
+        body: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
       );
     }
 
@@ -90,14 +89,16 @@ class _DashboardViewState extends State<_DashboardView>
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   const SizedBox(height: 10),
-                  
+
                   // ── ACTIVE PROJECTS HEADER ──
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: AppTheme.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.1)),
+                      border: Border.all(
+                        color: AppTheme.outlineVariant.withOpacity(0.1),
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: AppTheme.onSurface.withOpacity(0.04),
@@ -115,7 +116,11 @@ class _DashboardViewState extends State<_DashboardView>
                             color: AppTheme.primary.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: const Icon(Icons.folder_copy_rounded, color: AppTheme.primary, size: 24),
+                          child: const Icon(
+                            Icons.folder_copy_rounded,
+                            color: AppTheme.primary,
+                            size: 24,
+                          ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -125,7 +130,7 @@ class _DashboardViewState extends State<_DashboardView>
                               Text(
                                 'Active Projects',
                                 style: GoogleFonts.manrope(
-                                  fontSize: 18,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w800,
                                   color: AppTheme.onSurface,
                                   letterSpacing: -0.5,
@@ -134,8 +139,10 @@ class _DashboardViewState extends State<_DashboardView>
                               Text(
                                 'Overview of latest projects',
                                 style: GoogleFonts.inter(
-                                  fontSize: 13,
-                                  color: AppTheme.onSurfaceVariant.withOpacity(0.6),
+                                  fontSize: 11,
+                                  color: AppTheme.onSurfaceVariant.withOpacity(
+                                    0.6,
+                                  ),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -145,7 +152,7 @@ class _DashboardViewState extends State<_DashboardView>
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
 
                   // ── PROJECT LIST ──
                   if (provider.filteredProjects.isNotEmpty) ...[
@@ -168,7 +175,7 @@ class _DashboardViewState extends State<_DashboardView>
           ],
         ),
       ),
-      floatingActionButton: _buildFAB(),
+
       bottomNavigationBar: _buildBottomNavBar(),
     );
   }
@@ -184,7 +191,10 @@ class _DashboardViewState extends State<_DashboardView>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: FlexibleSpaceBar(
-            titlePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            titlePadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 12,
+            ),
             centerTitle: false,
             title: Row(
               children: [
@@ -192,7 +202,8 @@ class _DashboardViewState extends State<_DashboardView>
                   'assets/images/SIS-WDU-logo.png',
                   height: 32,
                   fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) => const Text('SIS-WDU'),
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Text('SIS-WDU'),
                 ),
               ],
             ),
@@ -201,38 +212,38 @@ class _DashboardViewState extends State<_DashboardView>
       ),
       actions: [
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Logout'),
+                content: const Text('Apakah Anda yakin ingin keluar?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Batal'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginPage(),
+                        ),
+                        (route) => false,
+                      );
+                    },
+                    child: const Text('Logout'),
+                  ),
+                ],
+              ),
+            );
+          },
           icon: const Icon(Icons.logout_rounded, color: AppTheme.primary),
           padding: const EdgeInsets.only(right: 20),
         ),
       ],
-    );
-  }
-
-  Widget _buildFAB() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20, right: 10),
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        color: AppTheme.primary,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primary.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {},
-          borderRadius: BorderRadius.circular(16),
-          child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
-        ),
-      ),
     );
   }
 
@@ -288,15 +299,19 @@ class _DashboardViewState extends State<_DashboardView>
           children: [
             Icon(
               icon,
-              color: isActive ? Colors.white : AppTheme.onSurface.withOpacity(0.6),
+              color: isActive
+                  ? Colors.white
+                  : AppTheme.onSurface.withOpacity(0.6),
               size: 24,
             ),
             const SizedBox(height: 4),
             Text(
               label.toUpperCase(),
               style: TextStyle(
-                color: isActive ? Colors.white : AppTheme.onSurface.withOpacity(0.6),
-                fontSize: 10,
+                color: isActive
+                    ? Colors.white
+                    : AppTheme.onSurface.withOpacity(0.6),
+                fontSize: 9,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.5,
               ),
@@ -330,7 +345,7 @@ class _ClientsSection extends StatelessWidget {
                 Text(
                   'Clients',
                   style: GoogleFonts.manrope(
-                    fontSize: 28,
+                    fontSize: 22,
                     fontWeight: FontWeight.w800,
                     color: AppTheme.onSurface,
                     letterSpacing: -1,
@@ -341,7 +356,7 @@ class _ClientsSection extends StatelessWidget {
                   style: GoogleFonts.inter(
                     color: AppTheme.onSurfaceVariant.withOpacity(0.7),
                     fontWeight: FontWeight.w500,
-                    fontSize: 14,
+                    fontSize: 12,
                   ),
                 ),
               ],
@@ -367,7 +382,9 @@ class _ClientsSection extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppTheme.surfaceContainerLowest,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.1)),
+              border: Border.all(
+                color: AppTheme.outlineVariant.withOpacity(0.1),
+              ),
             ),
             child: Column(
               children: [
@@ -380,7 +397,7 @@ class _ClientsSection extends StatelessWidget {
                 Text(
                   'No clients found',
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 12,
                     color: AppTheme.onSurfaceVariant.withOpacity(0.5),
                     fontWeight: FontWeight.w500,
                   ),
@@ -395,9 +412,9 @@ class _ClientsSection extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 24),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.65,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 0.72,
             ),
             itemCount: provider.filteredClients.length,
             itemBuilder: (context, index) =>
@@ -412,7 +429,7 @@ class _ClientsSection extends StatelessWidget {
       children: [
         // ── SEARCH BAR ──
         Container(
-          height: 60,
+          height: 44,
           decoration: BoxDecoration(
             color: AppTheme.surfaceContainerLowest,
             borderRadius: BorderRadius.circular(16),
@@ -423,7 +440,9 @@ class _ClientsSection extends StatelessWidget {
                 offset: const Offset(0, 8),
               ),
             ],
-            border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.15)),
+            border: Border.all(
+              color: AppTheme.outlineVariant.withOpacity(0.15),
+            ),
           ),
           child: TextField(
             onChanged: (val) {
@@ -434,11 +453,14 @@ class _ClientsSection extends StatelessWidget {
               hintStyle: TextStyle(
                 color: AppTheme.outline.withOpacity(0.6),
                 fontWeight: FontWeight.w500,
-                fontSize: 14,
+                fontSize: 12,
               ),
-              prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.outline),
+              prefixIcon: const Icon(
+                Icons.search_rounded,
+                color: AppTheme.outline,
+              ),
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 18),
+              contentPadding: const EdgeInsets.symmetric(vertical: 12),
             ),
           ),
         ),
@@ -446,4 +468,3 @@ class _ClientsSection extends StatelessWidget {
     );
   }
 }
-

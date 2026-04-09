@@ -25,10 +25,10 @@ class AppInputField extends StatelessWidget {
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: const TextStyle(fontSize: 14, color: Color(0xFF1A1A1A)),
+      style: const TextStyle(fontSize: 12, color: Color(0xFF1A1A1A)),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFFBBBBBB), fontSize: 14),
+        hintStyle: const TextStyle(color: Color(0xFFBBBBBB), fontSize: 12),
         suffixIcon: onToggleObscure != null
             ? IconButton(
                 onPressed: onToggleObscure,

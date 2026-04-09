@@ -28,7 +28,7 @@ class SurveyFieldLabel extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             color: AppColors.green600,
           ),

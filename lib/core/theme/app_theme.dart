@@ -77,7 +77,7 @@ class AppTheme {
   static const Color csInputBorder = Color(0xFFCEE5CF);
 
   static const TextStyle titleStyle = TextStyle(
-    fontSize: 20,
+    fontSize: 14,
     fontWeight: FontWeight.w500,
   );
 
@@ -91,7 +91,7 @@ class AppTheme {
   static const TextStyle sectionHeaderStyle = TextStyle(
     color: Colors.white,
     fontWeight: FontWeight.bold,
-    fontSize: 12,
+    fontSize: 11,
     letterSpacing: 1,
   );
 
@@ -140,11 +140,11 @@ class AppTheme {
         headlineLarge: manropeTextTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w800),
         headlineMedium: manropeTextTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
         headlineSmall: manropeTextTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-        titleLarge: manropeTextTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: 24),
+        titleLarge: manropeTextTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: 14),
         titleMedium: manropeTextTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
         titleSmall: manropeTextTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
         labelLarge: interTextTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, letterSpacing: 1.2),
       ),
     );
   }
-}
+}

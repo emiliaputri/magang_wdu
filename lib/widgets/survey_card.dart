@@ -40,7 +40,7 @@ class SurveyCard extends StatelessWidget {
           Text(
             survey.title,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 13,
               fontWeight: FontWeight.bold,
             ),
           ),

@@ -57,7 +57,7 @@ class ViewSurveyCard extends StatelessWidget {
                   child: Text(
                     survey.title,
                     style: const TextStyle(
-                      fontSize: 15,
+                      fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF222222),
                     ),
@@ -89,7 +89,7 @@ class ViewSurveyCard extends StatelessWidget {
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                            fontSize: 12,
                           ),
                         ),
                       ],
@@ -106,7 +106,7 @@ class ViewSurveyCard extends StatelessWidget {
               Text(
                 survey.desc!,
                 style: const TextStyle(
-                  fontSize: 13,
+                  fontSize: 12,
                   color: Color(0xFF777777),
                   height: 1.4,
                 ),
@@ -128,7 +128,7 @@ class ViewSurveyCard extends StatelessWidget {
                     child: Text(
                       survey.targetLocation,
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0xFFAAAAAA),
                       ),
                     ),
@@ -195,7 +195,7 @@ class ViewSurveyCard extends StatelessWidget {
                   Text(
                     'TARGET PROVINCES',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.8,
                     ),
@@ -236,13 +236,13 @@ class ViewSurveyCard extends StatelessWidget {
                     children: [
                       const Text(
                         'All Provinces',
-                        style: TextStyle(fontSize: 13),
+                        style: TextStyle(fontSize: 12),
                       ),
                       const Spacer(),
                       Text(
                         'View all',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           color: Colors.green[700],
                           fontWeight: FontWeight.w600,
                         ),
@@ -383,7 +383,7 @@ class _ActionBtn extends StatelessWidget {
         style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.w700,
-          fontSize: 13, // Kembali ke ukuran awal (13)
+          fontSize: 12, // Kembali ke ukuran awal (13)
         ),
       ),
     ),
