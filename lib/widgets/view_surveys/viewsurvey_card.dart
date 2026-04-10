@@ -35,45 +35,47 @@ class ViewSurveyCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12), // 🔥 diperkecil
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+            color: Colors.black.withOpacity(0.04), // 🔥 lebih ringan
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12), // 🔥 dari 16 → 12
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── TITLE + RESPONSE COUNT ──
+            // ── TITLE + RESPONSE ──
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Text(
                     survey.title,
+                    maxLines: 2, // 🔥 penting
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 11, // 🔥 dari 12 → 11
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF222222),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 6),
                 GestureDetector(
                   onTap: onTapResponden,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
+                      horizontal: 8, // 🔥 kecilin
+                      vertical: 4,
                     ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF4CAF50),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -81,15 +83,15 @@ class ViewSurveyCard extends StatelessWidget {
                         const Icon(
                           Icons.bar_chart_rounded,
                           color: Colors.white,
-                          size: 16,
+                          size: 12, // 🔥 kecil
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 2),
                         Text(
                           '${survey.responseCount}',
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                            fontSize: 10, // 🔥 kecil
                           ),
                         ),
                       ],
@@ -99,36 +101,40 @@ class ViewSurveyCard extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
 
             // ── DESCRIPTION ──
             if (survey.desc != null && survey.desc!.isNotEmpty)
               Text(
                 survey.desc!,
+                maxLines: 2, // 🔥 penting
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   color: Color(0xFF777777),
-                  height: 1.4,
+                  height: 1.3,
                 ),
               ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
             // ── LOCATION + STATUS ──
             Row(
               children: [
                 const Icon(
                   Icons.location_on_outlined,
-                  size: 14,
+                  size: 12,
                   color: Color(0xFFAAAAAA),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 3),
                 if (survey.provinceTargets.isEmpty)
                   Expanded(
                     child: Text(
                       survey.targetLocation,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 11,
+                        fontSize: 10,
                         color: Color(0xFFAAAAAA),
                       ),
                     ),
@@ -137,150 +143,46 @@ class ViewSurveyCard extends StatelessWidget {
                   const Spacer(),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
+                    horizontal: 8,
+                    vertical: 3,
                   ),
                   decoration: BoxDecoration(
                     color: isOpen
                         ? const Color(0xFF4CAF50).withOpacity(0.1)
                         : const Color(0xFFEF5350).withOpacity(0.1),
-                    border: Border.all(
-                      color: isOpen
-                          ? const Color(0xFF4CAF50).withOpacity(0.4)
-                          : const Color(0xFFEF5350).withOpacity(0.4),
-                      width: 1.2,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 7,
-                        height: 7,
-                        decoration: BoxDecoration(
-                          color: isOpen
-                              ? const Color(0xFF4CAF50)
-                              : const Color(0xFFEF5350),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        isOpen ? 'DIBUKA' : 'DITUTUP',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
-                          color: isOpen
-                              ? const Color(0xFF2E7D32)
-                              : const Color(0xFFB71C1C),
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    isOpen ? 'DIBUKA' : 'DITUTUP',
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      color: isOpen
+                          ? const Color(0xFF2E7D32)
+                          : const Color(0xFFB71C1C),
+                    ),
                   ),
                 ),
               ],
             ),
 
-            // ── TARGET PROVINCES ──
-            if (survey.provinceTargets.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              const Divider(height: 1, color: Color(0xFFF0F0F0)),
-              const SizedBox(height: 10),
-              const Row(
-                children: [
-                  Icon(Icons.location_on, color: Color(0xFF4CAF50), size: 16),
-                  SizedBox(width: 6),
-                  Text(
-                    'TARGET PROVINCES',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    settings: RouteSettings(
-                      name: '/province_target',
-                      arguments: {
-                        'surveyName': survey.title,
-                        'provinces': survey.provinceTargets
-                            .map((p) => p.toJson())
-                            .toList(),
-                      },
-                    ),
-                    builder: (_) => ProvinceTargetPage(
-                      surveyName: survey.title,
-                      provinces: survey.provinceTargets,
-                    ),
-                  ),
-                ),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 14,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE0E0E0)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Text(
-                        'All Provinces',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      const Spacer(),
-                      Text(
-                        'View all',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.green[700],
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.chevron_right, size: 18),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-            ],
+            const Spacer(), // 🔥 KUNCI BIAR MUAT DI GRID
 
-            const Divider(height: 1, color: Color(0xFFF0F0F0)),
-            const SizedBox(height: 10),
+            const Divider(height: 1),
+            const SizedBox(height: 6),
 
-            // ── ACTION BUTTONS ──
+            // ── BUTTONS FIX ──
             Row(
               children: [
                 Expanded(
                   child: _ActionBtn(
-                    label: hasAnswered ? 'Cek / Edit' : 'Isi Kuisioner',
+                    label: hasAnswered ? 'Edit' : 'Isi',
                     color: const Color(0xFF4CAF50),
                     onTap: () {
                       if (hasAnswered) {
-                        // Already answered - go to edit page
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            settings: RouteSettings(
-                              name: '/cek_edit_survey',
-                              arguments: {
-                                'surveySlug': survey.slug,
-                                'clientSlug': clientSlug,
-                                'projectSlug': projectSlug,
-                                'responseId': 0,
-                              },
-                            ),
                             builder: (_) => CekEditSurveyPage(
                               surveySlug: survey.slug,
                               clientSlug: clientSlug,
@@ -290,18 +192,9 @@ class ViewSurveyCard extends StatelessWidget {
                           ),
                         );
                       } else {
-                        // Not yet answered - go to biodata first
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            settings: RouteSettings(
-                              name: '/biodata',
-                              arguments: {
-                                'surveySlug': survey.slug,
-                                'clientSlug': clientSlug,
-                                'projectSlug': projectSlug,
-                              },
-                            ),
                             builder: (_) => BiodataPage(
                               surveySlug: survey.slug,
                               clientSlug: clientSlug,
@@ -313,7 +206,7 @@ class ViewSurveyCard extends StatelessWidget {
                     },
                   ),
                 ),
-                const SizedBox(width: 24), // Jarak diperbesar lagi menjadi 24
+                const SizedBox(width: 8), // 🔥 dari 24 → 8
                 Expanded(
                   child: _ActionBtn(
                     label: 'Monitor',
@@ -321,18 +214,6 @@ class ViewSurveyCard extends StatelessWidget {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        settings: RouteSettings(
-                          name: '/monitoring',
-                          arguments: {
-                            'surveyName': survey.title,
-                            'clientSlug': clientSlug,
-                            'projectSlug': projectSlug,
-                            'surveySlug': survey.slug,
-                            'totalRespon': survey.responseCount,
-                            'targetLocation': survey.targetLocation,
-                            'isOpen': survey.isOpen,
-                          },
-                        ),
                         builder: (_) => MonitoringSurveyPage(
                           surveyName: survey.title,
                           clientSlug: clientSlug,
@@ -355,6 +236,7 @@ class ViewSurveyCard extends StatelessWidget {
   }
 }
 
+// ── BUTTON FIX ──
 class _ActionBtn extends StatelessWidget {
   final String label;
   final Color color;
@@ -368,24 +250,27 @@ class _ActionBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: 38, // Kembali ke ukuran awal (38)
-    child: ElevatedButton(
-      onPressed: onTap,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        elevation: 0,
-      ),
-      child: Text(
-        label,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w700,
-          fontSize: 12, // Kembali ke ukuran awal (13)
+        height: 30, // 🔥 kecilin
+        child: ElevatedButton(
+          onPressed: onTap,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: color,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+            elevation: 0,
+          ),
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 10, // 🔥 kecil
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
         ),
-      ),
-    ),
-  );
+      );
 }
