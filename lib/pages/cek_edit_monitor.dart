@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import '../core/theme/app_theme.dart';
 import '../models/survey_response_detail_model.dart';
-import '../service/survey_service.dart';   // ← pakai SurveyService untuk load
+import '../service/survey_service.dart'; // ← pakai SurveyService untuk load
 import '../service/edit_answer_service.dart'; // ← pakai EditAnswerService untuk save
 
 class CekEditMonitorPage extends StatefulWidget {
   final String surveySlug;
   final String clientSlug;
   final String projectSlug;
-  final int responseId; // ← dipakai untuk GET report/{responseId} dan POST change-answer/{responseId}
+  final int
+  responseId; // ← dipakai untuk GET report/{responseId} dan POST change-answer/{responseId}
 
   const CekEditMonitorPage({
     super.key,
@@ -24,7 +25,7 @@ class CekEditMonitorPage extends StatefulWidget {
 
 class _CekEditMonitorPageState extends State<CekEditMonitorPage>
     with SingleTickerProviderStateMixin {
-  final SurveyService _surveyService = SurveyService();       // untuk load
+  final SurveyService _surveyService = SurveyService(); // untuk load
   final EditAnswerService _editService = EditAnswerService(); // untuk save
 
   bool isLoading = true;
@@ -44,6 +45,12 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
       duration: const Duration(milliseconds: 600),
     )..forward();
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
   }
 
   // ── LOAD: pakai GET report/{responseId} ──────────────────
@@ -78,12 +85,6 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
     } finally {
       setState(() => isLoading = false);
     }
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    super.dispose();
   }
 
   // ── BUILD ─────────────────────────────────────────────────
@@ -287,14 +288,20 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
 
   Widget _buildAnswerInput(SurveyQuestionData q) {
     switch (q.typeString) {
-      case 'radio':     return _buildRadio(q);
-      case 'checkbox':  return _buildCheckbox(q);
-      case 'dropdown':  return _buildDropdown(q);
+      case 'radio':
+        return _buildRadio(q);
+      case 'checkbox':
+        return _buildCheckbox(q);
+      case 'dropdown':
+        return _buildDropdown(q);
       case 'text':
       case 'number':
-      case 'paragraph': return _buildTextField(q);
-      case 'matrix':    return _buildMatrix(q);
-      default:          return const SizedBox();
+      case 'paragraph':
+        return _buildTextField(q);
+      case 'matrix':
+        return _buildMatrix(q);
+      default:
+        return const SizedBox();
     }
   }
 
@@ -313,7 +320,9 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
                 color: isSelected ? AppTheme.monGreenPale : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: isSelected ? AppTheme.monGreenMid : Colors.grey.shade300,
+                  color: isSelected
+                      ? AppTheme.monGreenMid
+                      : Colors.grey.shade300,
                   width: isSelected ? 1.5 : 1,
                 ),
               ),
@@ -336,8 +345,9 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
                         color: isSelected
                             ? AppTheme.monTextDark
                             : Colors.grey.shade700,
-                        fontWeight:
-                            isSelected ? FontWeight.w500 : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.w500
+                            : FontWeight.normal,
                       ),
                     ),
                   ),
@@ -376,7 +386,9 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
                 color: isChecked ? AppTheme.monGreenPale : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: isChecked ? AppTheme.monGreenMid : Colors.grey.shade300,
+                  color: isChecked
+                      ? AppTheme.monGreenMid
+                      : Colors.grey.shade300,
                   width: isChecked ? 1.5 : 1,
                 ),
               ),
@@ -409,8 +421,9 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
                         color: isChecked
                             ? AppTheme.monTextDark
                             : Colors.grey.shade700,
-                        fontWeight:
-                            isChecked ? FontWeight.w500 : FontWeight.normal,
+                        fontWeight: isChecked
+                            ? FontWeight.w500
+                            : FontWeight.normal,
                       ),
                     ),
                   ),
@@ -431,8 +444,10 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
         color: AppTheme.monGreenMid,
       ),
       decoration: InputDecoration(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         filled: true,
         fillColor: Colors.grey.shade50,
         border: OutlineInputBorder(
@@ -450,10 +465,12 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
       ),
       hint: const Text("Pilih salah satu..."),
       items: q.choices
-          .map((opt) => DropdownMenuItem(
-                value: opt.id.toString(),
-                child: Text(opt.value),
-              ))
+          .map(
+            (opt) => DropdownMenuItem(
+              value: opt.id.toString(),
+              child: Text(opt.value),
+            ),
+          )
           .toList(),
       onChanged: (val) => setState(() => answers[q.id] = val),
     );
@@ -508,44 +525,53 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
               ? Map<int, dynamic>.from(answers[q.id] as Map)
               : <int, dynamic>{};
 
-          return DataRow(cells: [
-            DataCell(Text(
-              row.label,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            )),
-            ...q.matrixColumns.asMap().entries.map((colEntry) {
-              final colIndex = colEntry.key;
+          return DataRow(
+            cells: [
+              DataCell(
+                Text(
+                  row.label,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
+              ),
+              ...q.matrixColumns.asMap().entries.map((colEntry) {
+                final colIndex = colEntry.key;
 
-              if (q.matrixType == 'radio') {
-                return DataCell(Radio<int>(
-                  value: colIndex,
-                  groupValue: currentMap[rowIndex] as int?,
-                  activeColor: AppTheme.monGreenMid,
-                  onChanged: (_) => setState(() {
-                    currentMap[rowIndex] = colIndex;
-                    answers[q.id] = Map<int, dynamic>.from(currentMap);
-                  }),
-                ));
-              } else {
-                final rowCols = currentMap[rowIndex] is List
-                    ? List<int>.from(currentMap[rowIndex] as List)
-                    : <int>[];
-                return DataCell(Checkbox(
-                  value: rowCols.contains(colIndex),
-                  activeColor: AppTheme.monGreenMid,
-                  onChanged: (checked) => setState(() {
-                    if (checked == true) {
-                      if (!rowCols.contains(colIndex)) rowCols.add(colIndex);
-                    } else {
-                      rowCols.remove(colIndex);
-                    }
-                    currentMap[rowIndex] = rowCols;
-                    answers[q.id] = Map<int, dynamic>.from(currentMap);
-                  }),
-                ));
-              }
-            }),
-          ]);
+                if (q.matrixType == 'radio') {
+                  return DataCell(
+                    Radio<int>(
+                      value: colIndex,
+                      groupValue: currentMap[rowIndex] as int?,
+                      activeColor: AppTheme.monGreenMid,
+                      onChanged: (_) => setState(() {
+                        currentMap[rowIndex] = colIndex;
+                        answers[q.id] = Map<int, dynamic>.from(currentMap);
+                      }),
+                    ),
+                  );
+                } else {
+                  final rowCols = currentMap[rowIndex] is List
+                      ? List<int>.from(currentMap[rowIndex] as List)
+                      : <int>[];
+                  return DataCell(
+                    Checkbox(
+                      value: rowCols.contains(colIndex),
+                      activeColor: AppTheme.monGreenMid,
+                      onChanged: (checked) => setState(() {
+                        if (checked == true) {
+                          if (!rowCols.contains(colIndex))
+                            rowCols.add(colIndex);
+                        } else {
+                          rowCols.remove(colIndex);
+                        }
+                        currentMap[rowIndex] = rowCols;
+                        answers[q.id] = Map<int, dynamic>.from(currentMap);
+                      }),
+                    ),
+                  );
+                }
+              }),
+            ],
+          );
         }).toList(),
       ),
     );

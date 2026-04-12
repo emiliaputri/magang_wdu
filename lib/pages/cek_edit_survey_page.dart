@@ -26,7 +26,8 @@ class CekEditSurveyPage extends StatefulWidget {
   State<CekEditSurveyPage> createState() => _CekEditSurveyPageState();
 }
 
-class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
+class _CekEditSurveyPageState extends State<CekEditSurveyPage>
+    with WidgetsBindingObserver {
   final EditAnswerService _editService = EditAnswerService();
   final ApiClient _api = ApiClient();
 
@@ -44,14 +45,31 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadData();
+    }
   }
 
   Future<String?> _fetchCurrentUserId() async {
     try {
       final response = await _api.get(Endpoints.me);
       if (response.data != null) {
-        return response.data!['id']?.toString();
+        // Handle root 'id' or nested 'data.id'
+        final id = response.data!['id'] ?? 
+                   (response.data!['data'] is Map ? response.data!['data']['id'] : null);
+        return id?.toString();
       }
     } catch (e) {
       debugPrint("Error fetch current user: $e");
@@ -94,6 +112,9 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
         print(
           "DEBUG _loadData - pages: ${data.pages.length}, answers: ${data.answers.length}, responseId: ${data.responseId}",
         );
+        for (var i = 0; i < data.answers.length; i++) {
+          print("DEBUG Answer[$i]: QID=${data.answers[i].questionId}, Ans=${data.answers[i].answer}");
+        }
         surveyData = data;
 
         // Ambil responseId dari top-level atau cari dari jawaban yang ada
@@ -207,8 +228,8 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Kuisioner berhasil dikirim")),
           );
-          // Berubah menjadi mode edit setelah sukses simpan (opsional)
           setState(() => isNewSurvey = false);
+          await _loadData();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Gagal mengirim kuisioner")),
@@ -255,6 +276,7 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Jawaban berhasil disimpan")),
           );
+          await _loadData();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Gagal menyimpan jawaban")),

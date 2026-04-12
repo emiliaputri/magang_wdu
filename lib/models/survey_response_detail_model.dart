@@ -48,6 +48,64 @@ class SurveyResponseDetail {
   });
 
   factory SurveyResponseDetail.fromJson(Map<String, dynamic> json) {
+    final Map<String, dynamic>? responsesMap =
+        _extractMap(json['responses']) ??
+        (json['responses'] is List && (json['responses'] as List).isNotEmpty
+            ? _extractMap((json['responses'] as List).first)
+            : null) ??
+        _extractMap(json['response']);
+
+    final List<SurveyPageData> parsedPages =
+        (json['pages'] as List? ??
+                json['page'] as List? ??
+                json['detail_pages'] as List? ??
+                json['detail_questions'] as List?)
+            ?.map((e) => SurveyPageData.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        [];
+
+    final List<SurveyAnswerData> parsedAnswers = (() {
+      final List<dynamic> rawAnswers = [
+        ...(json['answer'] as List? ?? []),
+        ...(json['answers'] as List? ?? []),
+      ];
+
+      // Coba cari dalam responses jika answers di root kosong
+      if (responsesMap != null) {
+        rawAnswers.addAll(responsesMap['answer'] as List? ?? []);
+        rawAnswers.addAll(responsesMap['answers'] as List? ?? []);
+        // Juga cek jika ada 'responses' -> 'data' -> 'answer'
+        final dataObj = responsesMap['data'];
+        if (dataObj is Map) {
+          rawAnswers.addAll(dataObj['answer'] as List? ?? []);
+          rawAnswers.addAll(dataObj['answers'] as List? ?? []);
+        }
+      }
+
+      List<SurveyAnswerData> result = rawAnswers
+          .whereType<Map<String, dynamic>>()
+          .map((e) => SurveyAnswerData.fromJson(e))
+          .where((a) => a.questionId > 0)
+          .toList();
+
+      // Selalu coba kumpulkan answer yang tertanam di tiap question untuk melengkapi
+      final Set<int> existingQuestionIds = result
+          .map((a) => a.questionId)
+          .toSet();
+      for (final page in parsedPages) {
+        for (final q in page.questions) {
+          if (!existingQuestionIds.contains(q.id) &&
+              q.embeddedAnswers.isNotEmpty) {
+            result.addAll(
+              q.embeddedAnswers.map((ea) => SurveyAnswerData.fromJson(ea)),
+            );
+          }
+        }
+      }
+
+      return result;
+    })();
+
     return SurveyResponseDetail(
       survey: _extractMap(json['surveys']) != null
           ? SurveyModel.fromJson(_extractMap(json['surveys'])!)
@@ -64,37 +122,8 @@ class SurveyResponseDetail {
           : (_extractMap(json['client']) != null
                 ? Client.fromJson(_extractMap(json['client'])!)
                 : null),
-
-      pages:
-          (json['pages'] as List? ??
-                  json['page'] as List? ??
-                  json['detail_pages'] as List? ??
-                  json['detail_questions'] as List?)
-              ?.map((e) => SurveyPageData.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-
-      answers: (() {
-        final List<dynamic> rawAnswers = [
-          ...(json['answer'] as List? ?? []),
-          ...(json['answers'] as List? ?? []),
-        ];
-        
-        // Coba cari dalam responses jika answers di root kosong
-        if (rawAnswers.isEmpty) {
-          dynamic resp = json['responses'] ?? json['response'];
-          if (resp is List && resp.isNotEmpty) resp = resp.first;
-          if (resp is Map) {
-            rawAnswers.addAll(resp['answer'] as List? ?? []);
-            rawAnswers.addAll(resp['answers'] as List? ?? []);
-          }
-        }
-        
-        return rawAnswers
-            .map((e) => SurveyAnswerData.fromJson(e as Map<String, dynamic>))
-            .toList();
-      })(),
-
+      pages: parsedPages,
+      answers: parsedAnswers,
       editedAt: json['edited_at'] != null
           ? DateTime.tryParse(json['edited_at'].toString())
           : null,
@@ -103,16 +132,20 @@ class SurveyResponseDetail {
             json['id'] ??
             json['responseId'] ??
             json['id_response'] ??
-            json['responses']?['id'] ??
-            json['response']?['id'],
+            json['res_id'] ??
+            responsesMap?['id'],
       ),
-      responses: _extractMap(json['responses']) ??
-                 (json['responses'] is List && (json['responses'] as List).isNotEmpty ? _extractMap((json['responses'] as List).first) : null) ??
-                 _extractMap(json['response']),
-      location: _extractMap(json['location']) ??
-                (json['location'] is List && (json['location'] as List).isNotEmpty ? _extractMap((json['location'] as List).first) : null),
-      biodata: _extractMap(json['biodata']) ??
-               (json['biodata'] is List && (json['biodata'] as List).isNotEmpty ? _extractMap((json['biodata'] as List).first) : null),
+      responses: responsesMap,
+      location:
+          _extractMap(json['location']) ??
+          (json['location'] is List && (json['location'] as List).isNotEmpty
+              ? _extractMap((json['location'] as List).first)
+              : null),
+      biodata:
+          _extractMap(json['biodata']) ??
+          (json['biodata'] is List && (json['biodata'] as List).isNotEmpty
+              ? _extractMap((json['biodata'] as List).first)
+              : null),
     );
   }
 }
@@ -242,7 +275,7 @@ class SurveyQuestionData {
       matrixColumns: parsedCols,
       matrixType: json['matrix_type'] ?? 'radio',
       embeddedAnswers:
-          (json['answer'] as List?)
+          (json['answer'] as List? ?? json['answers'] as List?)
               ?.map((e) => Map<String, dynamic>.from(e as Map))
               .toList() ??
           [],
@@ -359,17 +392,31 @@ class SurveyAnswerData {
 
   factory SurveyAnswerData.fromJson(Map<String, dynamic> json) {
     return SurveyAnswerData(
-      id: _toInt(json['id']) ?? 0,
+      id: _toInt(json['id'] ?? json['id_answer']) ?? 0,
       responseId:
           _toInt(
             json['response_id'] ??
                 json['responseId'] ??
                 json['id_response'] ??
-                json['res_id'],
+                json['res_id'] ??
+                json['id_report'],
           ) ??
           0,
-      questionId: _toInt(json['question_id'] ?? json['questionId']) ?? 0,
-      answer: json['answer']?.toString() ?? '',
+      questionId:
+          _toInt(
+            json['question_id'] ?? json['questionId'] ?? json['id_pertanyaan'],
+          ) ??
+          0,
+      answer:
+          (json['answer'] ??
+                  json['ans'] ??
+                  json['value'] ??
+                  json['texts'] ??
+                  json['radios'] ??
+                  json['checkboxes'] ??
+                  json['dropdowns'])
+              ?.toString() ??
+          '',
     );
   }
 

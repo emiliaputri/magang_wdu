@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 import '../core/api/api_client.dart';
 import '../core/constants/endpoints.dart';
@@ -137,6 +138,7 @@ class EditAnswerService {
           if (data.containsKey('data') &&
               data['data'] is Map<String, dynamic>) {
             print("DEBUG getEditAnswerData - Using data['data'] as Map");
+            debugPrint("DEBUG RAW DATA: ${jsonEncode(data['data'])}");
             return SurveyResponseDetail.fromJson(
               data['data'] as Map<String, dynamic>,
             );
@@ -146,17 +148,22 @@ class EditAnswerService {
               "DEBUG getEditAnswerData - Using data['data'] as List, length: ${list.length}",
             );
             if (list.isNotEmpty && list.first is Map<String, dynamic>) {
+              debugPrint(
+                "DEBUG RAW LIST FIRST ITEM: ${jsonEncode(list.first)}",
+              );
               return SurveyResponseDetail.fromJson(
                 list.first as Map<String, dynamic>,
               );
             }
           }
           print("DEBUG getEditAnswerData - Using raw Map");
+          debugPrint("DEBUG RAW MAP: ${jsonEncode(data)}");
           return SurveyResponseDetail.fromJson(data);
         } else if (data is List && data.isNotEmpty) {
           print("DEBUG getEditAnswerData - Raw List, length: ${data.length}");
           final firstItem = data.first;
           if (firstItem is Map<String, dynamic>) {
+            debugPrint("DEBUG RAW FIRST ITEM: ${jsonEncode(firstItem)}");
             return SurveyResponseDetail.fromJson(firstItem);
           }
         }
@@ -166,8 +173,12 @@ class EditAnswerService {
       rethrow;
     } catch (e, st) {
       print("getEditAnswerData ERROR: $e\n$st");
-      // Coba lempar exception ini agar di-catch dan ditangani
-      throw Exception("Format API tidak sesuai: $e");
+      // Jika error, coba fallback ke form kosong agar tidak stuck blank
+      return await getSurveyFormKosong(
+        clientSlug: clientSlug,
+        projectSlug: projectSlug,
+        surveySlug: surveySlug,
+      );
     }
   }
 
@@ -277,45 +288,66 @@ class EditAnswerService {
   }
 
   /// Konversi jawaban UI ke format key yang diterima Laravel
-  Map<String, dynamic> _buildAnswerValue(
+  /// Return: List<Map> dengan key 'answe' sesuai format AnswerService::processQuestion
+  List<Map<String, dynamic>> _buildAnswerValue(
     SurveyQuestionData question,
     dynamic answer,
   ) {
-    if (answer == null) return {'texts': ''};
+    if (answer == null)
+      return [
+        {'answe': ''},
+      ];
 
     switch (question.questionTypeId) {
       case 1: // Text
       case 8: // Paragraph
-        return {'texts': answer.toString()};
+        return [
+          {'answe': answer.toString()},
+        ];
 
       case 2: // Radio
-        return {'radios': answer.toString()};
+        return [
+          {'answe': answer.toString()},
+        ];
 
       case 3: // Checkbox
-        if (answer is List) {
-          return {'checkboxes': answer.map((e) => e.toString()).toList()};
+        if (answer is List && answer.isNotEmpty) {
+          return [
+            {'answe': answer.map((e) => e.toString()).toList()},
+          ];
         }
-        return {'checkboxes': []};
+        return [
+          {'answe': []},
+        ];
 
       case 6: // Rating/Number
-        return {'radios': answer.toString()};
+        return [
+          {'answe': answer.toString()},
+        ];
 
       case 7: // Dropdown
-        return {'dropdowns': answer.toString()};
+        return [
+          {'answe': answer.toString()},
+        ];
 
       case 9: // Matrix
-        return {'matrix': _buildMatrixValue(question.matrixType, answer)};
+        final matrixJson = _buildMatrixValue(question.matrixType, answer);
+        return [
+          {'answe': matrixJson},
+        ];
 
       default:
-        return {'texts': answer.toString()};
+        return [
+          {'answe': answer.toString()},
+        ];
     }
   }
 
-  /// Konversi jawaban matrix dari UI ke format JSON yang diterima Laravel
-  ///   radio    → {"0": 1, "1": 2}
-  ///   checkbox → {"0": [0,1], "1": [2]}
-  Map<String, dynamic> _buildMatrixValue(String matrixType, dynamic answer) {
-    if (answer is! Map) return {};
+  /// Konversi jawaban matrix dari UI ke JSON string yang diterima Laravel
+  ///   radio    → '{"0": 1, "1": 2}'
+  ///   checkbox → '{"0": [0,1], "1": [2]}'
+  String _buildMatrixValue(String matrixType, dynamic answer) {
+    if (answer is! Map || answer.isEmpty) return '{}';
 
     final Map<String, dynamic> result = {};
     answer.forEach((key, value) {
@@ -326,7 +358,7 @@ class EditAnswerService {
       }
     });
 
-    return result;
+    return jsonEncode(result);
   }
 
   // ---------------------------------------------------------------------------
@@ -397,7 +429,26 @@ class EditAnswerService {
           break;
 
         default: // Semua tipe lain (Text, Paragraph, etc.)
-          result[questionId] = answerList.isNotEmpty ? answerList.first : '';
+          if (answerList.isNotEmpty) {
+            String raw = answerList.first;
+            // Jika radio/dropdown tapi tipenya 'text' di map (mungkin data lama)
+            if (question.questionTypeId == 2 || question.questionTypeId == 7) {
+              final matched = question.choices.where(
+                (c) =>
+                    c.id.toString() == raw ||
+                    c.value.toLowerCase() == raw.toLowerCase(),
+              );
+              if (matched.isNotEmpty) {
+                result[questionId] = matched.first.id.toString();
+              } else {
+                result[questionId] = raw;
+              }
+            } else {
+              result[questionId] = raw;
+            }
+          } else {
+            result[questionId] = '';
+          }
           break;
       }
     });
