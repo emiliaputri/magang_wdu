@@ -61,21 +61,30 @@ class SubmissionService {
     required Map<String, dynamic> answers,
   }) async {
     try {
-      debugPrint('DEBUG submitSurvey: surveyId=$surveyId');
-      debugPrint('DEBUG submitSurvey: payload keys = ${answers.keys.toList()}');
+      debugPrint('🚀 [SUBMIT] Starting submission for surveyId: $surveyId');
 
       // Wrap payload dalam field "data" sesuai format backend
       final wrappedPayload = {'data': jsonEncode(answers)};
 
-      debugPrint('DEBUG submitSurvey: wrapped payload = $wrappedPayload');
+      // ── DEBUG LOGGING ──
+      const encoder = JsonEncoder.withIndent('  ');
+      final prettyPayload = encoder.convert(answers);
+      debugPrint('📦 [SUBMIT] PAYLOAD TO SEND:\n$prettyPayload');
+      debugPrint('🔗 [SUBMIT] ENDPOINT: ${Endpoints.submitAnswer(clientSlug, projectSlug, surveyId)}');
 
-      await _api.post(
+      final response = await _api.post(
         Endpoints.submitAnswer(clientSlug, projectSlug, surveyId),
         body: wrappedPayload,
       );
-      return true;
+
+      if (response.success) {
+        debugPrint('✅ [SUBMIT] SUCCESS: ${response.message}');
+        return true;
+      }
+      return false;
     } catch (e, st) {
-      print("Error submitSurvey: $e\n$st");
+      debugPrint('🚨 [SUBMIT] FATAL ERROR: $e');
+      debugPrint('StackTrace: $st');
       return false;
     }
   }

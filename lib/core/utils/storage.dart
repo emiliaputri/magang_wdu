@@ -1,6 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 // ─────────────────────────────────────────────────────────────
 
@@ -181,9 +182,26 @@ class StorageHelper {
     final key = '$_keyDraftSurveyPrefix$surveySlug';
     final jsonStr = prefs.getString(key);
     if (jsonStr == null) return null;
+
     try {
-      return jsonDecode(jsonStr) as Map<String, dynamic>;
-    } catch (_) {
+      final data = jsonDecode(jsonStr) as Map<String, dynamic>;
+
+      // ── KONVERSI JAWABAN (String Key -> Int Key) ──
+      if (data.containsKey('answers') && data['answers'] is Map) {
+        final rawAnswers = data['answers'] as Map<String, dynamic>;
+        final converted = <int, dynamic>{};
+
+        rawAnswers.forEach((k, v) {
+          final intKey = int.tryParse(k) ?? 0;
+          converted[intKey] = v;
+        });
+
+        data['answers'] = converted;
+      }
+
+      return data;
+    } catch (e) {
+      debugPrint('Error getDraftSurvey: $e');
       return null;
     }
   }

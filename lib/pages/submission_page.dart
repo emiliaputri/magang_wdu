@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/storage.dart';
 import '../../service/submission_service.dart';
+import 'dart:convert';
 
 class SubmissionPage extends StatefulWidget {
   final String surveySlug;
@@ -45,16 +46,11 @@ class _SubmissionPageState extends State<SubmissionPage> {
   Future<void> _loadDraftIfExists() async {
     final draft = await StorageHelper.getDraftSurvey(widget.surveySlug);
     if (draft != null && mounted) {
-      final answersRaw = draft['answers'];
-      if (answersRaw is Map) {
-        final converted = <int, dynamic>{};
-        answersRaw.forEach((key, value) {
-          final intKey = int.tryParse(key.toString()) ?? 0;
-          converted[intKey] = value;
-        });
+      final answers = draft['answers'];
+      if (answers is Map<int, dynamic>) {
         setState(() {
           _answers.clear();
-          _answers.addAll(converted);
+          _answers.addAll(answers);
           _currentPageIndex = draft['currentPageIndex'] ?? 0;
           _hasDraft = true;
         });
@@ -66,6 +62,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
                 'Ditemukan draft sebelumnya. Jawaban Anda telah dipulihkan.',
               ),
               backgroundColor: Colors.orange,
+              duration: Duration(seconds: 2),
             ),
           );
         }
@@ -922,7 +919,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
         }
         return {'checkboxes': []};
       case 9: // Matrix
-        return {'matrix': _buildMatrixValue(q.matrixType, answer)};
+        return {'matrix': jsonEncode(_buildMatrixValue(q.matrixType, answer))};
       default:
         return {'texts': answer.toString()};
     }
