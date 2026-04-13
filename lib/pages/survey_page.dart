@@ -107,8 +107,6 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
             );
           },
         ),
-        extendBody: true,
-        bottomNavigationBar: _buildBottomNav(),
       ),
     );
   }
@@ -222,7 +220,7 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
           crossAxisCount: isDesktop ? 2 : 1,
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
-          mainAxisExtent: 260,
+          mainAxisExtent: 290,
         ),
         delegate: SliverChildBuilderDelegate((context, index) {
           final survey = filtered[index];
@@ -234,73 +232,6 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
           );
         }, childCount: filtered.length),
       ),
-    );
-  }
-
-  Widget _buildBottomNav() {
-    return SafeArea(
-      child: Container(
-        margin: const EdgeInsets.all(20),
-        height: 80,
-        decoration: BoxDecoration(
-          color: AppTheme.surfaceContainerLowest.withOpacity(0.8),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.15)),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.onSurface.withOpacity(0.08),
-              blurRadius: 48,
-              offset: const Offset(0, 12),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _navItem(Icons.assignment_rounded, 'Surveys', isActive: true),
-                _navItem(Icons.analytics_rounded, 'Monitor'),
-                _navItem(Icons.inventory_2_rounded, 'Archive'),
-                _navItem(Icons.settings_rounded, 'Settings'),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _navItem(IconData icon, String label, {bool isActive = false}) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: isActive ? AppTheme.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
-            gradient: isActive
-                ? const LinearGradient(
-                    colors: [Color(0xFF006A36), Color(0xFF71F69D)],
-                  )
-                : null,
-          ),
-          child: Icon(icon, color: isActive ? Colors.white : AppTheme.outline),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label.toUpperCase(),
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.2,
-            color: isActive ? AppTheme.primary : AppTheme.outline,
-          ),
-        ),
-      ],
     );
   }
 
@@ -443,37 +374,61 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
           ),
         ],
       ),
-      child: widget.clientLogoUrl != null
+      child: widget.clientLogoUrl != null && widget.clientLogoUrl!.isNotEmpty
           ? ClipOval(
               child: Image.network(
                 widget.clientLogoUrl!,
                 fit: BoxFit.cover,
-                errorBuilder: (context, url, error) => _defaultLogoIcon(),
+                errorBuilder: (context, url, error) => _buildFallbackLogo(),
               ),
             )
-          : _defaultLogoIcon(),
+          : _buildFallbackLogo(),
     );
   }
 
-  Widget _defaultLogoIcon() => Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Icon(
-        Icons.insert_drive_file_rounded,
-        size: 34,
-        color: const Color(0xff1a7a5e).withOpacity(0.45),
-      ),
-      const SizedBox(height: 2),
-      Text(
-        'Client Logo',
-        style: const TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-          color: Colors.grey,
+  Widget _buildFallbackLogo() {
+    String nameLower = widget.clientName.toLowerCase();
+    if (nameLower.contains('transjakarta') || nameLower.contains('trans jakarta')) {
+      return ClipOval(child: Image.asset('assets/images/logo_trans.jpeg', fit: BoxFit.cover));
+    } else if (nameLower.contains('bpk') || nameLower.contains('badan pemeriksa keuangan')) {
+      return ClipOval(child: Image.asset('assets/images/logo_bpk.png', fit: BoxFit.cover));
+    } else {
+      return _defaultLogoIcon(widget.clientName);
+    }
+  }
+
+  Widget _defaultLogoIcon(String name) {
+    String initials = '';
+    if (name.isNotEmpty) {
+      List<String> words = name.split(' ');
+      if (words.length > 1) {
+        initials = (words[0][0] + words[1][0]).toUpperCase();
+      } else {
+        initials = words[0][0].toUpperCase();
+      }
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          colors: [AppTheme.primary.withOpacity(0.1), AppTheme.primary.withOpacity(0.2)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
       ),
-    ],
-  );
+      child: Center(
+        child: Text(
+          initials,
+          style: GoogleFonts.manrope(
+            fontSize: 28,
+            fontWeight: FontWeight.w800,
+            color: AppTheme.primary,
+          ),
+        ),
+      ),
+    );
+  }
 
   String _clientDescription(String name) {
     if (name.toLowerCase().contains('bpk') ||

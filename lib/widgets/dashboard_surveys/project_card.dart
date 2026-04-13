@@ -68,6 +68,7 @@ class _ProjectCardState extends State<ProjectCard>
           clientName: widget.project.clientName,
           projectSlug: widget.project.slug,
           projectTitle: widget.project.projectName,
+          clientLogoUrl: widget.project.clientImage, // ✅ Teruskan logo klien
         ),
       ),
     );

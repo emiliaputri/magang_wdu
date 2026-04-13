@@ -7,6 +7,8 @@ import '../providers/dashboard_provider.dart';
 import '../widgets/dashboard_surveys/client_card.dart';
 import '../widgets/dashboard_surveys/project_card.dart';
 import 'login_page.dart';
+import 'archive_page.dart';
+import 'settings_page.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -42,8 +44,7 @@ class _DashboardViewState extends State<_DashboardView>
       duration: const Duration(milliseconds: 600),
     );
 
-    _fadeAnim =
-        CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
 
     final provider = context.read<DashboardProvider>();
 
@@ -75,9 +76,7 @@ class _DashboardViewState extends State<_DashboardView>
     if (provider.loading) {
       return const Scaffold(
         backgroundColor: AppTheme.background,
-        body: Center(
-          child: CircularProgressIndicator(color: AppTheme.primary),
-        ),
+        body: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
       );
     }
 
@@ -103,8 +102,7 @@ class _DashboardViewState extends State<_DashboardView>
 
                       return ProjectCard(
                         project: project,
-                        animDelay:
-                            Duration(milliseconds: 100 + i * 150),
+                        animDelay: Duration(milliseconds: 100 + i * 150),
                       );
                     }),
 
@@ -118,20 +116,24 @@ class _DashboardViewState extends State<_DashboardView>
           ],
         ),
       ),
+      bottomNavigationBar: _buildBottomNav(),
     );
   }
 
   SliverAppBar _buildAppBar() {
     return SliverAppBar(
       backgroundColor: AppTheme.surface.withOpacity(0.8),
+      automaticallyImplyLeading: false,
       pinned: true,
       expandedHeight: 80,
       flexibleSpace: ClipRect(
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: FlexibleSpaceBar(
-            titlePadding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            titlePadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 12,
+            ),
             title: Row(
               children: [
                 Image.asset(
@@ -146,18 +148,116 @@ class _DashboardViewState extends State<_DashboardView>
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.logout_rounded,
-              color: AppTheme.primary),
+          icon: const Icon(Icons.logout_rounded, color: AppTheme.primary),
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                builder: (_) => const LoginPage(),
-              ),
+              MaterialPageRoute(builder: (_) => const LoginPage()),
             );
           },
-        )
+        ),
       ],
+    );
+  }
+
+  Widget _buildBottomNav() {
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.all(20),
+        height: 80,
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceContainerLowest.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.15)),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.onSurface.withOpacity(0.08),
+              blurRadius: 48,
+              offset: const Offset(0, 12),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _navItem(
+                  Icons.dashboard_rounded,
+                  'Dashboard',
+                  isActive: true,
+                  onTap: () {},
+                ),
+                _navItem(
+                  Icons.inventory_2_rounded,
+                  'Archive',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ArchivePage()),
+                    );
+                  },
+                ),
+                _navItem(
+                  Icons.settings_rounded,
+                  'Settings',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SettingsPage()),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _navItem(
+    IconData icon,
+    String label, {
+    bool isActive = false,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: isActive ? AppTheme.primary : Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
+              gradient: isActive
+                  ? const LinearGradient(
+                      colors: [Color(0xFF006A36), Color(0xFF71F69D)],
+                    )
+                  : null,
+            ),
+            child: Icon(
+              icon,
+              color: isActive ? Colors.white : AppTheme.outline,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label.toUpperCase(),
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
+              color: isActive ? AppTheme.primary : AppTheme.outline,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -176,10 +276,7 @@ class _ClientsSection extends StatelessWidget {
       children: [
         Text(
           'Clients',
-          style: GoogleFonts.manrope(
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-          ),
+          style: GoogleFonts.manrope(fontSize: 20, fontWeight: FontWeight.w800),
         ),
 
         const SizedBox(height: 16),
@@ -196,9 +293,7 @@ class _ClientsSection extends StatelessWidget {
             mainAxisExtent: 230, // 🔥 KUNCI FIX OVERFLOW
           ),
           itemBuilder: (context, index) {
-            return ClientCard(
-              client: provider.filteredClients[index],
-            );
+            return ClientCard(client: provider.filteredClients[index]);
           },
         ),
       ],

@@ -10,6 +10,11 @@ class Endpoints {
     return 'https://sis.wahanadata.co.id/api';
   }
 
+  static String get storageUrl {
+    // Menghapus '/api' dari baseUrl untuk mendapatkan domain utama
+    return baseUrl.replaceAll('/api', '');
+  }
+
   // ── AUTH ──────────────────────────────────────────────────
   // POST /api/login
   static const String login = '/login';

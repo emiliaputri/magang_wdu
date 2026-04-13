@@ -1,4 +1,5 @@
 import 'project_model.dart';
+import '../core/constants/endpoints.dart';
 
 class Client {
   final int? id;
@@ -97,8 +98,8 @@ class Client {
     if (url == null || url.isEmpty) return null;
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
 
-    // assume sis.wahanadata.co.id domain
-    const base = 'https://sis.wahanadata.co.id';
+    // Gunakan baseUrl dari Endpoints agar dinamis (mendukung server lokal)
+    final base = Endpoints.storageUrl;
     return url.startsWith('/') ? '$base$url' : '$base/$url';
   }
 

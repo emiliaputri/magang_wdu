@@ -1,23 +1,14 @@
 import 'package:flutter/material.dart';
 
-// ── Model ────────────────────────────────────────────────────────────────────
-
-class Project {
-  final int number;
-  final String title;
-  final String description;
-
-  const Project({
-    required this.number,
-    required this.title,
-    required this.description,
-  });
-}
+import '../models/client_model.dart';
+import '../models/project_model.dart';
+import 'list_survey_page.dart';
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 class ProjectBpkPage extends StatefulWidget {
-  const ProjectBpkPage({super.key});
+  final Client client;
+  const ProjectBpkPage({super.key, required this.client});
 
   @override
   State<ProjectBpkPage> createState() => _ProjectBpkPageState();
@@ -33,29 +24,18 @@ class _ProjectBpkPageState extends State<ProjectBpkPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  final List<Project> _projects = [
-    Project(   
-      number: 1,
-      title: 'Pemeriksaan Keuangan Negara atas LKPP Tahun Anggaran 2025',
-      description:
-          'Pemeriksaan atas Laporan Keuangan Pemerintah Pusat (LKPP) untuk menilai kewajaran penyajian laporan keuangan tahun anggaran 2025.',
-    ),
-    Project(
-      number: 2,
-      title: 'Pemeriksaan Kinerja Program Pengentasan Kemiskinan Nasional 2025',
-      description:
-          'Evaluasi efektivitas, efisiensi, dan ekonomisasi program pengentasan kemiskinan yang dikelola oleh Kementerian Sosial.',
-    ),
-    Project(
-      number: 3,
-      title: 'Pemeriksaan Dengan Tujuan Tertentu atas Pengelolaan Aset Negara',
-      description:
-          'PDTT atas pengelolaan dan pemanfaatan Barang Milik Negara (BMN) di lingkungan Kementerian PUPR.',
-    ),
-  ];
+  late List<Project> _projects;
+
+  @override
+  void initState() {
+    super.initState();
+    _projects = widget.client.projects != null 
+        ? List.from(widget.client.projects!)
+        : [];
+  }
 
   List<Project> get _filtered => _projects
-      .where((p) => p.title.toLowerCase().contains(_searchQuery.toLowerCase()))
+      .where((p) => p.projectName.toLowerCase().contains(_searchQuery.toLowerCase()))
       .toList();
 
   @override
@@ -85,16 +65,27 @@ class _ProjectBpkPageState extends State<ProjectBpkPage> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         children: [
-          const _ClientCard(),
+          _ClientCard(client: widget.client),
           const SizedBox(height: 24),
           _ProjectsSection(
             searchController: _searchController,
             searchQuery: _searchQuery,
             onSearch: (v) => setState(() => _searchQuery = v),
             projects: _filtered,
-            onAdd: _showAddProjectDialog,
-            onEdit: (p) => _showEditProjectDialog(p),
-            onDelete: (p) => _showDeleteConfirm(p),
+            onProjectTap: (p) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SurveyListPage(
+                    clientSlug: widget.client.slug ?? '',
+                    clientName: widget.client.clientName,
+                    projectSlug: p.slug ?? '',
+                    projectTitle: p.projectName,
+                    clientLogoUrl: widget.client.imageUrl ?? widget.client.image,
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -111,9 +102,9 @@ class _ProjectBpkPageState extends State<ProjectBpkPage> {
         onSave: (title, desc) {
           setState(() {
             _projects.add(Project(
-              number: _projects.length + 1,
-              title: title,
-              description: desc,
+              id: _projects.length + 1,
+              projectName: title,
+              desc: desc,
             ));
           });
         },
@@ -126,16 +117,15 @@ class _ProjectBpkPageState extends State<ProjectBpkPage> {
       context: context,
       builder: (_) => _ProjectDialog(
         title: 'Edit Project',
-        initialTitle: project.title,
-        initialDesc: project.description,
+        initialTitle: project.projectName,
+        initialDesc: project.desc ?? '',
         onSave: (title, desc) {
           setState(() {
             final idx = _projects.indexOf(project);
             if (idx != -1) {
-              _projects[idx] = Project(
-                number: project.number,
-                title: title,
-                description: desc,
+              _projects[idx] = project.copyWith(
+                projectName: title,
+                desc: desc,
               );
             }
           });
@@ -153,7 +143,7 @@ class _ProjectBpkPageState extends State<ProjectBpkPage> {
           'Hapus Project?',
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
-        content: Text('Project "${project.title}" akan dihapus permanen.'),
+        content: Text('Project "${project.projectName}" akan dihapus permanen.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -184,10 +174,12 @@ class _ClientCard extends StatelessWidget {
   static const _textDark = Color(0xFF1A2340);
   static const _textGrey = Color(0xFF7A869A);
 
-  const _ClientCard();
+  final Client client;
+  const _ClientCard({required this.client});
 
   @override
   Widget build(BuildContext context) {
+    final url = client.imageUrl ?? client.image;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -212,21 +204,25 @@ class _ClientCard extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
             ),
-            child: const Icon(Icons.account_balance,
-                size: 36, color: Color(0xFFBDBDBD)),
+            clipBehavior: Clip.hardEdge,
+            child: url != null && url.isNotEmpty
+                ? Image.network(url, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.account_balance, size: 36, color: Color(0xFFBDBDBD)))
+                : const Icon(Icons.account_balance, size: 36, color: Color(0xFFBDBDBD)),
           ),
           const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'BPK RI',
-                  style: TextStyle(
+                Text(
+                  client.clientName,
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                     color: _textDark,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
                 Container(
@@ -238,14 +234,16 @@ class _ClientCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Badan Pemeriksa Keuangan\nRepublik Indonesia',
-                  style: TextStyle(
+                Text(
+                  client.alamat ?? 'No address available',
+                  style: const TextStyle(
                     fontSize: 12,
                     color: _textGrey,
                     fontWeight: FontWeight.w500,
                     height: 1.5,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -267,18 +265,14 @@ class _ProjectsSection extends StatelessWidget {
   final String searchQuery;
   final ValueChanged<String> onSearch;
   final List<Project> projects;
-  final VoidCallback onAdd;
-  final void Function(Project) onEdit;
-  final void Function(Project) onDelete;
+  final void Function(Project) onProjectTap;
 
   const _ProjectsSection({
     required this.searchController,
     required this.searchQuery,
     required this.onSearch,
     required this.projects,
-    required this.onAdd,
-    required this.onEdit,
-    required this.onDelete,
+    required this.onProjectTap,
   });
 
   @override
@@ -345,33 +339,6 @@ class _ProjectsSection extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 10),
-            Material(
-              color: _green,
-              borderRadius: BorderRadius.circular(10),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(10),
-                onTap: onAdd,
-                child: Container(
-                  height: 42,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.add, color: Colors.white, size: 18),
-                      SizedBox(width: 4),
-                      Text(
-                        'Tambah Project',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -413,11 +380,6 @@ class _ProjectsSection extends StatelessWidget {
                         child: _HeaderCell(
                             icon: Icons.notes_outlined, label: 'DESKRIPSI'),
                       ),
-                      SizedBox(
-                        width: 80,
-                        child: _HeaderCell(
-                            icon: Icons.settings_outlined, label: 'AKSI'),
-                      ),
                     ],
                   ),
                 ),
@@ -439,9 +401,9 @@ class _ProjectsSection extends StatelessWidget {
                     final project = entry.value;
                     return _ProjectRow(
                       project: project,
+                      index: idx,
                       isLast: idx == projects.length - 1,
-                      onEdit: () => onEdit(project),
-                      onDelete: () => onDelete(project),
+                      onTap: () => onProjectTap(project),
                     );
                   }),
               ],
@@ -488,29 +450,33 @@ class _ProjectRow extends StatelessWidget {
   static const _textGrey = Color(0xFF7A869A);
 
   final Project project;
+  final int index;
   final bool isLast;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  final VoidCallback onTap;
 
   const _ProjectRow({
     required this.project,
+    required this.index,
     required this.isLast,
-    required this.onEdit,
-    required this.onDelete,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: isLast
-            ? null
-            : const Border(
-                bottom: BorderSide(color: Color(0xFFF0F0F0))),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            border: isLast
+                ? null
+                : const Border(
+                    bottom: BorderSide(color: Color(0xFFF0F0F0))),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Number badge
           Container(
@@ -522,7 +488,7 @@ class _ProjectRow extends StatelessWidget {
             ),
             alignment: Alignment.center,
             child: Text(
-              '${project.number}',
+              '${project.id ?? index + 1}',
               style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
@@ -536,7 +502,7 @@ class _ProjectRow extends StatelessWidget {
           Expanded(
             flex: 5,
             child: Text(
-              project.title,
+              project.projectName,
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -552,7 +518,7 @@ class _ProjectRow extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(left: 8),
               child: Text(
-                project.description,
+                project.desc ?? '-',
                 style: const TextStyle(
                   fontSize: 11,
                   color: _textGrey,
@@ -563,30 +529,9 @@ class _ProjectRow extends StatelessWidget {
               ),
             ),
           ),
-
-          // Actions
-          SizedBox(
-            width: 80,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _ActionButton(
-                  icon: Icons.edit_outlined,
-                  color: const Color(0xFF1976D2),
-                  bgColor: const Color(0xFFE3F2FD),
-                  onTap: onEdit,
-                ),
-                const SizedBox(width: 8),
-                _ActionButton(
-                  icon: Icons.delete_outline,
-                  color: const Color(0xFFD32F2F),
-                  bgColor: const Color(0xFFFFEBEE),
-                  onTap: onDelete,
-                ),
-              ],
-            ),
-          ),
         ],
+      ),
+        ),
       ),
     );
   }
@@ -736,11 +681,9 @@ class _DialogField extends StatelessWidget {
   }
 }
 
-// ── Entry Point ───────────────────────────────────────────────────────────────
-
 void main() {
-  runApp(const MaterialApp(
+  runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: ProjectBpkPage(),
+    home: ProjectBpkPage(client: Client(clientName: 'Demo Client')),
   ));
 }

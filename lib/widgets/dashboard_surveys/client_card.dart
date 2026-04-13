@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/client_model.dart';
 import '../../pages/project_page.dart';
+import '../../pages/project_bpk_page.dart';
 
 class ClientCard extends StatelessWidget {
   final Client client;
@@ -13,11 +14,8 @@ class ClientCard extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        settings: RouteSettings(
-          name: '/project_list',
-          arguments: {'client': client.toJson()},
-        ),
-        builder: (_) => ProjectListPage(client: client),
+        settings: const RouteSettings(name: '/project_detail'),
+        builder: (_) => ProjectBpkPage(client: client),
       ),
     );
   }
@@ -39,71 +37,72 @@ class ClientCard extends StatelessWidget {
         border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.1)),
       ),
       clipBehavior: Clip.hardEdge,
-      child: InkWell(
-        onTap: () => _navigateToProjects(context),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── IMAGE ──
-            AspectRatio(
-              aspectRatio: 1.6,
-              child: Container(
-                color: AppTheme.surfaceContainerLow,
-                padding: const EdgeInsets.all(12),
-                child: Builder(
-                  builder: (context) {
-                    final url = client.imageUrl ?? client.image;
-                    if (url != null && url.isNotEmpty) {
-                      return Hero(
-                        tag: 'client_${client.clientName}',
-                        child: Image.network(
-                          url,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return _buildFallback(client.clientName);
-                          },
-                        ),
-                      );
-                    }
-                    return _buildFallback(client.clientName);
-                  },
-                ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── IMAGE ──
+          AspectRatio(
+            aspectRatio: 1.6,
+            child: Container(
+              color: AppTheme.surfaceContainerLow,
+              padding: const EdgeInsets.all(12),
+              child: Builder(
+                builder: (context) {
+                  final url = client.imageUrl ?? client.image;
+                  if (url != null && url.isNotEmpty) {
+                    return Hero(
+                      tag: 'client_${client.clientName}',
+                      child: Image.network(
+                        url,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return _buildFallback(client.clientName);
+                        },
+                      ),
+                    );
+                  }
+                  return _buildFallback(client.clientName);
+                },
               ),
             ),
+          ),
 
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-                child: SingleChildScrollView(
-                  physics: const NeverScrollableScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        client.clientName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.manrope(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          color: AppTheme.onSurface,
-                          height: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        client.alamat ?? 'No address available',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          color: AppTheme.onSurfaceVariant.withOpacity(0.6),
-                          height: 1.4,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Center(
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    client.clientName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.manrope(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.onSurface,
+                      height: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    client.alamat ?? 'No address available',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      color: AppTheme.onSurfaceVariant.withOpacity(0.6),
+                      height: 1.4,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const Spacer(),
+                  Center(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => _navigateToProjects(context),
+                        borderRadius: BorderRadius.circular(10),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
@@ -138,13 +137,14 @@ class ClientCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  const Spacer(),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

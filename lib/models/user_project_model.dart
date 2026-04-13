@@ -7,6 +7,7 @@ class UserProject {
   final String clientSlug;
   final int surveyCount;
   final String? updatedAt;
+  final String? clientImage;
 
   UserProject({
     required this.id,
@@ -17,6 +18,7 @@ class UserProject {
     required this.clientSlug,
     required this.surveyCount,
     this.updatedAt,
+    this.clientImage,
   });
 
   factory UserProject.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class UserProject {
       clientSlug:  json['client_slug'] ?? '',
       surveyCount: json['survey_count'] ?? 0,
       updatedAt:   json['updated_at'],
+      clientImage: json['image'], // ✅ Ambil logo dari JSON
     );
   }
 }

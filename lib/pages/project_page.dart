@@ -57,11 +57,8 @@ class _ProjectListPageState extends State<ProjectListPage> {
             ),
           ),
           _buildSurveyGrid(),
-          const SliverToBoxAdapter(child: SizedBox(height: 120)),
         ],
       ),
-      extendBody: true,
-      bottomNavigationBar: _buildBottomNav(),
     );
   }
 
@@ -245,73 +242,6 @@ class _ProjectListPageState extends State<ProjectListPage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildBottomNav() {
-    return SafeArea(
-      child: Container(
-        margin: const EdgeInsets.all(20),
-        height: 80,
-        decoration: BoxDecoration(
-          color: AppTheme.surfaceContainerLowest.withOpacity(0.8),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.15)),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.onSurface.withOpacity(0.08),
-              blurRadius: 48,
-              offset: const Offset(0, 12),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _navItem(Icons.assignment_rounded, 'Surveys', isActive: true),
-                _navItem(Icons.analytics_rounded, 'Monitor'),
-                _navItem(Icons.inventory_2_rounded, 'Archive'),
-                _navItem(Icons.settings_rounded, 'Settings'),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _navItem(IconData icon, String label, {bool isActive = false}) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: isActive ? AppTheme.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
-            gradient: isActive
-                ? const LinearGradient(
-                    colors: [Color(0xFF006A36), Color(0xFF71F69D)],
-                  )
-                : null,
-          ),
-          child: Icon(icon, color: isActive ? Colors.white : AppTheme.outline),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label.toUpperCase(),
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.2,
-            color: isActive ? AppTheme.primary : AppTheme.outline,
-          ),
-        ),
-      ],
     );
   }
 }
