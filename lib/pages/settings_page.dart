@@ -133,12 +133,30 @@ class SettingsPage extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          final authProvider = Provider.of<AuthProvider>(context, listen: false);
-          authProvider.logout();
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const LoginPage()),
-            (route) => false,
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Keluar'),
+              content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Batal'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                    authProvider.logout();
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                      (route) => false,
+                    );
+                  },
+                  child: const Text('Keluar', style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            ),
           );
         },
         child: const Row(

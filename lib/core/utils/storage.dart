@@ -165,45 +165,16 @@ class StorageHelper {
     required Map<String, dynamic> answers,
     required Map<String, dynamic> biodata,
     required int currentPageIndex,
-    String? clientSlug,
-    String? projectSlug,
-    String? surveyTitle,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final key = '$_keyDraftSurveyPrefix$surveySlug';
-
-    // ── NORMALISASI DATA (Penting untuk tipe Matrix) ──
-    // Kita perlu memastikan semua key Map adalah String agar jsonEncode tidak error
-    final safeAnswers = _ensureStringKeys(answers);
-
     final data = {
-      'answers': safeAnswers,
+      'answers': answers,
       'biodata': biodata,
       'currentPageIndex': currentPageIndex,
-      'clientSlug': clientSlug,
-      'projectSlug': projectSlug,
-      'surveyTitle': surveyTitle,
       'updatedAt': DateTime.now().toIso8601String(),
     };
-
-    try {
-      final jsonStr = jsonEncode(data);
-      await prefs.setString(key, jsonStr);
-      debugPrint('✅ [DRAFT] Draft saved successfully for: $surveySlug');
-    } catch (e) {
-      debugPrint('❌ [DRAFT] FAILED to save draft: $e');
-      rethrow;
-    }
-  }
-
-  /// Helper rekursif untuk mengubah semua key Map menjadi String
-  static dynamic _ensureStringKeys(dynamic value) {
-    if (value is Map) {
-      return value.map((key, val) => MapEntry(key.toString(), _ensureStringKeys(val)));
-    } else if (value is List) {
-      return value.map((item) => _ensureStringKeys(item)).toList();
-    }
-    return value;
+    await prefs.setString(key, jsonEncode(data));
   }
 
   static Future<Map<String, dynamic>?> getDraftSurvey(String surveySlug) async {

@@ -9,6 +9,7 @@ import '../widgets/dashboard_surveys/project_card.dart';
 import 'login_page.dart';
 import 'archive_page.dart';
 import 'settings_page.dart';
+import '../providers/auth_provider.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -150,9 +151,30 @@ class _DashboardViewState extends State<_DashboardView>
         IconButton(
           icon: const Icon(Icons.logout_rounded, color: AppTheme.primary),
           onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const LoginPage()),
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Keluar'),
+                content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Batal'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      final authProvider = context.read<AuthProvider>();
+                      authProvider.logout();
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoginPage()),
+                        (route) => false,
+                      );
+                    },
+                    child: const Text('Keluar', style: TextStyle(color: Colors.red)),
+                  ),
+                ],
+              ),
             );
           },
         ),
@@ -290,7 +312,7 @@ class _ClientsSection extends StatelessWidget {
             crossAxisCount: 3,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
-            mainAxisExtent: 230, // 🔥 KUNCI FIX OVERFLOW
+            mainAxisExtent: 210, // 🔥 Dipangkas sedikit agar lebih kompak
           ),
           itemBuilder: (context, index) {
             return ClientCard(client: provider.filteredClients[index]);

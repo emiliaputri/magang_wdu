@@ -5,9 +5,9 @@ class Endpoints {
     const fromEnv = String.fromEnvironment('API_BASE_URL');
     if (fromEnv.isNotEmpty) return fromEnv;
 
-    // Untuk HP Fisik: Gunakan IP Laptop Anda (192.168.0.132)
+    // Untuk HP Fisik: Gunakan IP Komputer (192.168.0.158)
     // Untuk Emulator: Gunakan 10.0.2.2
-    return 'http://192.168.0.132:8000/api';
+    return 'https://sis.wahanadata.co.id/api';
   }
 
   static String get storageUrl {

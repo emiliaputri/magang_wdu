@@ -75,7 +75,17 @@ Future<void> loadClients() async {
     projects = [];
     for (final e in rawProjects) {
       try {
-        projects.add(UserProject.fromJson(e));
+        UserProject p = UserProject.fromJson(e);
+
+        // ✅ SINKRONISASI LOGO: Jika project tidak punya logo, cari dari list clients
+        if (p.clientImage == null || p.clientImage!.isEmpty) {
+          final clientMatch = clients.where((c) => c.slug == p.clientSlug).firstOrNull;
+          if (clientMatch != null && clientMatch.image != null) {
+            p = p.copyWith(clientImage: clientMatch.image);
+          }
+        }
+
+        projects.add(p);
       } catch (err) {
         print('Error parse UserProject: $err');
         print('Data: $e');

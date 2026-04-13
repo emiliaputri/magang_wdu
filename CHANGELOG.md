@@ -6,6 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [1.3.2] - 2026-04-13
+### Added
+- Automated client logo synchronization in `DashboardProvider`: projects now automatically inherit logos from the client list if missing in the API response
+- Logout confirmation dialog (pop-up) to `DashboardPage` and `SettingsPage` to prevent accidental logout
+- Metadata persistence (Client Slug, Project Slug, Survey Title) to local drafts for full recovery
+- Enhanced `ArchivePage` with original survey titles, "Last Updated" timestamps, and direct navigation to resume kuis
+- Configurable `baseUrl` detection logic in `endpoints.dart` to support physical device testing via local IP
+- Detailed JSON debug logging in `SubmissionService` for better payload monitoring
+
+### Fixed
+- Fixed missing client logos in `SurveyBpkPage` header when navigating from "Active Projects"
+- Enhanced `UserProject` model with `copyWith` and robust multi-key image detection (image, client_image, logo, etc.)
+- Stabilized JSON encoding for Matrix questions by implementing recursive key normalization in `StorageHelper`
+- Fixed data type inconsistencies (String vs Int keys) ensuring responses are correctly restored from local storage
+- Resolved "Error 302" redirect issues by refining API endpoint and protocol handling for local environments
+- Fixed asset loading paths by adding dynamic `storageUrl` resolution in `Endpoints` and `Client` model
+
+### Technical Changes
+- Refactored `_loadDraftIfExists` in `SubmissionPage` for more robust data restoration
+- Moved Matrix-to-JSON encoding logic to the page layer to prevent payload corruption of non-matrix data
+- Implemented data enrichment pattern in `DashboardProvider` to link disparate API models (Client & Project)
+
+---
+
 ## [1.3.1] - 2026-04-09
 ### Fixed
 - Shrink grid spacing on survey bento card to remove empty whitespace between action buttons ("Cek / Edit" and "Monitor")

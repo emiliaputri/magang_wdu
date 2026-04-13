@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart';
 import '../core/theme/app_theme.dart';
-import '../core/utils/storage.dart';
-import 'submission_page.dart';
 
 class ArchivePage extends StatefulWidget {
   const ArchivePage({super.key});
@@ -32,30 +29,15 @@ class _ArchivePageState extends State<ArchivePage> {
     for (String key in keys) {
       if (key.startsWith('draft_survey_')) {
         final surveySlug = key.replaceFirst('draft_survey_', '');
-        final draftData = await StorageHelper.getDraftSurvey(surveySlug);
-        
-        if (draftData != null) {
-          final updatedAt = draftData['updatedAt'] != null 
-              ? DateTime.tryParse(draftData['updatedAt']) 
-              : null;
-          final dateStr = updatedAt != null 
-              ? DateFormat('dd MMM yyyy, HH:mm').format(updatedAt)
-              : 'Waktu tidak diketahui';
-
-          loadedDrafts.add({
-            'key': key,
-            'type': 'survey',
-            'slug': surveySlug,
-            'clientSlug': draftData['clientSlug'],
-            'projectSlug': draftData['projectSlug'],
-            'surveyTitle': draftData['surveyTitle'] ?? surveySlug,
-            'title': draftData['surveyTitle'] ?? 'Draf Kuisioner | $surveySlug',
-            'description': 'Tersimpan pada $dateStr',
-            'icon': Icons.assignment_late_rounded,
-          });
-        }
+        loadedDrafts.add({
+          'key': key,
+          'type': 'survey',
+          'slug': surveySlug,
+          'title': 'Draf Kuisioner | $surveySlug',
+          'description': 'Draf pengisian jawaban kuisioner tersimpan.',
+          'icon': Icons.assignment_late_rounded,
+        });
       } else if (key.startsWith('draft_biodata_')) {
-        // ... biodata handling remains similar or can be expanded if needed
         final surveySlug = key.replaceFirst('draft_biodata_', '');
         loadedDrafts.add({
           'key': key,
@@ -88,35 +70,6 @@ class _ArchivePageState extends State<ArchivePage> {
     }
   }
 
-  void _openSurveyDraft(Map<String, dynamic> draft) {
-    if (draft['type'] != 'survey') return;
-
-    final clientSlug = draft['clientSlug'];
-    final projectSlug = draft['projectSlug'];
-
-    if (clientSlug == null || projectSlug == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Konteks draf (Klien/Proyek) tidak ditemukan. Mohon buat draf baru.'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SubmissionPage(
-          surveySlug: draft['slug'],
-          clientSlug: clientSlug,
-          projectSlug: projectSlug,
-          surveyTitle: draft['surveyTitle'] ?? '',
-        ),
-      ),
-    ).then((_) => _loadDrafts()); // Refresh list when coming back
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,16 +87,19 @@ class _ArchivePageState extends State<ArchivePage> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: AppTheme.primary, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: AppTheme.primary,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _drafts.isEmpty
-              ? _buildEmptyState()
-              : _buildDraftList(),
+          ? _buildEmptyState()
+          : _buildDraftList(),
     );
   }
 
@@ -177,10 +133,7 @@ class _ArchivePageState extends State<ArchivePage> {
           const SizedBox(height: 8),
           Text(
             'Anda belum memiliki draf biodata atau kuisioner.',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: AppTheme.outline,
-            ),
+            style: GoogleFonts.inter(fontSize: 13, color: AppTheme.outline),
           ),
         ],
       ),
@@ -208,7 +161,6 @@ class _ArchivePageState extends State<ArchivePage> {
             ],
           ),
           child: ListTile(
-            onTap: () => _openSurveyDraft(draft),
             contentPadding: const EdgeInsets.all(16),
             leading: Container(
               padding: const EdgeInsets.all(12),
@@ -235,13 +187,13 @@ class _ArchivePageState extends State<ArchivePage> {
             ),
             subtitle: Text(
               draft['description'],
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: AppTheme.outline,
-              ),
+              style: GoogleFonts.inter(fontSize: 12, color: AppTheme.outline),
             ),
             trailing: PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert_rounded, color: AppTheme.outline),
+              icon: const Icon(
+                Icons.more_vert_rounded,
+                color: AppTheme.outline,
+              ),
               onSelected: (value) {
                 if (value == 'delete') {
                   _deleteDraft(draft['key']);
@@ -252,7 +204,11 @@ class _ArchivePageState extends State<ArchivePage> {
                   value: 'delete',
                   child: Row(
                     children: [
-                      Icon(Icons.delete_outline_rounded, color: Colors.red, size: 18),
+                      Icon(
+                        Icons.delete_outline_rounded,
+                        color: Colors.red,
+                        size: 18,
+                      ),
                       SizedBox(width: 8),
                       Text('Hapus Draf', style: TextStyle(color: Colors.red)),
                     ],
