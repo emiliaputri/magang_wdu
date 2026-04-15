@@ -67,10 +67,6 @@ class SubmissionService {
       // Wrap payload dalam field "data" sesuai format backend
       final wrappedPayload = {'data': jsonEncode(answers)};
 
-      // ── DEBUG LOGGING ──
-      const encoder = JsonEncoder.withIndent('  ');
-      final prettyPayload = encoder.convert(answers);
-      debugPrint('📦 [SUBMIT] PAYLOAD TO SEND:\n$prettyPayload');
       debugPrint(
         '🔗 [SUBMIT] ENDPOINT: ${Endpoints.submitAnswer(clientSlug, projectSlug, surveySlug)}',
       );

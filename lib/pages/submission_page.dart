@@ -876,16 +876,13 @@ class _SubmissionPageState extends State<SubmissionPage> {
       payload['biodata'] = widget.biodata;
     }
 
-    // Tambahkan jawaban survey
+    // Tambahkan jawaban survey - pisahkan question dan answer jadi array terpisah
     payload['page'] = _data!.pages.map((page) {
       return {
-        'question': page.questions.map((q) {
-          return {
-            'id': q.id,
-            'question_type_id': q.questionTypeId,
-            'answer': _buildAnswerValue(q, _answers[q.id]),
-          };
-        }).toList(),
+        'question': page.questions.map((q) => {'id': q.id}).toList(),
+        'answer': page.questions
+            .map((q) => _buildAnswerValue(q, _answers[q.id]))
+            .toList(),
       };
     }).toList();
 
@@ -900,32 +897,52 @@ class _SubmissionPageState extends State<SubmissionPage> {
       case 8: // Paragraph
         return {'texts': answer.toString()};
       case 2: // Radio
-        return {'radios': answer.toString()};
+        // Backend menyimpan sebagai integer ID choice
+        final radioVal = int.tryParse(answer.toString()) ?? answer;
+        return {'radios': radioVal};
       case 7: // Dropdown
-        return {'dropdowns': answer.toString()};
+        // Backend mencari QuestionChoice berdasarkan ID dan simpan value-nya
+        final dropdownVal = int.tryParse(answer.toString()) ?? answer;
+        return {'dropdowns': dropdownVal};
       case 3: // Checkbox
         if (answer is List) {
-          return {'checkboxes': answer.map((e) => e.toString()).toList()};
+          // Backend simpan setiap checkbox choice_id
+          return {
+            'checkboxes': answer.map((e) {
+              final val = int.tryParse(e.toString());
+              return val ?? e;
+            }).toList(),
+          };
         }
         return {'checkboxes': []};
       case 9: // Matrix
-        return {'matrix': jsonEncode(_buildMatrixValue(q.matrixType, answer))};
+        return {'matrix': _buildMatrixValue(q.matrixType, answer)};
       default:
         return {'texts': answer.toString()};
     }
   }
 
-  Map<String, dynamic> _buildMatrixValue(String matrixType, dynamic answer) {
-    if (answer is! Map) return {};
+  dynamic _buildMatrixValue(String matrixType, dynamic answer) {
+    if (answer is! Map) return [];
 
-    final Map<String, dynamic> result = {};
-    answer.forEach((key, value) {
+    final List<dynamic> result = [];
+    final mapAnswer = Map<int, dynamic>.from(answer as Map);
+
+    for (int i = 0; i < mapAnswer.length; i++) {
+      final value = mapAnswer[i];
       if (matrixType == 'radio') {
-        result[key.toString()] = value;
+        // Radio: simpan column index saja
+        result.add(value ?? -1);
       } else {
-        result[key.toString()] = value is List ? value : [];
+        // Checkbox: simpan list column index
+        if (value is List) {
+          result.add(value);
+        } else {
+          result.add([]);
+        }
       }
-    });
+    }
+
     return result;
   }
 }
