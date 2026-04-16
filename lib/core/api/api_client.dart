@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 import '../constants/endpoints.dart';
 import '../utils/storage.dart';
 import '../utils/logger.dart';
@@ -64,6 +65,12 @@ class ApiClient {
 
     if (requireAuth) {
       final token = await StorageHelper.getToken();
+
+      // DEBUG: Log token presence
+      debugPrint(
+        '[API] Token check: ${token != null ? "exists (${token.length} chars)" : "NULL/EMPTY"}',
+      );
+
       if (token != null && token.isNotEmpty) {
         headers['Authorization'] = 'Bearer $token';
       }
@@ -178,12 +185,26 @@ class ApiClient {
     }
   }
 
+  // ── VALIDATE TOKEN BEFORE REQUEST ────────────────────────────
+  Future<void> _validateToken() async {
+    final token = await StorageHelper.getToken();
+    if (token == null || token.isEmpty) {
+      debugPrint('[API] Token is NULL or EMPTY - triggering logout');
+      throw UnauthorizedException();
+    }
+  }
+
   // ── GET ────────────────────────────────────────────────────
   Future<ApiResponse<Map<String, dynamic>>> get(
     String endpoint, {
     bool requireAuth = true,
     Map<String, String>? queryParams,
   }) async {
+    // Validate token first if auth required
+    if (requireAuth) {
+      await _validateToken();
+    }
+
     try {
       var uri = Uri.parse('${Endpoints.baseUrl}$endpoint');
       if (queryParams != null) {
@@ -244,6 +265,11 @@ class ApiClient {
     required Map<String, dynamic> body,
     bool requireAuth = true,
   }) async {
+    // Validate token first if auth required
+    if (requireAuth) {
+      await _validateToken();
+    }
+
     try {
       final uri = Uri.parse('${Endpoints.baseUrl}$endpoint');
       final encodedBody = jsonEncode(body);
@@ -302,6 +328,11 @@ class ApiClient {
     required Map<String, dynamic> body,
     bool requireAuth = true,
   }) async {
+    // Validate token first if auth required
+    if (requireAuth) {
+      await _validateToken();
+    }
+
     try {
       final uri = Uri.parse('${Endpoints.baseUrl}$endpoint');
       final encodedBody = jsonEncode(body);
@@ -360,6 +391,11 @@ class ApiClient {
     required Map<String, dynamic> body,
     bool requireAuth = true,
   }) async {
+    // Validate token first if auth required
+    if (requireAuth) {
+      await _validateToken();
+    }
+
     try {
       final uri = Uri.parse('${Endpoints.baseUrl}$endpoint');
       final encodedBody = jsonEncode(body);
@@ -418,6 +454,11 @@ class ApiClient {
     String endpoint, {
     bool requireAuth = true,
   }) async {
+    // Validate token first if auth required
+    if (requireAuth) {
+      await _validateToken();
+    }
+
     try {
       final uri = Uri.parse('${Endpoints.baseUrl}$endpoint');
 

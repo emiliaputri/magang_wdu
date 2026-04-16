@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [1.3.4] - 2026-04-16
+### fix
+- Token Berubah Null Setelah Sesi Habis
+
 ## [1.3.3] - 2026-04-14
 ### Added
 - Added dynamic sorting feature for survey responses in the Monitoring Interface (dropdown to toggle between "Terbaru / Terlama" ordering)

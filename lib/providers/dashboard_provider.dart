@@ -3,6 +3,7 @@ import '../service/auth_service.dart';
 import '../service/client_service.dart';
 import '../models/client_model.dart';
 import '../models/user_project_model.dart';
+import '../core/utils/storage.dart';
 
 class DashboardProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
@@ -28,9 +29,11 @@ class DashboardProvider extends ChangeNotifier {
     if (clientSearch.isEmpty) return projects;
     final q = clientSearch.toLowerCase();
     return projects
-        .where((p) =>
-            p.projectName.toLowerCase().contains(q) ||
-            p.clientName.toLowerCase().contains(q))
+        .where(
+          (p) =>
+              p.projectName.toLowerCase().contains(q) ||
+              p.clientName.toLowerCase().contains(q),
+        )
         .toList();
   }
 
@@ -51,59 +54,69 @@ class DashboardProvider extends ChangeNotifier {
   }
 
   // dashboard_provider.dart
-Future<void> loadClients() async {
-  try {
-    clientsLoading = true;
-    notifyListeners();
+  Future<void> loadClients() async {
+    try {
+      clientsLoading = true;
+      notifyListeners();
 
-    final data = await _clientService.getDashboardData();
+      // DEBUG: Check token before request
+      final token = await StorageHelper.getToken();
+      debugPrint(
+        '[DashboardProvider] loadClients - Token: ${token != null ? "exists (${token.length} chars)" : "NULL"}',
+      );
 
-    final List<dynamic> rawClients  = (data['clients']     as List<dynamic>?) ?? [];
-    final List<dynamic> rawProjects = (data['userProjects'] as List<dynamic>?) ?? [];
+      final data = await _clientService.getDashboardData();
 
-    // ✅ debug per item untuk cari yang error
-    clients = [];
-    for (final e in rawClients) {
-      try {
-        clients.add(Client.fromJson(e));
-      } catch (err) {
-        print('Error parse Client: $err');
-        print('Data: $e');
-      }
-    }
+      final List<dynamic> rawClients =
+          (data['clients'] as List<dynamic>?) ?? [];
+      final List<dynamic> rawProjects =
+          (data['userProjects'] as List<dynamic>?) ?? [];
 
-    projects = [];
-    for (final e in rawProjects) {
-      try {
-        UserProject p = UserProject.fromJson(e);
-
-        // ✅ SINKRONISASI LOGO: Jika project tidak punya logo, cari dari list clients
-        if (p.clientImage == null || p.clientImage!.isEmpty) {
-          final clientMatch = clients.where((c) => c.slug == p.clientSlug).firstOrNull;
-          if (clientMatch != null && clientMatch.image != null) {
-            p = p.copyWith(clientImage: clientMatch.image);
-          }
+      // ✅ debug per item untuk cari yang error
+      clients = [];
+      for (final e in rawClients) {
+        try {
+          clients.add(Client.fromJson(e));
+        } catch (err) {
+          print('Error parse Client: $err');
+          print('Data: $e');
         }
-
-        projects.add(p);
-      } catch (err) {
-        print('Error parse UserProject: $err');
-        print('Data: $e');
       }
+
+      projects = [];
+      for (final e in rawProjects) {
+        try {
+          UserProject p = UserProject.fromJson(e);
+
+          // ✅ SINKRONISASI LOGO: Jika project tidak punya logo, cari dari list clients
+          if (p.clientImage == null || p.clientImage!.isEmpty) {
+            final clientMatch = clients
+                .where((c) => c.slug == p.clientSlug)
+                .firstOrNull;
+            if (clientMatch != null && clientMatch.image != null) {
+              p = p.copyWith(clientImage: clientMatch.image);
+            }
+          }
+
+          projects.add(p);
+        } catch (err) {
+          print('Error parse UserProject: $err');
+          print('Data: $e');
+        }
+      }
+
+      print('Clients parsed: ${clients.length}');
+      print('Projects parsed: ${projects.length}');
+
+      error = null;
+    } catch (e) {
+      print('Error loadClients: $e');
+      error = e.toString();
+    } finally {
+      clientsLoading = false;
+      notifyListeners();
     }
-
-    print('Clients parsed: ${clients.length}');
-    print('Projects parsed: ${projects.length}');
-
-    error = null;
-  } catch (e) {
-    print('Error loadClients: $e');
-    error = e.toString();
-  } finally {
-    clientsLoading = false;
-    notifyListeners();
   }
-}
 
   void updateSearch(String val) {
     clientSearch = val;

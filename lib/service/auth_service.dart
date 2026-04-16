@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import '../core/api/api_client.dart';
 import '../core/constants/endpoints.dart';
 import '../core/utils/storage.dart';
@@ -37,7 +38,9 @@ class AuthService {
       final response = await _api.get(Endpoints.me);
       return response.data;
     } on UnauthorizedException {
-      await logout();
+      debugPrint(
+        '[AuthService] getUser() - 401 Unauthorized (token mungkin expired tapi masih ada di storage)',
+      );
       return null;
     } on ApiException {
       return null;
@@ -46,8 +49,10 @@ class AuthService {
 
   // ── LOGOUT ────────────────────────────────────────────────
   Future<void> logout() async {
+    debugPrint('[AuthService] logout() called - clearing all secure data');
     await StorageHelper.clearSecure();
     await StorageHelper.clearLastRoute();
+    debugPrint('[AuthService] logout complete');
   }
 
   // ── CEK STATUS LOGIN ──────────────────────────────────────

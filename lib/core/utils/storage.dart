@@ -2,6 +2,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 // ─────────────────────────────────────────────────────────────
 
@@ -34,22 +35,33 @@ class StorageHelper {
 
   /// Simpan JWT token secara aman
   static Future<void> saveToken(String token) async {
+    debugPrint(
+      '[Storage] Saving token: ${token.substring(0, token.length > 20 ? 20 : token.length)}...',
+    );
     await _secure.write(key: _keyToken, value: token);
   }
 
   /// Ambil JWT token
   static Future<String?> getToken() async {
-    return await _secure.read(key: _keyToken);
+    final token = await _secure.read(key: _keyToken);
+    debugPrint(
+      '[Storage] getToken: ${token != null ? "exists (${token.length} chars)" : "NULL"}',
+    );
+    return token;
   }
 
   /// Cek apakah token tersedia
   static Future<bool> hasToken() async {
     final token = await _secure.read(key: _keyToken);
+    debugPrint(
+      '[Storage] hasToken check: ${token != null && token.isNotEmpty} (token: ${token != null ? "exists" : "NULL"})',
+    );
     return token != null && token.isNotEmpty;
   }
 
   /// Hapus token (saat logout)
   static Future<void> deleteToken() async {
+    debugPrint('[Storage] deleteToken called - clearing token');
     await _secure.delete(key: _keyToken);
   }
 
