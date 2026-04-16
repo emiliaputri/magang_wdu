@@ -78,22 +78,15 @@ class UserProject {
     if (url == null || url.isEmpty) return null;
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
 
-    final base = Endpoints.storageUrl; // Sudah ada /storage di akhirnya
+    final base = Endpoints.storageUrl;
     
-    // Jika url sudah mengandung /storage atau storage/, kita cukup tempel ke domain utama
-    if (url.contains('/storage/') || url.contains('storage/')) {
-      final domain = Endpoints.baseUrl.replaceAll('/api', '');
-      final pathOnly = url.startsWith('/') ? url : '/$url';
-      return '$domain$pathOnly';
+    // Jika url mengandung 'img/client/', kita pastikan tidak ada double slash saat tempel ke base
+    if (url.contains('img/client/')) {
+       final cleanPath = url.startsWith('/') ? url.substring(1) : url;
+       return '$base/$cleanPath';
     }
 
-    // Jika berupa path murni (misal: "clients/abc.png"), tempel ke storageUrl
-    return url.startsWith('/') ? '$base$url' : '$base/$url';
-  }
-}    }
-
     // Paksa tambahkan /img/client/ jika belum ada
-    // Dan bersihkan input url dari leading slash agar tidak merusak struktur
     final cleanUrl = url.startsWith('/') ? url.substring(1) : url;
     return '$base/img/client/$cleanUrl';
   }
