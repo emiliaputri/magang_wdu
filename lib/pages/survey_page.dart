@@ -431,9 +431,18 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
   }
 
   String _clientDescription(String name) {
-    if (name.toLowerCase().contains('bpk') ||
-        name.toLowerCase().contains('badan pemeriksa')) {
+    String nameLower = name.toLowerCase();
+    if (nameLower.contains('bpk') || nameLower.contains('badan pemeriksa')) {
       return 'Badan Pemeriksa Keuangan (BPK) adalah lembaga negara yang bebas dan mandiri, bertugas memeriksa pengelolaan dan tanggung jawab keuangan negara, berdasarkan UUD 1945 dan UU terkait. BPK berperan memastikan transparansi dan akuntabilitas publik.';
+    }
+    if (nameLower.contains('indeks masyarakat digital') || nameLower.contains('imdi')) {
+      return 'Indeks Masyarakat Digital Indonesia (IMDI) adalah alat ukur komprehensif untuk memetakan tingkat literasi dan kompetensi digital masyarakat di tingkat Kabupaten/Kota. Data IMDI digunakan untuk mendukung perumusan kebijakan pengembangan SDM digital yang tepat sasaran.';
+    }
+    if (nameLower.contains('kementerian komunikasi') || nameLower.contains('komunikasi dan digital') || nameLower.contains('kominfo')) {
+      return 'Kementerian Komunikasi dan Digital (dahulu Kemkominfo) bertanggung jawab atas urusan komunikasi dan informatika di Indonesia. Lembaga ini memastikan ketersediaan infrastruktur digital, tata kelola informasi, serta percepatan transformasi digital nasional.';
+    }
+    if (nameLower.contains('logo tes')) {
+      return 'Profil klien ini digunakan untuk keperluan pengujian sistem, validasi tampilan kuesioner, serta pemastian integrasi logo klien dari server backend Wahana Data Utama (WDU).';
     }
     return name;
   }

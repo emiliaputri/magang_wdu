@@ -63,11 +63,11 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
     setState(() => isLoading = true);
 
     try {
-      final data = await _surveyService.getSurveyResponseDetail(
-        widget.clientSlug,
-        widget.projectSlug,
-        widget.surveySlug,
-        widget.responseId,
+      final data = await _surveyService.getFullSurveyDetail(
+        clientSlug: widget.clientSlug,
+        projectSlug: widget.projectSlug,
+        surveySlug: widget.surveySlug,
+        responseId: widget.responseId,
       );
 
       if (data != null) {

@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/survey_model.dart';
 import '../../pages/monitor_survey_page.dart';
-import '../../pages/cek_edit_survey_page.dart';
 import '../../pages/biodata_page.dart';
 import '../../pages/submission_page.dart';
 
@@ -290,38 +289,22 @@ class SurveyBentoCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: _actionButton(
-                        label: hasAnswered == true
-                            ? 'Cek / Edit'
-                            : 'Isi Kuisioner',
+                        label: 'Isi Kuesioner',
                         icon: Icons.edit_note_rounded,
                         gradient: const LinearGradient(
                           colors: [Color(0xFF006A36), Color(0xFF71F69D)],
                         ),
                         onTap: () {
-                          if (hasAnswered == true) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => CekEditSurveyPage(
-                                  surveySlug: survey.slug,
-                                  clientSlug: clientSlug,
-                                  projectSlug: projectSlug,
-                                  responseId: 0,
-                                ),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BiodataPage(
+                                surveySlug: survey.slug,
+                                clientSlug: clientSlug,
+                                projectSlug: projectSlug,
                               ),
-                            );
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => BiodataPage(
-                                  surveySlug: survey.slug,
-                                  clientSlug: clientSlug,
-                                  projectSlug: projectSlug,
-                                ),
-                              ),
-                            );
-                          }
+                            ),
+                          );
                         },
                       ),
                     ),

@@ -29,11 +29,18 @@ class Client {
   });
 
   factory Client.fromJson(Map<String, dynamic> json) {
+    // Mencoba berbagai kemungkinan key untuk gambar klien
+    String? rawImage = json['image'] ?? 
+                       json['image_url'] ?? 
+                       json['client_image'] ?? 
+                       json['client_logo'] ?? 
+                       json['logo'];
+
     return Client(
       id: json['id'],
       clientName: json['client_name'] ?? '',
-      image: _buildImageUrl(json['image']),
-      imageUrl: _buildImageUrl(json['image_url']),
+      image: _buildImageUrl(rawImage),
+      imageUrl: _buildImageUrl(rawImage),
       alamat: json['alamat'],
       phone: json['phone'],
       slug: json['slug'],
@@ -98,9 +105,24 @@ class Client {
     if (url == null || url.isEmpty) return null;
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
 
-    // Gunakan baseUrl dari Endpoints agar dinamis (mendukung server lokal)
-    final base = Endpoints.storageUrl;
+    final base = Endpoints.storageUrl; // Sudah ada /storage di akhirnya
+
+    // Jika url sudah mengandung /storage atau storage/, kita cukup tempel ke domain utama
+    if (url.contains('/storage/') || url.contains('storage/')) {
+      final domain = Endpoints.baseUrl.replaceAll('/api', '');
+      final pathOnly = url.startsWith('/') ? url : '/$url';
+      return '$domain$pathOnly';
+    }
+
+    // Jika berupa path murni (misal: "clients/abc.png"), tempel ke storageUrl
     return url.startsWith('/') ? '$base$url' : '$base/$url';
+  }
+
+  @override
+  String toString() => 'Client(id: $id, clientName: $clientName, slug: $slug)';
+}
+    final cleanUrl = url.startsWith('/') ? url.substring(1) : url;
+    return '$base/img/client/$cleanUrl';
   }
 
   @override

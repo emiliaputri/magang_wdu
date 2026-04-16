@@ -7,8 +7,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ---
 
 ## [1.3.4] - 2026-04-16
-### fix
-- Token Berubah Null Setelah Sesi Habis
+### Fixed
+- **Monitoring Data Restoration**: Fixed a critical bug where `CekEditMonitorPage` showed empty content by correctly merging survey structures from `/all-report` with answers from `/report`.
+- **Backend Logo Pathing**: Resolved a 404 issue for client logos by correcting the base URL and implementing an aggressive `/img/client/` path enforcer in `Client` and `UserProject` models.
+- **Image Priority**: Updated model parsers to prioritize the full `image_url` field from the API, ensuring more reliable image loading across the dashboard.
+- **Client Branding Typo**: Corrected Indonesian spelling of "Kementrian" to **"Kementerian"** across all dynamic descriptions.
+- **Syntax Fix**: Resolved a compilation error in `ClientCard` caused by accidental duplicated closing braces during manual edits.
+
+### Added
+- **Dynamic Client Descriptions**: Implemented specialized, professional headers for **Kementerian Komunikasi dan Digital**, **IMDI**, and **Test** clients in the survey listing page.
+- **Logo Debug Tooltip**: Added a hover tooltip to `ClientCard` to display the source URL, assisting in real-time verification of backend image paths.
+
+### Changed
+- **Navigation UX**: Standardized button labels from "Cek / Edit" to **"Isi Kuesioner"** for better clarity in the survey dashboard.
+- **Client Card Sizing**: Optimized logo frames by increasing the AspectRatio to 1.85 and reducing internal padding for a more spacious, premium feel.
+- **Token Handling**: Fixed an issue where the auth token could become null after a session timeout.
 
 ## [1.3.3] - 2026-04-14
 ### Added

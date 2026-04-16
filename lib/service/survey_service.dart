@@ -88,8 +88,6 @@ class SurveyService {
     required int responseId,
   }) async {
     try {
-      // Panggil kedua endpoint secara paralel
-      // /all-report biasanya berisi semua data survey termasuk pertanyaan
       final results = await Future.wait([
         _api.get(
           Endpoints.surveyReport(
@@ -107,72 +105,38 @@ class SurveyService {
       final reportData = results[0].data;
       final allReportData = results[1].data;
 
-      debugPrint('DEBUG: reportData keys = ${reportData?.keys.toList()}');
-      debugPrint('DEBUG: allReportData keys = ${allReportData?.keys.toList()}');
-
       if (reportData == null && allReportData == null) return null;
 
-      // Gabungkan data dari kedua endpoint
       final Map<String, dynamic> combined = {};
 
-      // Ambil dari report: surveys, biodata, responses, location, status
       if (reportData != null) {
         combined.addAll(reportData);
+        // Ensure pages don't block from all-report
+        if (combined['pages'] is List && (combined['pages'] as List).isEmpty) {
+          combined.remove('pages');
+        }
+        if (combined['page'] is List && (combined['page'] as List).isEmpty) {
+          combined.remove('page');
+        }
       }
 
-      // Ambil questions dari all-report
       if (allReportData != null) {
-        debugPrint('DEBUG allReportData keys: ${allReportData.keys.toList()}');
-
-        // Cek apakah ada 'page' key di root
-        if (allReportData.containsKey('page')) {
-          final pagesList = allReportData['page'] as List?;
-          debugPrint(
-            'DEBUG: Found page key with ${pagesList?.length ?? 0} pages',
-          );
-          if (pagesList != null && pagesList.isNotEmpty) {
-            combined['detail_pages'] = pagesList;
-            debugPrint('DEBUG: Set detail_pages from page key');
-          }
-        }
-        // Cek di surveys
-        else if (allReportData.containsKey('surveys')) {
-          final surveysData = allReportData['surveys'];
-          if (surveysData is Map) {
-            // Cek 'page' di dalam surveys
-            if (surveysData.containsKey('page')) {
-              final pagesList = surveysData['page'] as List?;
-              if (pagesList != null && pagesList.isNotEmpty) {
-                combined['detail_pages'] = pagesList;
-              }
-            }
-            // Fallback ke questions
-            else if (surveysData.containsKey('questions')) {
-              final questionsList = surveysData['questions'] as List?;
-              if (questionsList != null) {
-                combined['detail_pages'] = [
-                  {
-                    'id': 1,
-                    'page_name': 'Semua Pertanyaan',
-                    'survey_id': surveysData['id'] ?? 0,
-                    'order': 1,
-                    'questions': questionsList,
-                  },
-                ];
-              }
+        final actualData = allReportData['data'] ?? allReportData;
+        if (actualData is Map<String, dynamic>) {
+          if (actualData.containsKey('page')) {
+            combined['detail_pages'] = actualData['page'];
+          } else if (actualData.containsKey('pages')) {
+            combined['detail_pages'] = actualData['pages'];
+          } else if (actualData.containsKey('surveys')) {
+            final sData = actualData['surveys'];
+            if (sData is Map) {
+              combined['detail_pages'] = sData['page'] ?? sData['pages'] ?? sData['questions'];
             }
           }
         }
       }
 
-      debugPrint('DEBUG: Combined keys = ${combined.keys.toList()}');
-      debugPrint(
-        'DEBUG: Combined has pages: ${combined.containsKey('detail_pages')}',
-      );
-
-      final result = SurveyResponseDetail.fromJson(combined);
-      debugPrint('DEBUG: Parsed result pages count: ${result.pages.length}');
-      return result;
+      return SurveyResponseDetail.fromJson(combined);
     } catch (e, st) {
       debugPrint('Error getFullSurveyDetail: $e');
       debugPrint('Stack: $st');

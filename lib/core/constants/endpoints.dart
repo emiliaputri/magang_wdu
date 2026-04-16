@@ -12,7 +12,8 @@ class Endpoints {
 
   static String get storageUrl {
     // Menghapus '/api' dari baseUrl untuk mendapatkan domain utama
-    return baseUrl.replaceAll('/api', '');
+    // dan menambahkan '/storage' untuk akses file publik Laravel
+    return baseUrl.replaceAll('/api', '') + '/storage';
   }
 
   // ── AUTH ──────────────────────────────────────────────────

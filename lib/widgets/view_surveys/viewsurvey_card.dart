@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../pages/monitor_survey_page.dart';
 import '../../pages/province_target_page.dart';
-import '../../pages/cek_edit_survey_page.dart';
 import '../../pages/biodata_page.dart';
 import '../../models/survey_model.dart';
 
@@ -176,33 +175,19 @@ class ViewSurveyCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _ActionBtn(
-                    label: hasAnswered ? 'Edit' : 'Isi',
+                    label: 'Isi Kuesioner',
                     color: const Color(0xFF4CAF50),
                     onTap: () {
-                      if (hasAnswered) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => CekEditSurveyPage(
-                              surveySlug: survey.slug,
-                              clientSlug: clientSlug,
-                              projectSlug: projectSlug,
-                              responseId: 0,
-                            ),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BiodataPage(
+                            surveySlug: survey.slug,
+                            clientSlug: clientSlug,
+                            projectSlug: projectSlug,
                           ),
-                        );
-                      } else {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BiodataPage(
-                              surveySlug: survey.slug,
-                              clientSlug: clientSlug,
-                              projectSlug: projectSlug,
-                            ),
-                          ),
-                        );
-                      }
+                        ),
+                      );
                     },
                   ),
                 ),
