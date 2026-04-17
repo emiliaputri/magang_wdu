@@ -193,12 +193,12 @@ class SurveyInfo {
   factory SurveyInfo.fromJson(Map<String, dynamic> json) {
     return SurveyInfo(
       id: _parseInt(json['id']),
-      title: json['title'] ?? '',
-      desc: json['desc'],
-      slug: json['slug'] ?? '',
+      title: json['title']?.toString() ?? '',
+      desc: json['desc']?.toString(),
+      slug: json['slug']?.toString() ?? '',
       projectId: _parseInt(json['project_id']),
       status: json['status'] ?? false,
-      spreadsheetUrl: json['spreadsheet_url'],
+      spreadsheetUrl: json['spreadsheet_url']?.toString(),
     );
   }
 }
@@ -219,8 +219,8 @@ class ProjectInfo {
   factory ProjectInfo.fromJson(Map<String, dynamic> json) {
     return ProjectInfo(
       id: _parseInt(json['id']),
-      projectName: json['project_name'] ?? '',
-      slug: json['slug'] ?? '',
+      projectName: json['project_name']?.toString() ?? '',
+      slug: json['slug']?.toString() ?? '',
       clientId: _parseInt(json['client_id']),
     );
   }
@@ -246,11 +246,11 @@ class ClientInfo {
   factory ClientInfo.fromJson(Map<String, dynamic> json) {
     return ClientInfo(
       id: _parseInt(json['id']),
-      clientName: json['client_name'] ?? '',
-      image: json['image'],
-      alamat: json['alamat'],
-      phone: json['phone'],
-      slug: json['slug'] ?? '',
+      clientName: json['client_name']?.toString() ?? '',
+      image: json['image']?.toString(),
+      alamat: json['alamat']?.toString(),
+      phone: json['phone']?.toString(),
+      slug: json['slug']?.toString() ?? '',
     );
   }
 }
@@ -280,7 +280,7 @@ class SurveyPageData {
 
     return SurveyPageData(
       id: _parseInt(json['id']),
-      pageName: json['page_name'] ?? '',
+      pageName: json['page_name']?.toString() ?? '',
       surveyId: _parseInt(json['survey_id']),
       order: _parseInt(json['order']),
       questions: questions,
@@ -343,18 +343,18 @@ class SurveyQuestionData {
 
     return SurveyQuestionData(
       id: _parseInt(json['id']),
-      questionText: json['question_text'] ?? '',
+      questionText: json['question_text']?.toString() ?? '',
       questionTypeId: _parseInt(json['question_type_id']),
       surveyId: _parseInt(json['survey_id']),
       order: _parseInt(json['order']),
       required: json['required'] ?? false,
       questionChoiceId: _parseIntNullable(json['question_choice_id']),
-      logicType: json['logic_type'] ?? '1',
-      logicName: json['logic_name'] ?? 'Always Display',
+      logicType: json['logic_type']?.toString() ?? '1',
+      logicName: json['logic_name']?.toString() ?? 'Always Display',
       choice: choice,
       matrixRows: matrixRows,
       matrixColumns: matrixColumns,
-      matrixType: json['matrix_type'] ?? 'radio',
+      matrixType: json['matrix_type']?.toString() ?? 'radio',
     );
   }
 
@@ -416,12 +416,12 @@ class QuestionChoice {
       id: _parseInt(json['id']),
       questionId: _parseInt(json['question_id']),
       order: _parseInt(json['order']),
-      value: json['value'] ?? '',
+      value: json['value']?.toString() ?? '',
       createdAt: json['created_at'] != null
-          ? DateTime.tryParse(json['created_at'])
+          ? DateTime.tryParse(json['created_at'].toString())
           : null,
       updatedAt: json['updated_at'] != null
-          ? DateTime.tryParse(json['updated_at'])
+          ? DateTime.tryParse(json['updated_at'].toString())
           : null,
     );
   }
@@ -433,7 +433,7 @@ class MatrixRow {
   MatrixRow({required this.label});
 
   factory MatrixRow.fromJson(Map<String, dynamic> json) {
-    return MatrixRow(label: json['label'] ?? '');
+    return MatrixRow(label: json['label']?.toString() ?? '');
   }
 }
 
@@ -443,6 +443,6 @@ class MatrixColumn {
   MatrixColumn({required this.label});
 
   factory MatrixColumn.fromJson(Map<String, dynamic> json) {
-    return MatrixColumn(label: json['label'] ?? '');
+    return MatrixColumn(label: json['label']?.toString() ?? '');
   }
 }

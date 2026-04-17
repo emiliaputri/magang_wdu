@@ -18,10 +18,10 @@ class ProvinceTarget {
   factory ProvinceTarget.fromJson(Map<String, dynamic> json) {
     return ProvinceTarget(
       provinceId: json['province_id'] ?? 0,
-      targetResponse: json['target_response'] ?? '0',
-      cities: List<String>.from(json['cities'] ?? []),
-      regencies: List<String>.from(json['regencies'] ?? []),
-      provinceName: json['province_name'] ?? '',
+      targetResponse: json['target_response']?.toString() ?? '0',
+      cities: (json['cities'] as List?)?.map((e) => e.toString()).toList() ?? [],
+      regencies: (json['regencies'] as List?)?.map((e) => e.toString()).toList() ?? [],
+      provinceName: json['province_name']?.toString() ?? '',
       submissionResponse: json['submission_response'] ?? 0,
     );
   }

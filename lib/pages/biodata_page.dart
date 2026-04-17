@@ -38,6 +38,8 @@ class _BiodataPageState extends State<BiodataPage> {
   int? _selectedProvinceId;
   String? _selectedProvinceName;
 
+  bool _isAnonymous = false;
+
   // Static fallback provinces (38 provinces of Indonesia)
   static const _fallbackProvinces = [
     {'id': 1, 'name': 'Nanggroe Aceh Darussalam'},
@@ -141,10 +143,13 @@ class _BiodataPageState extends State<BiodataPage> {
     final draft = await StorageHelper.getDraftBiodata(widget.surveySlug);
     if (draft != null && mounted) {
       setState(() {
-        _namaController.text = draft['name'] ?? '';
-        _alamatController.text = draft['address'] ?? '';
-        _noHpController.text = draft['phone'] ?? '';
-        _instansiController.text = draft['instansi'] ?? '';
+        if (draft['is_anonymous'] != null) {
+          _isAnonymous = draft['is_anonymous'] == true;
+        }
+        _namaController.text = draft['name'] == 'Anonim' ? '' : (draft['name'] ?? '');
+        _alamatController.text = draft['address'] == '-' ? '' : (draft['address'] ?? '');
+        _noHpController.text = draft['phone'] == '-' ? '' : (draft['phone'] ?? '');
+        _instansiController.text = draft['instansi'] == '-' ? '' : (draft['instansi'] ?? '');
         _selectedProvinceId = draft['province_id'];
         _selectedProvinceName = draft['province_name'];
       });
@@ -153,12 +158,13 @@ class _BiodataPageState extends State<BiodataPage> {
 
   Future<void> _saveDraftBiodata() async {
     final biodata = {
-      'name': _namaController.text.trim(),
-      'address': _alamatController.text.trim(),
+      'name': _isAnonymous ? 'Anonim' : _namaController.text.trim(),
+      'address': _isAnonymous ? '-' : _alamatController.text.trim(),
       'province_id': _selectedProvinceId,
       'province_name': _selectedProvinceName,
-      'phone': _noHpController.text.trim(),
-      'instansi': _instansiController.text.trim(),
+      'phone': _isAnonymous ? '-' : _noHpController.text.trim(),
+      'instansi': _isAnonymous ? '-' : _instansiController.text.trim(),
+      'is_anonymous': _isAnonymous,
     };
     await StorageHelper.saveDraftBiodata(
       surveySlug: widget.surveySlug,
@@ -175,40 +181,80 @@ class _BiodataPageState extends State<BiodataPage> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.monBgColor,
-      body: Column(
-        children: [
-          _buildHeader(context),
-          Expanded(
-            child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(
-                      color: AppTheme.monGreenMid,
-                    ),
-                  )
-                : _errorMessage != null
-                ? _buildErrorUI()
-                : SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildInfoCard(),
-                          const SizedBox(height: 20),
-                          _buildBiodataForm(),
-                          const SizedBox(height: 32),
-                          _buildSubmitButton(),
-                        ],
-                      ),
-                    ),
-                  ),
+  Future<bool> _onWillPop() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Keluar dari Form?', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        content: const Text(
+          'Apakah Anda ingin menyimpan data biodata ini sebagai draft sebelum keluar?',
+          style: TextStyle(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Keluar Tanpa Simpan', style: TextStyle(color: Colors.red)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await _saveDraftBiodata();
+              if (context.mounted) {
+                Navigator.pop(context, true);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.monGreenMid,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Simpan & Keluar'),
           ),
         ],
+      ),
+    );
+    return result ?? false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: AppTheme.monBgColor,
+        body: Column(
+          children: [
+            _buildHeader(context),
+            Expanded(
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.monGreenMid,
+                      ),
+                    )
+                  : _errorMessage != null
+                  ? _buildErrorUI()
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildInfoCard(),
+                            const SizedBox(height: 20),
+                            _buildBiodataForm(),
+                            const SizedBox(height: 32),
+                            _buildSubmitButton(),
+                          ],
+                        ),
+                      ),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -254,7 +300,11 @@ class _BiodataPageState extends State<BiodataPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () async {
+                  if (await _onWillPop()) {
+                    if (context.mounted) Navigator.pop(context);
+                  }
+                },
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -355,6 +405,84 @@ class _BiodataPageState extends State<BiodataPage> {
     );
   }
 
+  Widget _buildFormTypeSelector() {
+    return Row(
+      children: [
+        Expanded(
+          child: InkWell(
+            onTap: () => setState(() => _isAnonymous = false),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: !_isAnonymous ? AppTheme.monGreenPale : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: !_isAnonymous ? AppTheme.monGreenMid : Colors.grey.shade300,
+                  width: !_isAnonymous ? 1.5 : 1,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.person,
+                    size: 18,
+                    color: !_isAnonymous ? AppTheme.monGreenMid : Colors.grey.shade600,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Lengkap',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: !_isAnonymous ? FontWeight.bold : FontWeight.normal,
+                      color: !_isAnonymous ? AppTheme.monGreenMid : Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: InkWell(
+            onTap: () => setState(() => _isAnonymous = true),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: _isAnonymous ? AppTheme.monGreenPale : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: _isAnonymous ? AppTheme.monGreenMid : Colors.grey.shade300,
+                  width: _isAnonymous ? 1.5 : 1,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.person_off,
+                    size: 18,
+                    color: _isAnonymous ? AppTheme.monGreenMid : Colors.grey.shade600,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Anonim',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: _isAnonymous ? FontWeight.bold : FontWeight.normal,
+                      color: _isAnonymous ? AppTheme.monGreenMid : Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildBiodataForm() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -392,45 +520,50 @@ class _BiodataPageState extends State<BiodataPage> {
           ),
           const SizedBox(height: 24),
 
-          _buildTextField(
-            controller: _namaController,
-            label: 'Nama Lengkap',
-            hint: 'Masukkan nama lengkap Anda',
-            icon: Icons.person_outline,
-            isRequired: true,
-          ),
-          const SizedBox(height: 16),
+          _buildFormTypeSelector(),
+          const SizedBox(height: 24),
 
-          _buildTextField(
-            controller: _alamatController,
-            label: 'Alamat',
-            hint: 'Masukkan alamat lengkap Anda',
-            icon: Icons.home_outlined,
-            isRequired: true,
-            maxLines: 3,
-          ),
-          const SizedBox(height: 16),
+          if (!_isAnonymous) ...[
+            _buildTextField(
+              controller: _namaController,
+              label: 'Nama Lengkap',
+              hint: 'Masukkan nama lengkap Anda',
+              icon: Icons.person_outline,
+              isRequired: true,
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              controller: _alamatController,
+              label: 'Alamat',
+              hint: 'Masukkan alamat lengkap Anda',
+              icon: Icons.home_outlined,
+              isRequired: true,
+              maxLines: 3,
+            ),
+            const SizedBox(height: 16),
+          ],
 
           _buildDropdownProvince(),
-          const SizedBox(height: 16),
-
-          _buildTextField(
-            controller: _noHpController,
-            label: 'Nomor Handphone',
-            hint: 'Masukkan nomor HP Anda',
-            icon: Icons.phone_outlined,
-            isRequired: true,
-            keyboardType: TextInputType.phone,
-          ),
-          const SizedBox(height: 16),
-
-          _buildTextField(
-            controller: _instansiController,
-            label: 'Instansi',
-            hint: 'Masukkan nama instansi Anda',
-            icon: Icons.business_outlined,
-            isRequired: true,
-          ),
+          
+          if (!_isAnonymous) ...[
+            const SizedBox(height: 16),
+            _buildTextField(
+              controller: _noHpController,
+              label: 'Nomor Handphone',
+              hint: 'Masukkan nomor HP Anda',
+              icon: Icons.phone_outlined,
+              isRequired: true,
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              controller: _instansiController,
+              label: 'Instansi',
+              hint: 'Masukkan nama instansi Anda',
+              icon: Icons.business_outlined,
+              isRequired: true,
+            ),
+          ],
         ],
       ),
     );
@@ -690,12 +823,13 @@ class _BiodataPageState extends State<BiodataPage> {
   void _submitBiodata() async {
     if (_formKey.currentState!.validate()) {
       final biodata = {
-        'name': _namaController.text.trim(),
-        'address': _alamatController.text.trim(),
+        'name': _isAnonymous ? 'Anonim' : _namaController.text.trim(),
+        'address': _isAnonymous ? '-' : _alamatController.text.trim(),
         'province_id': _selectedProvinceId,
         'province_name': _selectedProvinceName,
-        'phone': _noHpController.text.trim(),
-        'instansi': _instansiController.text.trim(),
+        'phone': _isAnonymous ? '-' : _noHpController.text.trim(),
+        'instansi': _isAnonymous ? '-' : _instansiController.text.trim(),
+        'is_anonymous': _isAnonymous,
       };
 
       await StorageHelper.saveDraftBiodata(
@@ -726,12 +860,13 @@ class _BiodataPageState extends State<BiodataPage> {
 
   void _saveDraft() async {
     final biodata = {
-      'name': _namaController.text.trim(),
-      'address': _alamatController.text.trim(),
+      'name': _isAnonymous ? 'Anonim' : _namaController.text.trim(),
+      'address': _isAnonymous ? '-' : _alamatController.text.trim(),
       'province_id': _selectedProvinceId,
       'province_name': _selectedProvinceName,
-      'phone': _noHpController.text.trim(),
-      'instansi': _instansiController.text.trim(),
+      'phone': _isAnonymous ? '-' : _noHpController.text.trim(),
+      'instansi': _isAnonymous ? '-' : _instansiController.text.trim(),
+      'is_anonymous': _isAnonymous,
     };
 
     await StorageHelper.saveDraftBiodata(

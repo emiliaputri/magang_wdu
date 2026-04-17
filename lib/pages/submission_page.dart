@@ -116,25 +116,65 @@ class _SubmissionPageState extends State<SubmissionPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.monBgColor,
-      body: Column(
-        children: [
-          _buildHeader(context),
-          Expanded(
-            child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(
-                      color: AppTheme.monGreenMid,
-                    ),
-                  )
-                : _errorMessage != null
-                ? _buildErrorUI()
-                : _buildContent(),
+  Future<bool> _onWillPop() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Keluar dari Kuisioner?', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        content: const Text(
+          'Apakah Anda ingin menyimpan jawaban Anda sebagai draft sebelum keluar?',
+          style: TextStyle(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Keluar Tanpa Simpan', style: TextStyle(color: Colors.red)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await _saveDraft();
+              if (context.mounted) {
+                Navigator.pop(context, true);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.monGreenMid,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Simpan & Keluar'),
           ),
         ],
+      ),
+    );
+    return result ?? false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: AppTheme.monBgColor,
+        body: Column(
+          children: [
+            _buildHeader(context),
+            Expanded(
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.monGreenMid,
+                      ),
+                    )
+                  : _errorMessage != null
+                  ? _buildErrorUI()
+                  : _buildContent(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -167,7 +207,11 @@ class _SubmissionPageState extends State<SubmissionPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () async {
+                  if (await _onWillPop()) {
+                    if (context.mounted) Navigator.pop(context);
+                  }
+                },
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
