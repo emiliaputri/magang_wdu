@@ -748,7 +748,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
         children: [
           Row(
             children: [
-              if (!isFirstPage)
+              if (!isFirstPage && !isLastPage)
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
@@ -768,7 +768,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
                     ),
                   ),
                 ),
-              if (!isFirstPage) const SizedBox(width: 12),
+              if (!isFirstPage && !isLastPage) const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
