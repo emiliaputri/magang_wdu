@@ -530,127 +530,177 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
         ? Map<int, dynamic>.from(answers[q.id] as Map)
         : <int, dynamic>{};
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: q.matrixRows.asMap().entries.map((rowEntry) {
-        final rowIndex = rowEntry.key;
-        final row = rowEntry.value;
-
-        return Container(
-          width: double.infinity,
-          margin: const EdgeInsets.only(bottom: 14),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// Judul pertanyaan baris matrix
-              Text(
-                row.label.isNotEmpty ? row.label : 'Baris ${rowIndex + 1}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  color: AppTheme.monTextDark,
-                  height: 1.4,
-                ),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          // Header columns
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
               ),
-              const SizedBox(height: 12),
-
-              /// MATRIX RADIO
-              if (q.matrixType == 'radio')
-                Column(
-                  children: q.matrixColumns.asMap().entries.map((colEntry) {
-                    final colIndex = colEntry.key;
-                    final col = colEntry.value;
-
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 6),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 12),
+                    child: Text(
+                      'Pernyataan',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade700,
                       ),
-                      child: RadioListTile<int>(
-                        value: colIndex,
-                        groupValue: currentMap[rowIndex] as int?,
-                        activeColor: AppTheme.monGreenMid,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                        ),
-                        dense: true,
-                        title: Text(
-                          col.label.isNotEmpty ? col.label : 'Opsi ${colIndex + 1}',
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                        onChanged: (val) {
-                          setState(() {
-                            currentMap[rowIndex] = val;
-                            answers[q.id] =
-                                Map<int, dynamic>.from(currentMap);
-                          });
-                        },
-                      ),
-                    );
-                  }).toList(),
+                    ),
+                  ),
                 ),
-
-              /// MATRIX CHECKBOX
-              if (q.matrixType != 'radio')
-                Column(
-                  children: q.matrixColumns.asMap().entries.map((colEntry) {
-                    final colIndex = colEntry.key;
-                    final col = colEntry.value;
-
-                    final rowCols = currentMap[rowIndex] is List
-                        ? List<int>.from(currentMap[rowIndex] as List)
-                        : <int>[];
-
-                    final isChecked = rowCols.contains(colIndex);
-
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 6),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: CheckboxListTile(
-                        value: isChecked,
-                        activeColor: AppTheme.monGreenMid,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
+                ...q.matrixColumns.asMap().entries.map((entry) {
+                  return Expanded(
+                    flex: 1,
+                    child: Center(
+                      child: Text(
+                        entry.value.label.isNotEmpty
+                            ? entry.value.label
+                            : 'Option ${entry.key + 1}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey.shade700,
                         ),
-                        dense: true,
-                        title: Text(
-                          col.label.isNotEmpty ? col.label : 'Opsi ${colIndex + 1}',
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                        onChanged: (checked) {
-                          setState(() {
-                            if (checked == true) {
-                              if (!rowCols.contains(colIndex)) {
-                                rowCols.add(colIndex);
-                              }
-                            } else {
-                              rowCols.remove(colIndex);
-                            }
-
-                            currentMap[rowIndex] = rowCols;
-                            answers[q.id] =
-                                Map<int, dynamic>.from(currentMap);
-                          });
-                        },
+                        textAlign: TextAlign.center,
                       ),
-                    );
-                  }).toList(),
-                ),
-            ],
+                    ),
+                  );
+                }),
+              ],
+            ),
           ),
-        );
-      }).toList(),
+          // Table rows
+          ...q.matrixRows.asMap().entries.map((rowEntry) {
+            final rowIndex = rowEntry.key;
+            final row = rowEntry.value;
+            final isLast = rowIndex == q.matrixRows.length - 1;
+
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              decoration: BoxDecoration(
+                color: rowIndex.isEven ? Colors.white : Colors.grey.shade50,
+                borderRadius: isLast
+                    ? const BorderRadius.only(
+                        bottomLeft: Radius.circular(12),
+                        bottomRight: Radius.circular(12),
+                      )
+                    : null,
+                border: Border(top: BorderSide(color: Colors.grey.shade200)),
+              ),
+              child: Row(
+                children: [
+                  // Row label
+                  Expanded(
+                    flex: 3,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 12, right: 8),
+                      child: Text(
+                        row.label.isNotEmpty ? row.label : 'Row ${rowIndex + 1}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.monTextDark,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Radio/Checkbox inputs for each column
+                  ...q.matrixColumns.asMap().entries.map((colEntry) {
+                    final colIndex = colEntry.key;
+                    final activeColor = _getMatrixColor(colIndex, q.matrixColumns.length);
+
+                    if (q.matrixType == 'radio') {
+                      return Expanded(
+                        flex: 1,
+                        child: Center(
+                          child: Radio<int>(
+                            value: colIndex,
+                            groupValue: currentMap[rowIndex] as int?,
+                            activeColor: activeColor,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            onChanged: (val) {
+                              setState(() {
+                                currentMap[rowIndex] = val;
+                                answers[q.id] = Map<int, dynamic>.from(currentMap);
+                              });
+                            },
+                          ),
+                        ),
+                      );
+                    } else {
+                      final rowCols = currentMap[rowIndex] is List
+                          ? List<int>.from(currentMap[rowIndex] as List)
+                          : <int>[];
+                      final isChecked = rowCols.contains(colIndex);
+
+                      return Expanded(
+                        flex: 1,
+                        child: Center(
+                          child: Checkbox(
+                            value: isChecked,
+                            activeColor: activeColor,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            onChanged: (checked) {
+                              setState(() {
+                                if (checked == true) {
+                                  if (!rowCols.contains(colIndex)) {
+                                    rowCols.add(colIndex);
+                                  }
+                                } else {
+                                  rowCols.remove(colIndex);
+                                }
+                                currentMap[rowIndex] = rowCols;
+                                answers[q.id] = Map<int, dynamic>.from(currentMap);
+                              });
+                            },
+                          ),
+                        ),
+                      );
+                    }
+                  }),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
     );
+  }
+
+  Color _getMatrixColor(int index, int totalColumns) {
+    if (totalColumns == 4) {
+      switch (index) {
+        case 0: return AppTheme.monGreenDark;
+        case 1: return AppTheme.monGreenMid;
+        case 2: return Colors.orange;
+        case 3: return Colors.red;
+      }
+    }
+    if (totalColumns == 5) {
+      switch (index) {
+        case 0: return AppTheme.monGreenDark;
+        case 1: return AppTheme.monGreenMid;
+        case 2: return Colors.orange;
+        case 3: return Colors.red;
+        case 4: return Colors.grey;
+      }
+    }
+    return AppTheme.monGreenMid;
   }
 
   // ── DOCUMENT/UPLOAD INPUT ────────────────────────────────

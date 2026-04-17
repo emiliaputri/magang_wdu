@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [1.3.6] - 2026-04-17
+### Fixed
+- **Merge Conflict Resolution**: Successfully resolved significant merge conflicts in `CekEditMonitorPage` during the integration of monitoring feature updates into the main branch.
+- **Document Type Support**: Restored handling and UI support for the `document` (file upload) question type in the monitoring edit view.
+- **Parsing Stability**: Fixed "type 'int' is not a subtype of type 'String'" crash across `SubmissionService` and `ProvinceTarget` models by ensuring dynamic values from the API are cast to String before property assignment.
+
+### Added
+- **Anonymous Entry Mode**: Added a toggle in `BiodataPage` to switch between "Lengkap" and "Anonim" modes. Anonymous mode requires only a Province selection to proceed.
+- **Data Loss Prevention**: Integrated `WillPopScope` with a professional confirmation dialog in both `BiodataPage` and `SubmissionPage`. Users are now prompted to save a draft or confirm exit when navigating back.
+
+### Changed
+- **Monitor UI Synchronization**: Redesigned the Matrix question interface in `CekEditMonitorPage` to be visually consistent with `LihatMonitorPage`, ensuring a unified look and feel across the monitoring suite.
+- **Matrix UI Enhancements**: Implemented a refined table-style layout for Matrix questions, featuring alternating row colors, improved fallback labels (e.g., "Row X", "Option X"), and specific color accents for standard Likert scales (SS, S, TS, STS).
+- **Biodata UI Refactoring**: Redesigned the biodata form layout to accommodate the new mode selector and conditional input visibility.
+
+### Improved
+- **Lifecycle Connectivity**: Maintained `WidgetsBindingObserver` integration to ensure the monitor page re-fetches the latest state from the API whenever the application resumes from the background.
+
+
 ## [1.3.4] - 2026-04-16
 ### Fixed
 - **Monitoring Data Restoration**: Fixed a critical bug where `CekEditMonitorPage` showed empty content by correctly merging survey structures from `/all-report` with answers from `/report`.
