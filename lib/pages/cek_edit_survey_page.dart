@@ -661,10 +661,7 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage>
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: AppTheme.primary,
-                width: 1.5,
-              ),
+              borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
             ),
           ),
         ),

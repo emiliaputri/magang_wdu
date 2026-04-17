@@ -7,7 +7,6 @@ import '../providers/dashboard_provider.dart';
 import '../widgets/dashboard_surveys/client_card.dart';
 import '../widgets/dashboard_surveys/project_card.dart';
 import 'login_page.dart';
-import 'archive_page.dart';
 import 'settings_page.dart';
 import '../providers/auth_provider.dart';
 
@@ -211,16 +210,6 @@ class _DashboardViewState extends State<_DashboardView>
                   'Dashboard',
                   isActive: true,
                   onTap: () {},
-                ),
-                _navItem(
-                  Icons.inventory_2_rounded,
-                  'Archive',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ArchivePage()),
-                    );
-                  },
                 ),
                 _navItem(
                   Icons.settings_rounded,
