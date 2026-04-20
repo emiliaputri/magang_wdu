@@ -1,6 +1,5 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/client_model.dart';
 import '../../core/theme/app_theme.dart';
 
@@ -47,16 +46,21 @@ class ClientCard extends StatelessWidget {
         border: Border.all(color: AppTheme.border, width: 1.5),
       ),
       clipBehavior: Clip.hardEdge,
-      child: imageUrl != null
-          ? Image.network(
-              imageUrl,
+      child: imageUrl != null && imageUrl.isNotEmpty
+          ? CachedNetworkImage(
+              imageUrl: imageUrl,
               fit: BoxFit.cover,
-              loadingBuilder: (_, child, progress) => progress == null
-                  ? child
-                  : const Center(
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-              errorBuilder: (_, __, ___) =>
+              placeholder: (context, url) => const Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppTheme.primary,
+                  ),
+                ),
+              ),
+              errorWidget: (context, url, error) =>
                   const Icon(Icons.business, size: 36, color: AppTheme.border),
             )
           : const Icon(Icons.business, size: 36, color: AppTheme.border),
@@ -124,55 +128,3 @@ class ClientCard extends StatelessWidget {
   }
 }
 
-class _HttpImageCircle extends StatefulWidget {
-  final String url;
-  final Widget fallback;
-
-  const _HttpImageCircle({required this.url, required this.fallback});
-
-  @override
-  State<_HttpImageCircle> createState() => _HttpImageCircleState();
-}
-
-class _HttpImageCircleState extends State<_HttpImageCircle> {
-  late Future<Uint8List> _imageData;
-
-  @override
-  void initState() {
-    super.initState();
-    _imageData = _fetchImage();
-  }
-
-  Future<Uint8List> _fetchImage() async {
-    try {
-      final response = await http.get(Uri.parse(widget.url));
-      if (response.statusCode == 200) {
-        return response.bodyBytes;
-      }
-      throw Exception('Failed to load image: ${response.statusCode}');
-    } catch (e) {
-      print('HTTP Error for ${widget.url}: $e');
-      rethrow;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<Uint8List>(
-      future: _imageData,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return Image.memory(
-            snapshot.data!,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => widget.fallback,
-          );
-        } else if (snapshot.hasError) {
-          print('Image load error for ${widget.url}: ${snapshot.error}');
-          return widget.fallback;
-        }
-        return const Center(child: CircularProgressIndicator(strokeWidth: 2));
-      },
-    );
-  }
-}

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../models/client_model.dart';
 import '../models/project_model.dart';
+import '../core/theme/app_theme.dart';
 import 'list_survey_page.dart';
 
 // ── Page ─────────────────────────────────────────────────────────────────────
@@ -206,8 +209,30 @@ class _ClientCard extends StatelessWidget {
             ),
             clipBehavior: Clip.hardEdge,
             child: url != null && url.isNotEmpty
-                ? Image.network(url, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.account_balance, size: 36, color: Color(0xFFBDBDBD)))
-                : const Icon(Icons.account_balance, size: 36, color: Color(0xFFBDBDBD)),
+                ? CachedNetworkImage(
+                    imageUrl: url,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => const Center(
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppTheme.primary,
+                        ),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => const Icon(
+                      Icons.account_balance,
+                      size: 36,
+                      color: Color(0xFFBDBDBD),
+                    ),
+                  )
+                : const Icon(
+                    Icons.account_balance,
+                    size: 36,
+                    color: Color(0xFFBDBDBD),
+                  ),
           ),
           const SizedBox(width: 20),
           Expanded(
