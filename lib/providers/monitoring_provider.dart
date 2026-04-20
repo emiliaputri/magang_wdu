@@ -28,7 +28,8 @@ class MonitoringProvider extends ChangeNotifier {
   bool isOpen = false;
   bool isNewestFirst = true;
 
-  String dateFilter = 'all'; // 'all', 'last_week', 'last_month', 'last_year', 'custom'
+  String dateFilter =
+      'all'; // 'all', 'last_week', 'last_month', 'last_year', 'custom'
   DateTimeRange? customDateRange;
   List<Map<String, dynamic>> _rawResponses = [];
 
@@ -56,35 +57,79 @@ class MonitoringProvider extends ChangeNotifier {
     if (dateFilter == 'last_week') {
       startDate = now.subtract(const Duration(days: 7));
     } else if (dateFilter == 'last_month') {
-      startDate = DateTime(now.year, now.month - 1, now.day);
+      // FIX: Handle edge case jika month = 1 (Januari)
+      if (now.month > 1) {
+        startDate = DateTime(now.year, now.month - 1, now.day);
+      } else {
+        startDate = DateTime(now.year - 1, 12, now.day);
+      }
     } else if (dateFilter == 'last_year') {
       startDate = DateTime(now.year - 1, now.month, now.day);
     } else if (dateFilter == 'custom' && customDateRange != null) {
       startDate = customDateRange!.start;
       // Make end date inclusive of the whole day
-      endDate = customDateRange!.end.add(const Duration(hours: 23, minutes: 59, seconds: 59));
+      endDate = customDateRange!.end.add(
+        const Duration(hours: 23, minutes: 59, seconds: 59),
+      );
     }
+
+    // DEBUG: Print filter info
+    debugPrint(
+      '[MonitoringProvider] Filter: $dateFilter, startDate: $startDate, endDate: $endDate',
+    );
+    debugPrint(
+      '[MonitoringProvider] Total raw responses: ${_rawResponses.length}',
+    );
 
     responses = _rawResponses.where((r) {
       if (startDate == null) return true;
-      final dateStr = r['created_at']?.toString() ?? r['updated_at']?.toString() ?? '';
+      final dateStr =
+          r['created_at']?.toString() ?? r['updated_at']?.toString() ?? '';
       final dt = DateTime.tryParse(dateStr);
       if (dt == null) return false;
-      return dt.isAfter(startDate) && dt.isBefore(endDate!);
+      final isInRange = dt.isAfter(startDate) && dt.isBefore(endDate!);
+      return isInRange;
     }).toList();
 
+    debugPrint(
+      '[MonitoringProvider] Setelah filter: ${responses.length} responses',
+    );
+    for (var i = 0; i < responses.length && i < 3; i++) {
+      debugPrint(
+        '  Response[$i]: ${responses[i]['created_at'] ?? responses[i]['updated_at']}',
+      );
+    }
+
     responses.sort((a, b) {
-      final dateA = DateTime.tryParse(a['created_at']?.toString() ?? a['updated_at']?.toString() ?? '') ?? DateTime(1970);
-      final dateB = DateTime.tryParse(b['created_at']?.toString() ?? b['updated_at']?.toString() ?? '') ?? DateTime(1970);
-      
-      final cmp = isNewestFirst ? dateB.compareTo(dateA) : dateA.compareTo(dateB);
+      final dateA =
+          DateTime.tryParse(
+            a['created_at']?.toString() ?? a['updated_at']?.toString() ?? '',
+          ) ??
+          DateTime(1970);
+      final dateB =
+          DateTime.tryParse(
+            b['created_at']?.toString() ?? b['updated_at']?.toString() ?? '',
+          ) ??
+          DateTime(1970);
+
+      final cmp = isNewestFirst
+          ? dateB.compareTo(dateA)
+          : dateA.compareTo(dateB);
       if (cmp != 0) return cmp;
 
-      final idA = int.tryParse(a['id']?.toString() ?? a['response_id']?.toString() ?? '0') ?? 0;
-      final idB = int.tryParse(b['id']?.toString() ?? b['response_id']?.toString() ?? '0') ?? 0;
+      final idA =
+          int.tryParse(
+            a['id']?.toString() ?? a['response_id']?.toString() ?? '0',
+          ) ??
+          0;
+      final idB =
+          int.tryParse(
+            b['id']?.toString() ?? b['response_id']?.toString() ?? '0',
+          ) ??
+          0;
       return isNewestFirst ? idB.compareTo(idA) : idA.compareTo(idB);
     });
-    
+
     totalRespon = responses.length;
   }
 
@@ -196,7 +241,9 @@ class MonitoringProvider extends ChangeNotifier {
       final rawResponsesList = allReport['responses'];
       if (rawResponsesList is List && rawResponsesList.isNotEmpty) {
         debugPrint('SAMPLE RESPONSE FULL: ${rawResponsesList.first}');
-        debugPrint('SAMPLE RESPONSE KEYS: ${rawResponsesList.first.keys.toList()}');
+        debugPrint(
+          'SAMPLE RESPONSE KEYS: ${rawResponsesList.first.keys.toList()}',
+        );
         _rawResponses = rawResponsesList
             .whereType<Map>()
             .map((e) => Map<String, dynamic>.from(e))

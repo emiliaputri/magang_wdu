@@ -142,6 +142,7 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage>
         final parsed = _editService.parseExistingAnswers(
           answers: data.answers,
           pages: data.pages,
+          responseId: _activeResponseId ?? 0,
         );
         answers = Map<int, dynamic>.from(parsed);
         originalAnswers = Map<int, dynamic>.from(parsed);

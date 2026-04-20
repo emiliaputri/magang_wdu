@@ -93,6 +93,7 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
         final parsed = _editService.parseExistingAnswers(
           answers: data.answers,
           pages: data.pages,
+          responseId: data.responseId ?? widget.responseId,
         );
         answers = Map<int, dynamic>.from(parsed);
         originalAnswers = Map<int, dynamic>.from(parsed);

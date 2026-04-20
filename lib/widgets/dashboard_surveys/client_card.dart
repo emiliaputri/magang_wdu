@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/client_model.dart';
-import '../../pages/project_page.dart';
 import '../../pages/project_bpk_page.dart';
 
 class ClientCard extends StatelessWidget {
@@ -40,7 +39,6 @@ class ClientCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── IMAGE ──
           AspectRatio(
             aspectRatio: 1.6,
             child: Container(
@@ -49,6 +47,9 @@ class ClientCard extends StatelessWidget {
               child: Builder(
                 builder: (context) {
                   final url = client.imageUrl ?? client.image;
+                  debugPrint(
+                    '[ClientCard] ${client.clientName} - imageUrl: $url',
+                  );
                   if (url != null && url.isNotEmpty) {
                     return Hero(
                       tag: 'client_${client.clientName}',
@@ -66,7 +67,6 @@ class ClientCard extends StatelessWidget {
               ),
             ),
           ),
-
           Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),

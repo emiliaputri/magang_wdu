@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'project_model.dart';
 import '../core/constants/endpoints.dart';
 
@@ -30,11 +31,16 @@ class Client {
 
   factory Client.fromJson(Map<String, dynamic> json) {
     // Mencoba berbagai kemungkinan key untuk gambar klien
-    String? rawImage = json['image'] ?? 
-                       json['image_url'] ?? 
-                       json['client_image'] ?? 
-                       json['client_logo'] ?? 
-                       json['logo'];
+    String? rawImage =
+        json['image'] ??
+        json['image_url'] ??
+        json['client_image'] ??
+        json['client_logo'] ??
+        json['logo'];
+
+    debugPrint(
+      '[ClientModel] client_name: ${json['client_name']} - rawImage: $rawImage',
+    );
 
     return Client(
       id: json['id'],
@@ -106,12 +112,12 @@ class Client {
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
 
     final base = Endpoints.storageUrl;
-    
+
     // Jika url mengandung 'img/client/', kita pastikan tidak ada double slash saat tempel ke base
     if (url.contains('img/client/')) {
-       // Bersihkan url dari leading slash jika ada, agar kita bisa kontrol manual
-       final cleanPath = url.startsWith('/') ? url.substring(1) : url;
-       return '$base/$cleanPath';
+      // Bersihkan url dari leading slash jika ada, agar kita bisa kontrol manual
+      final cleanPath = url.startsWith('/') ? url.substring(1) : url;
+      return '$base/$cleanPath';
     }
 
     // Paksa tambahkan /img/client/ jika belum ada

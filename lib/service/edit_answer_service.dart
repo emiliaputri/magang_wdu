@@ -211,7 +211,9 @@ class EditAnswerService {
 
       final payload = _buildPayload(pages, currentAnswers);
 
-      debugPrint('[EditAnswerService] Final payload: ${jsonEncode(payload)}');
+      debugPrint('[EditAnswerService] === FINAL PAYLOAD ===');
+      debugPrint('[EditAnswerService] Payload: ${jsonEncode(payload)}');
+      debugPrint('[EditAnswerService] ======================');
 
       final response = await _api.patch(
         Endpoints.changeAnswer(clientSlug, projectSlug, surveySlug, responseId),
@@ -356,17 +358,23 @@ class EditAnswerService {
           {'answe': answer.toString()},
         ];
 
-      case 3: // Checkbox
+      case 3: // Checkbox → List<String>
+        debugPrint(
+          '[EditAnswerService] CHECKBOX questionId=${question.id}, answer=$answer (type: ${answer.runtimeType})',
+        );
         if (answer is List && answer.isNotEmpty) {
-          // Hapus duplikat sebelum dikirim
           final uniqueAnswers = answer
               .map((e) => e.toString())
               .toSet()
               .toList();
+          debugPrint(
+            '[EditAnswerService] CHECKBOX uniqueAnswers: $uniqueAnswers',
+          );
           return [
             {'answe': uniqueAnswers},
           ];
         }
+        debugPrint('[EditAnswerService] CHECKBOX empty - return []');
         return [
           {'answe': []},
         ];
@@ -421,6 +429,7 @@ class EditAnswerService {
   Map<int, dynamic> parseExistingAnswers({
     required List<SurveyAnswerData> answers,
     required List<SurveyPageData> pages,
+    required int responseId,
   }) {
     // Lookup questionId → question (untuk cek tipe)
     final Map<int, SurveyQuestionData> questionMap = {
@@ -428,10 +437,15 @@ class EditAnswerService {
         for (final q in page.questions) q.id: q,
     };
 
+    // Filter jawaban berdasarkan responseId - seperti lihat_monitor_page
+    final filteredAnswers = answers
+        .where((a) => a.responseId == responseId)
+        .toList();
+
     // Kelompokkan answers per questionId
     // (checkbox bisa punya lebih dari 1 row answer untuk 1 question)
     final Map<int, List<String>> grouped = {};
-    for (final ans in answers) {
+    for (final ans in filteredAnswers) {
       grouped.putIfAbsent(ans.questionId, () => []).add(ans.answer);
     }
 
@@ -441,69 +455,96 @@ class EditAnswerService {
       final question = questionMap[questionId];
       if (question == null) return;
 
-      // Ambil jawaban terakhir karena itu yang terbaru di database
-      final latestAnswer = answerList.isNotEmpty ? answerList.last : '';
-
       switch (question.questionTypeId) {
         case 3: // Checkbox → List<String>
-          result[questionId] = answerList;
+          // Untuk checkbox, cari jawaban valid (bisa string biasa ATAU JSON array)
+          String? latestValidAnswer;
+          for (int i = answerList.length - 1; i >= 0; i--) {
+            final ans = answerList[i];
+            if (ans != null && ans.isNotEmpty && ans != 'Unknown') {
+              latestValidAnswer = ans;
+              break;
+            }
+          }
+          // Parse JSON array jika ada
+          if (latestValidAnswer != null && latestValidAnswer.startsWith('[')) {
+            try {
+              final decoded = jsonDecode(latestValidAnswer);
+              if (decoded is List) {
+                final cleanList = decoded
+                    .where((e) => e.toString().isNotEmpty)
+                    .map((e) => e.toString())
+                    .toSet()
+                    .toList();
+                result[questionId] = cleanList;
+              } else {
+                result[questionId] = [latestValidAnswer];
+              }
+            } catch (_) {
+              result[questionId] = [latestValidAnswer];
+            }
+          } else if (latestValidAnswer != null &&
+              latestValidAnswer.isNotEmpty) {
+            result[questionId] = [latestValidAnswer];
+          } else {
+            result[questionId] = [];
+          }
           break;
 
         case 9: // Matrix → decode JSON string ke Map
+          // Untuk matrix, cari jawaban valid (bisa string biasa ATAU JSON object)
+          String? matrixAnswer;
+          for (int i = answerList.length - 1; i >= 0; i--) {
+            final ans = answerList[i];
+            if (ans != null && ans.isNotEmpty && ans != 'Unknown') {
+              matrixAnswer = ans;
+              break;
+            }
+          }
           result[questionId] = _decodeMatrixAnswer(
-            latestAnswer,
+            matrixAnswer ?? '',
             question.matrixType,
           );
           break;
 
-        case 2: // Radio
-        case 7: // Dropdown
-          if (latestAnswer.isNotEmpty) {
-            final rawAns = latestAnswer;
-            // Cek apakah rawAns adalah salah satu ID dari choices
-            final existsAsId = question.choices.any(
-              (c) => c.id.toString() == rawAns,
-            );
-
-            if (existsAsId) {
-              result[questionId] = rawAns;
-            } else {
-              // Jika tidak ada ID yang cocok, coba cari berdasarkan label (case-insensitive)
-              try {
-                final matchedChoice = question.choices.firstWhere(
-                  (c) => c.value.toLowerCase() == rawAns.toLowerCase(),
-                );
-                result[questionId] = matchedChoice.id.toString();
-              } catch (_) {
-                // Jika tidak ada yang cocok sama sekali, biarkan apa adanya
-                result[questionId] = rawAns;
+        default: // Radio, Text, Dropdown, dll
+          String? latestValidAnswer;
+          for (int i = answerList.length - 1; i >= 0; i--) {
+            final ans = answerList[i];
+            if (ans != null && ans.isNotEmpty && ans != 'Unknown') {
+              if (ans.startsWith('[') || ans.startsWith('{')) {
+                continue;
               }
+              latestValidAnswer = ans;
+              break;
             }
-          } else {
-            result[questionId] = '';
           }
-          break;
 
-        default: // Semua tipe lain (Text, Paragraph, etc.)
-          if (latestAnswer.isNotEmpty) {
-            String raw = latestAnswer;
-            // Jika radio/dropdown tapi tipenya 'text' di map (mungkin data lama)
-            if (question.questionTypeId == 2 || question.questionTypeId == 7) {
-              final matched = question.choices.where(
-                (c) =>
-                    c.id.toString() == raw ||
-                    c.value.toLowerCase() == raw.toLowerCase(),
+          if (question.questionTypeId == 2 || question.questionTypeId == 7) {
+            // Radio/Dropdown
+            if (latestValidAnswer != null && latestValidAnswer.isNotEmpty) {
+              final rawAns = latestValidAnswer;
+              final existsAsId = question.choices.any(
+                (c) => c.id.toString() == rawAns,
               );
-              if (matched.isNotEmpty) {
-                result[questionId] = matched.first.id.toString();
+              if (existsAsId) {
+                result[questionId] = rawAns;
               } else {
-                result[questionId] = raw;
+                try {
+                  final matchedChoice = question.choices.firstWhere(
+                    (c) => c.value.toLowerCase() == rawAns.toLowerCase(),
+                  );
+                  result[questionId] = matchedChoice.id.toString();
+                } catch (_) {
+                  result[questionId] = rawAns;
+                }
               }
             } else {
-              result[questionId] = raw;
+              result[questionId] = '';
             }
           } else {
-            result[questionId] = '';
+            // Text, Paragraph, dll
+            result[questionId] = latestValidAnswer ?? '';
           }
           break;
       }

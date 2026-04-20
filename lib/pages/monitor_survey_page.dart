@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/monitoring_provider.dart';
@@ -148,15 +149,24 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                                             MainAxisAlignment.end,
                                         children: [
                                           GestureDetector(
-                                            onTap: () => _showFilterSheet(context, provider),
+                                            onTap: () => _showFilterSheet(
+                                              context,
+                                              provider,
+                                            ),
                                             child: Container(
                                               height: 28,
-                                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                  ),
                                               decoration: BoxDecoration(
                                                 color: Colors.white,
-                                                borderRadius: BorderRadius.circular(14),
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
                                                 border: Border.all(
-                                                  color: const Color(0xFF15803D).withOpacity(0.3),
+                                                  color: const Color(
+                                                    0xFF15803D,
+                                                  ).withOpacity(0.3),
                                                 ),
                                               ),
                                               child: Row(
@@ -173,7 +183,8 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                                                     style: TextStyle(
                                                       fontFamily: 'Inter',
                                                       fontSize: 11,
-                                                      fontWeight: FontWeight.w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                       color: Color(0xFF15803D),
                                                     ),
                                                   ),
@@ -184,64 +195,71 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                                         ],
                                       ),
                                       const SizedBox(height: 12),
-                                      ListResponWidget(
-                                        responses: provider.responses,
-                                        currentPage: _currentPage,
-                                        totalData: provider.totalRespon,
-                                        perPage: 10,
-                                        onPageChanged: (page) =>
-                                            setState(() => _currentPage = page),
-                                        onDeleteResponse:
-                                            (
-                                              responseId,
-                                              surveySlug,
-                                              clientSlug,
-                                              projectSlug,
-                                            ) async {
-                                              final success = await provider
-                                                  .deleteResponse(responseId);
-                                              if (context.mounted) {
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                      success
-                                                          ? 'Data berhasil dihapus'
-                                                          : 'Gagal menghapus data',
-                                                    ),
-                                                    backgroundColor: success
-                                                        ? Colors.green
-                                                        : Colors.red,
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                        onEditResponse:
-                                            (
-                                              responseId,
-                                              surveySlug,
-                                              clientSlug,
-                                              projectSlug,
-                                              responseData,
-                                            ) {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (_) =>
-                                                      CekEditMonitorPage(
-                                                        surveySlug: surveySlug,
-                                                        clientSlug: clientSlug,
-                                                        projectSlug:
-                                                            projectSlug,
-                                                        responseId: responseId,
+                                      if (provider.responses.isEmpty)
+                                        _buildEmptyFilterState(provider)
+                                      else
+                                        ListResponWidget(
+                                          responses: provider.responses,
+                                          currentPage: _currentPage,
+                                          totalData: provider.totalRespon,
+                                          perPage: 10,
+                                          onPageChanged: (page) => setState(
+                                            () => _currentPage = page,
+                                          ),
+                                          onDeleteResponse:
+                                              (
+                                                responseId,
+                                                surveySlug,
+                                                clientSlug,
+                                                projectSlug,
+                                              ) async {
+                                                final success = await provider
+                                                    .deleteResponse(responseId);
+                                                if (context.mounted) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        success
+                                                            ? 'Data berhasil dihapus'
+                                                            : 'Gagal menghapus data',
                                                       ),
-                                                ),
-                                              ).then(
-                                                (_) => provider.loadSurvey(),
-                                              );
-                                            },
-                                      ),
+                                                      backgroundColor: success
+                                                          ? Colors.green
+                                                          : Colors.red,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                          onEditResponse:
+                                              (
+                                                responseId,
+                                                surveySlug,
+                                                clientSlug,
+                                                projectSlug,
+                                                responseData,
+                                              ) {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (_) =>
+                                                        CekEditMonitorPage(
+                                                          surveySlug:
+                                                              surveySlug,
+                                                          clientSlug:
+                                                              clientSlug,
+                                                          projectSlug:
+                                                              projectSlug,
+                                                          responseId:
+                                                              responseId,
+                                                        ),
+                                                  ),
+                                                ).then(
+                                                  (_) => provider.loadSurvey(),
+                                                );
+                                              },
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -469,7 +487,10 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                               },
                             );
                             if (picked != null) {
-                              provider.setDateFilter('custom', customRange: picked);
+                              provider.setDateFilter(
+                                'custom',
+                                customRange: picked,
+                              );
                               if (context.mounted) Navigator.pop(context);
                             }
                           } else {
@@ -506,7 +527,9 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: isSelected ? Colors.black : const Color(0xFFE5E7EB),
+                                      color: isSelected
+                                          ? Colors.black
+                                          : const Color(0xFFE5E7EB),
                                       width: 2,
                                     ),
                                   ),
@@ -532,6 +555,42 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
           },
         );
       },
+    );
+  }
+
+  Widget _buildEmptyFilterState(MonitoringProvider provider) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.search_off_rounded,
+            size: 64,
+            color: AppTheme.onSurfaceVariant,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Data tidak ditemukan',
+            style: GoogleFonts.inter(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () => provider.setDateFilter('all'),
+            child: Text(
+              'Tampilkan semua data',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1111,9 +1111,45 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
 
     // Matrix question
     if (q.typeString == 'matrix') {
-      // Generate row labels (fallback jika label kosong)
-      final hasValidRows = q.matrixRows.any((row) => row.label.isNotEmpty);
-      final hasValidCols = q.matrixColumns.any((col) => col.label.isNotEmpty);
+      debugPrint(
+        'DEBUG Matrix Q${q.id}: matrixRows=${q.matrixRows.length}, matrixColumns=${q.matrixColumns.length}, embeddedAnswers=${q.embeddedAnswers.length}',
+      );
+
+      // Fallback: jika matrixRows/columns kosong, coba buat dari answer JSON
+      final hasOriginalRows = q.matrixRows.isNotEmpty;
+
+      if (!hasOriginalRows &&
+          answer.isNotEmpty &&
+          answer != '-' &&
+          answer != 'Unknown') {
+        final rowIndices = <int>{};
+        final colIndices = <int>{};
+        try {
+          final parsed = jsonDecode(answer);
+          if (parsed is Map) {
+            for (final entry in parsed.entries) {
+              final rowIdx = int.tryParse(entry.key);
+              final colIdx = int.tryParse(entry.value.toString());
+              if (rowIdx != null) rowIndices.add(rowIdx);
+              if (colIdx != null) colIndices.add(colIdx);
+            }
+          }
+        } catch (_) {}
+        if (rowIndices.isNotEmpty || colIndices.isNotEmpty) {
+          final sortedRowIdx = rowIndices.toList()..sort();
+          final sortedColIdx = colIndices.toList()..sort();
+          final tempRows = sortedRowIdx
+              .map((i) => MatrixRowData(label: 'Row ${i + 1}'))
+              .toList();
+          final tempCols = sortedColIdx
+              .map((i) => MatrixColumnData(label: 'Option ${i + 1}'))
+              .toList();
+          debugPrint(
+            'DEBUG Matrix Q${q.id} fallback: generated ${tempRows.length} rows, ${tempCols.length} cols from answer JSON',
+          );
+          return _buildMatrixAnswer(q, answer, tempRows, tempCols);
+        }
+      }
 
       // Jika matrix memiliki data, tampilkan sebagai DataTable (dengan fallback labels)
       if (q.matrixRows.isNotEmpty && q.matrixColumns.isNotEmpty) {
@@ -1233,37 +1269,21 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
     );
   }
 
-  Widget _buildMatrixAnswer(SurveyQuestionData q, String answer) {
-    if (answer.isEmpty || answer == "-" || answer == "Unknown") {
-      return _buildEmptyAnswer();
-    }
+  Widget _buildMatrixAnswer(
+    SurveyQuestionData q,
+    String answer, [
+    List<MatrixRowData>? overrideRows,
+    List<MatrixColumnData>? overrideCols,
+  ]) {
+    final hasAnswer = answer.isNotEmpty && answer != "-" && answer != "Unknown";
 
-    // Generate fallback labels if labels are empty
-    final rowLabels = q.matrixRows.isNotEmpty
-        ? q.matrixRows
-              .map(
-                (row) => row.label.isNotEmpty
-                    ? row.label
-                    : 'Row ${q.matrixRows.indexOf(row) + 1}',
-              )
-              .toList()
-        : <String>[];
-    final colLabels = q.matrixColumns.isNotEmpty
-        ? q.matrixColumns
-              .map(
-                (col) => col.label.isNotEmpty
-                    ? col.label
-                    : 'Option ${q.matrixColumns.indexOf(col) + 1}',
-              )
-              .toList()
-        : <String>[];
+    // Use override rows/cols if provided, otherwise use question data
+    final sourceRows = overrideRows ?? q.matrixRows;
+    final sourceCols = overrideCols ?? q.matrixColumns;
 
-    try {
-      final Map<String, dynamic> parsed = Map<String, dynamic>.from(
-        _parseJson(answer),
-      );
-
-      if (parsed.isEmpty) {
+    // Jika tidak ada struktur rows/cols sama sekali, tampilkan sebagai text
+    if (sourceRows.isEmpty && sourceCols.isEmpty) {
+      if (hasAnswer) {
         return Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -1273,32 +1293,114 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
           child: Text(answer, style: const TextStyle(fontSize: 12)),
         );
       }
+      return _buildEmptyAnswer();
+    }
 
-      return Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          children: [
-            // Header columns
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
-                ),
+    // Parse answer JSON
+    Map<String, dynamic>? parsed;
+    if (hasAnswer) {
+      try {
+        final rawParsed = _parseJson(answer);
+        if (rawParsed is Map) {
+          parsed = Map<String, dynamic>.from(rawParsed);
+        }
+      } catch (e) {
+        parsed = null;
+      }
+    }
+
+    // Generate fallback labels if labels are empty
+    final rowLabels = sourceRows.isNotEmpty
+        ? sourceRows
+              .map(
+                (row) => row.label.isNotEmpty
+                    ? row.label
+                    : 'Row ${sourceRows.indexOf(row) + 1}',
+              )
+              .toList()
+        : <String>[];
+    final colLabels = sourceCols.isNotEmpty
+        ? sourceCols
+              .map(
+                (col) => col.label.isNotEmpty
+                    ? col.label
+                    : 'Option ${sourceCols.indexOf(col) + 1}',
+              )
+              .toList()
+        : <String>[];
+
+    // Jika parsed kosong tapi ada answer, tetap tampilkan table (tanpa centang)
+    return _buildMatrixTable(
+      q,
+      answer,
+      rowLabels,
+      colLabels,
+      parsed ?? {},
+      hasAnswer,
+    );
+  }
+
+  Widget _buildMatrixTable(
+    SurveyQuestionData q,
+    String answer,
+    List<String> rowLabels,
+    List<String> colLabels,
+    Map<String, dynamic> parsed,
+    bool hasAnswer,
+  ) {
+    if (rowLabels.isEmpty || colLabels.isEmpty) {
+      if (hasAnswer) {
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppTheme.monBgColor,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(answer, style: const TextStyle(fontSize: 12)),
+        );
+      }
+      return _buildEmptyAnswer();
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          // Header columns
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(8),
+                topRight: Radius.circular(8),
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 12),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 12),
+                    child: Text(
+                      'Pernyataan',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ),
+                ),
+                ...colLabels.asMap().entries.map((entry) {
+                  return Expanded(
+                    flex: 1,
+                    child: Center(
                       child: Text(
-                        'Pernyataan',
+                        entry.value,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
@@ -1306,124 +1408,101 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                         ),
                       ),
                     ),
+                  );
+                }),
+              ],
+            ),
+          ),
+          // Table rows
+          ...rowLabels.asMap().entries.map((rowEntry) {
+            final rowIndex = rowEntry.key;
+            final rowLabel = rowEntry.value;
+            int selectedValue = -1;
+            if (hasAnswer) {
+              final v = parsed[rowIndex.toString()] ?? parsed['row-$rowIndex'];
+              if (v is int) {
+                selectedValue = v;
+              } else if (v is List) {
+                // checkbox type - handled below
+              }
+            }
+
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: rowIndex.isEven ? Colors.white : Colors.grey.shade50,
+                border: Border(top: BorderSide(color: Colors.grey.shade200)),
+              ),
+              child: Row(
+                children: [
+                  // Row label
+                  Expanded(
+                    flex: 3,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 12, right: 8),
+                      child: Text(
+                        rowLabel,
+                        style: const TextStyle(fontSize: 11),
+                      ),
+                    ),
                   ),
-                  ...colLabels.asMap().entries.map((entry) {
+                  // Radio/Checkbox icons for each column
+                  ...colLabels.asMap().entries.map((colEntry) {
+                    final colIndex = colEntry.key;
+                    bool isSelected = false;
+                    if (hasAnswer) {
+                      if (q.matrixType == 'radio') {
+                        isSelected = selectedValue == colIndex;
+                      } else {
+                        final dynamic v = parsed[rowIndex.toString()];
+                        final List<dynamic> selectedCols = v is List
+                            ? v.cast<dynamic>()
+                            : <dynamic>[];
+                        isSelected = selectedCols.contains(colIndex);
+                      }
+                    }
+
                     return Expanded(
                       flex: 1,
                       child: Center(
-                        child: Text(
-                          entry.value,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade700,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: q.matrixType == 'radio'
+                                ? BoxShape.circle
+                                : BoxShape.rectangle,
+                            borderRadius: q.matrixType == 'radio'
+                                ? null
+                                : BorderRadius.circular(4),
+                            color: isSelected
+                                ? _getMatrixColor(colIndex, colLabels.length)
+                                : Colors.transparent,
+                            border: Border.all(
+                              color: isSelected
+                                  ? _getMatrixColor(colIndex, colLabels.length)
+                                  : Colors.grey.shade400,
+                              width: 2,
+                            ),
                           ),
+                          child: isSelected
+                              ? const Icon(
+                                  Icons.check,
+                                  size: 14,
+                                  color: Colors.white,
+                                )
+                              : null,
                         ),
                       ),
                     );
                   }),
                 ],
               ),
-            ),
-            // Table rows
-            ...rowLabels.asMap().entries.map((rowEntry) {
-              final rowIndex = rowEntry.key;
-              final rowLabel = rowEntry.value;
-              final selectedValue =
-                  parsed[rowIndex.toString()] as int? ??
-                  parsed['row-$rowIndex'] as int? ??
-                  -1;
-
-              return Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: rowIndex.isEven ? Colors.white : Colors.grey.shade50,
-                  border: Border(top: BorderSide(color: Colors.grey.shade200)),
-                ),
-                child: Row(
-                  children: [
-                    // Row label
-                    Expanded(
-                      flex: 3,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 12, right: 8),
-                        child: Text(
-                          rowLabel,
-                          style: const TextStyle(fontSize: 11),
-                        ),
-                      ),
-                    ),
-                    // Radio/Checkbox icons for each column
-                    ...colLabels.asMap().entries.map((colEntry) {
-                      final colIndex = colEntry.key;
-                      bool isSelected = false;
-                      if (q.matrixType == 'radio') {
-                        isSelected = selectedValue == colIndex;
-                      } else {
-                        final List<dynamic> selectedCols =
-                            parsed[rowIndex.toString()] is List
-                            ? parsed[rowIndex.toString()] as List
-                            : [];
-                        isSelected = selectedCols.contains(colIndex);
-                      }
-
-                      return Expanded(
-                        flex: 1,
-                        child: Center(
-                          child: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              shape: q.matrixType == 'radio'
-                                  ? BoxShape.circle
-                                  : BoxShape.rectangle,
-                              borderRadius: q.matrixType == 'radio'
-                                  ? null
-                                  : BorderRadius.circular(4),
-                              color: isSelected
-                                  ? _getMatrixColor(
-                                      colIndex,
-                                      q.matrixColumns.length,
-                                    )
-                                  : Colors.transparent,
-                              border: Border.all(
-                                color: isSelected
-                                    ? _getMatrixColor(
-                                        colIndex,
-                                        q.matrixColumns.length,
-                                      )
-                                    : Colors.grey.shade400,
-                                width: 2,
-                              ),
-                            ),
-                            child: isSelected
-                                ? const Icon(
-                                    Icons.check,
-                                    size: 14,
-                                    color: Colors.white,
-                                  )
-                                : null,
-                          ),
-                        ),
-                      );
-                    }),
-                  ],
-                ),
-              );
-            }),
-          ],
-        ),
-      );
-    } catch (e) {
-      return Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppTheme.monBgColor,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(answer, style: const TextStyle(fontSize: 12)),
-      );
-    }
+            );
+          }),
+        ],
+      ),
+    );
   }
 
   Color _getMatrixColor(int index, int totalColumns) {

@@ -5,6 +5,14 @@ All notable changes to this Flutter project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
+## [1.3.7] - 2026-04-20
+### Added
+- Added proper type checking to prevent TypeError when parsing JSON answers
+
+### Fixed
+- Fixed matrix question display in monitor view
+- Matrix table structure is now ALWAYS displayed, even when no answer exists (previously showed "-")
+- Refactored _buildMatrixAnswer with separate helper method _buildMatrixTable
 
 ## [1.3.6] - 2026-04-17
 ### Fixed
