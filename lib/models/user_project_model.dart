@@ -76,18 +76,21 @@ class UserProject {
 
   static String? _buildImageUrl(String? url) {
     if (url == null || url.isEmpty) return null;
+    
+    // Jika sudah full URL, langsung kembalikan
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
 
     final base = Endpoints.storageUrl;
     
-    // Jika url mengandung 'img/client/', kita pastikan tidak ada double slash saat tempel ke base
-    if (url.contains('img/client/')) {
-       final cleanPath = url.startsWith('/') ? url.substring(1) : url;
-       return '$base/$cleanPath';
+    // Normalisasi url: buang leading slash
+    final path = url.startsWith('/') ? url.substring(1) : url;
+
+    // Jika mengandung 'img/client/', tempel langsung ke base
+    if (path.contains('img/client/')) {
+       return '$base/$path';
     }
 
-    // Paksa tambahkan /img/client/ jika belum ada
-    final cleanUrl = url.startsWith('/') ? url.substring(1) : url;
-    return '$base/img/client/$cleanUrl';
+    // Default ke img/client/
+    return '$base/img/client/$path';
   }
 }

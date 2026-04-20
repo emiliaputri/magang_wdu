@@ -5,14 +5,31 @@ All notable changes to this Flutter project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
-## [1.3.7] - 2026-04-20
+## [1.3.8] - 2026-04-20
 ### Added
+- **UniversalImage**: Implemented a cross-platform image loading solution that uses native HTML `<img>` tags on Web to bypass CORS decoding issues (`EncodingError`) while maintaining `CachedNetworkImage` for Mobile/Desktop.
 - Added proper type checking to prevent TypeError when parsing JSON answers
+- Voice message / voice note recording support.
+- Audio playback support for recorded voice notes.
+- Microphone permission handling for voice recording feature.
 
 ### Fixed
+- **Submission Logic**: Fixed matrix question persistence in `SubmissionPage`. Answers are now correctly formatted as JSON Strings for backend compatibility.
+- **Compilation**: Resolved `The method 'File' isn't defined` error in `SubmissionPage.dart` by adding missing `dart:io` import.
+- **Dependencies**: Fixed `pubspec.yaml` syntax error caused by duplicate `audioplayers` entries.
+- **Image Display**: Resolved `EncodingError` on Flutter Web (Chrome) which prevented client logos from appearing when using the CanvasKit renderer.
 - Fixed matrix question display in monitor view
 - Matrix table structure is now ALWAYS displayed, even when no answer exists (previously showed "-")
 - Refactored _buildMatrixAnswer with separate helper method _buildMatrixTable
+
+### Changed
+- **Submission UI**: Reverted `SubmissionPage` matrix interface to the previous table-based design per user preference while keeping the data persistence fixes.
+- **Endpoints**: Modernized `baseUrl` and `storageUrl` logic in `endpoints.dart` to better support switching between local development (`php artisan serve`) and production.
+
+### Improved
+- **Robust Model Parsing**: Enhanced `_buildImageUrl` in `Client` and `UserProject` models to handle various path formats more gracefully.
+- Enhanced mobile reporting workflow with voice note evidence support.
+
 
 ## [1.3.6] - 2026-04-17
 ### Fixed

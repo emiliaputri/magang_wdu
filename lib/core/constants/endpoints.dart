@@ -5,15 +5,17 @@ class Endpoints {
     const fromEnv = String.fromEnvironment('API_BASE_URL');
     if (fromEnv.isNotEmpty) return fromEnv;
 
-    // Untuk HP Fisik: Gunakan IP Komputer (192.168.0.158)
+    // Untuk development lokal via 'php artisan serve', gunakan 'http://localhost:8000/api'
+    // Untuk HP Fisik: Gunakan IP Komputer (misal 192.168.x.x)
     // Untuk Emulator: Gunakan 10.0.2.2
+    // default ke produksi jika tidak ada env
     return 'https://sis.wahanadata.co.id/api';
   }
 
   static String get storageUrl {
-    // Menghapus '/api' dari baseUrl untuk mendapatkan domain utama
-    // dan menambahkan '/storage' untuk akses file publik Laravel
-    return baseUrl.replaceAll('/api', '') + '/storage';
+    // Menghilangkan /api dari baseUrl untuk mendapatkan base domain, lalu tambahkan /storage
+    final base = baseUrl.split('/api').first;
+    return '$base/storage';
   }
 
   // ── AUTH ──────────────────────────────────────────────────
