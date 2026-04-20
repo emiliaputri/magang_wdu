@@ -1285,26 +1285,17 @@ class _SubmissionPageState extends State<SubmissionPage> {
   }
 
   dynamic _buildMatrixValue(String matrixType, dynamic answer) {
-    if (answer is! Map) return [];
+    if (answer is! Map || answer.isEmpty) return '{}';
 
-    final List<dynamic> result = [];
-    final mapAnswer = Map<int, dynamic>.from(answer as Map);
-
-    for (int i = 0; i < mapAnswer.length; i++) {
-      final value = mapAnswer[i];
+    final Map<String, dynamic> result = {};
+    answer.forEach((key, value) {
       if (matrixType == 'radio') {
-        // Radio: simpan column index saja
-        result.add(value ?? -1);
+        result[key.toString()] = value;
       } else {
-        // Checkbox: simpan list column index
-        if (value is List) {
-          result.add(value);
-        } else {
-          result.add([]);
-        }
+        result[key.toString()] = value is List ? value : [];
       }
-    }
+    });
 
-    return result;
+    return jsonEncode(result);
   }
 }
