@@ -59,4 +59,34 @@ class AuthProvider extends ChangeNotifier {
     await _authService.logout();
     notifyListeners();
   }
+
+  // ── CHANGE PASSWORD ───────────────────────────────────────
+  Future<bool> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    _loading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _authService.changePassword(
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword,
+      );
+      _loading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e
+          .toString()
+          .replaceFirst('ApiException: ', '')
+          .replaceFirst('ApiException(null): ', '');
+      _loading = false;
+      notifyListeners();
+      return false;
+    }
+  }
 }

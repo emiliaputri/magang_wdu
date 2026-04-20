@@ -23,6 +23,9 @@ class Endpoints {
   // GET  /api/user  ← bukan /auth/me
   static const String me = '/user';
 
+  // POST /api/change-password
+  static const String changePassword = '/change-password';
+
   // ── CLIENT ────────────────────────────────────────────────
   // GET /api/clients
   static const String clients = '/clients';

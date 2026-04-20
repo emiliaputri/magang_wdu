@@ -17,6 +17,7 @@ import 'pages/biodata_page.dart';
 import 'pages/camera_capture_page.dart';
 import 'providers/auth_provider.dart';
 import 'providers/survey_provider.dart';
+import 'providers/notification_provider.dart';
 import 'models/client_model.dart';
 import 'models/provinsi_model.dart';
 
@@ -95,6 +96,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => SurveyProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

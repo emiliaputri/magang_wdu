@@ -59,4 +59,20 @@ class AuthService {
   Future<bool> isLoggedIn() async {
     return await StorageHelper.hasToken();
   }
+
+  // ── CHANGE PASSWORD ───────────────────────────────────────
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    await _api.post(
+      Endpoints.changePassword,
+      body: {
+        'old_password': oldPassword,
+        'password': newPassword,
+        'password_confirmation': confirmPassword,
+      },
+    );
+  }
 }

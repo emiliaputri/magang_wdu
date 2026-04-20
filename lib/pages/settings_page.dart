@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
+import 'change_password_page.dart';
 import 'login_page.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -97,7 +98,10 @@ class SettingsPage extends StatelessWidget {
           }),
           const Divider(height: 1, indent: 56),
           _buildMenuItem(Icons.lock_outline_rounded, 'Ubah Password', onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur ubah password segera hadir')));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ChangePasswordPage()),
+            );
           }),
         ],
       ),

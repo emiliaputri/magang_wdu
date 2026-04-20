@@ -9,10 +9,11 @@ import '../widgets/dashboard_surveys/project_card.dart';
 import 'login_page.dart';
 import 'settings_page.dart';
 import '../providers/auth_provider.dart';
+import '../providers/notification_provider.dart';
+import '../widgets/ringing_bell_icon.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -147,36 +148,7 @@ class _DashboardViewState extends State<_DashboardView>
         ),
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.logout_rounded, color: AppTheme.primary),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Keluar'),
-                content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Batal'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      final authProvider = context.read<AuthProvider>();
-                      authProvider.logout();
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoginPage()),
-                        (route) => false,
-                      );
-                    },
-                    child: const Text('Keluar', style: TextStyle(color: Colors.red)),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
+        const RingingBellIcon(),
       ],
     );
   }
