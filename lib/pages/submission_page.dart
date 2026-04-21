@@ -131,7 +131,8 @@ class _SubmissionPageState extends State<SubmissionPage> {
 
     try {
       final directory = await getApplicationDocumentsDirectory();
-      final filePath = '${directory.path}/voice_note_${DateTime.now().millisecondsSinceEpoch}.m4a';
+      final filePath =
+          '${directory.path}/voice_note_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
       await _recorder.start(
         const RecordConfig(encoder: AudioEncoder.aacLc),
@@ -147,9 +148,9 @@ class _SubmissionPageState extends State<SubmissionPage> {
       _updateRecordingDuration();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memulai rekaman: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal memulai rekaman: $e')));
       }
     }
   }
@@ -191,9 +192,9 @@ class _SubmissionPageState extends State<SubmissionPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memutar rekaman: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal memutar rekaman: $e')));
       }
     }
   }
@@ -268,10 +269,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
           const SizedBox(height: 8),
           Text(
             'Rekam suara jika malas mengetik',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade600,
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
           ),
           const SizedBox(height: 16),
           if (_voiceNotePath != null && !_isRecording)
@@ -287,7 +285,9 @@ class _SubmissionPageState extends State<SubmissionPage> {
                   IconButton(
                     onPressed: _playVoiceNote,
                     icon: Icon(
-                      _isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
+                      _isPlaying
+                          ? Icons.pause_circle_filled
+                          : Icons.play_circle_filled,
                       color: AppTheme.monGreenMid,
                       size: 40,
                     ),
@@ -364,7 +364,10 @@ class _SubmissionPageState extends State<SubmissionPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                     ),
                     child: const Text('Stop'),
                   ),
@@ -378,7 +381,10 @@ class _SubmissionPageState extends State<SubmissionPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.monGreenMid,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -435,7 +441,10 @@ class _SubmissionPageState extends State<SubmissionPage> {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Keluar dari Kuisioner?', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Keluar dari Kuisioner?',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
         content: const Text(
           'Apakah Anda ingin menyimpan jawaban Anda sebagai draft sebelum keluar?',
           style: TextStyle(fontSize: 14),
@@ -443,7 +452,10 @@ class _SubmissionPageState extends State<SubmissionPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Keluar Tanpa Simpan', style: TextStyle(color: Colors.red)),
+            child: const Text(
+              'Keluar Tanpa Simpan',
+              style: TextStyle(color: Colors.red),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -1278,7 +1290,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
         }
         return {'checkboxes': []};
       case 9: // Matrix
-        return {'matrix': _buildMatrixValue(q.matrixType, answer)};
+        return {'answe': _buildMatrixValue(q.matrixType, answer)};
       default:
         return {'texts': answer.toString()};
     }
