@@ -61,6 +61,8 @@ class ApiClient {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      'User-Agent': 'WDU-Flutter-App',
+      'X-App-Source': 'WDU-Flutter-App',
     };
 
     if (requireAuth) {
