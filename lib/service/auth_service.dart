@@ -132,4 +132,29 @@ class AuthService {
       },
     );
   }
+
+  // ── TOGGLE 2FA ────────────────────────────────────────────
+  Future<bool> toggle2FA(bool enable, String password) async {
+    final response = await _api.post(
+      '/user/toggle-2fa',
+      body: {
+        'enable': enable,
+        'password': password,
+      },
+    );
+    return response.success;
+  }
+
+  // ── CONFIRM 2FA ───────────────────────────────────────────
+  Future<Map<String, dynamic>?> confirm2FA(String code) async {
+    final response = await _api.post(
+      '/user/confirm-2fa',
+      body: {'code': code},
+    );
+    
+    if (response.success) {
+      return response.data;
+    }
+    return null;
+  }
 }

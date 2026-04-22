@@ -7,6 +7,7 @@ import '../providers/auth_provider.dart';
 import '../widgets/universal_image.dart';
 import 'change_password_page.dart';
 import 'login_page.dart';
+import 'two_factor_settings_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -96,16 +97,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     const SizedBox(height: 24),
 
                     _buildSectionHeader('Two-Factor Authentication'),
-                    _build2FACard(user),
-                    const SizedBox(height: 24),
-
-                    _buildSectionHeader('Browser Sessions'),
-                    _buildActionCard(
-                      title: 'Active Sessions',
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Feature coming soon')));
-                      },
-                    ),
+                    _build2FACard(user, authProvider),
                     const SizedBox(height: 40),
                     
                     _buildLogoutButton(context),
@@ -117,12 +109,24 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Future<void> _toggle2FA(AuthProvider provider, bool isEnabled) async {
+    final bool? changed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TwoFactorSettingsPage(isEnabling: !isEnabled),
+      ),
+    );
+
+    if (mounted && changed == true) {
+      provider.getUser();
+    }
+  }
+
   Widget _buildUserHeader(Map<String, dynamic>? user, AuthProvider authProvider) {
     String? photoUrl = user?['profile_photo_url'];
     final name = user?['name'] ?? 'User';
     final email = user?['email'] ?? '';
 
-    // Fix for local environment: if Laravel returns 127.0.0.1, change it to localhost
     if (photoUrl != null && photoUrl.contains('127.0.0.1')) {
       photoUrl = photoUrl.replaceFirst('127.0.0.1', 'localhost');
     }
@@ -214,57 +218,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildProfileInfoCard(Map<String, dynamic>? user) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildInfoRow('Name', user?['name'] ?? '-'),
-          const Divider(height: 32),
-          _buildInfoRow('Email', user?['email'] ?? '-'),
-          const SizedBox(height: 24),
-          
-          // Read-only notice
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.blue.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue.withValues(alpha: 0.1)),
-            ),
-            child: Text(
-              'Kontak administrator (PIC WDU) untuk perubahan identitas.',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: Colors.blue[800],
-                fontWeight: FontWeight.w500,
-                height: 1.4,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: GoogleFonts.inter(fontSize: 11, color: AppTheme.outline, fontWeight: FontWeight.w600)),
-        const SizedBox(height: 2),
-        Text(value, style: GoogleFonts.inter(fontSize: 14, color: AppTheme.onSurface, fontWeight: FontWeight.w600)),
-      ],
-    );
-  }
-
-  Widget _build2FACard(Map<String, dynamic>? user) {
+  Widget _build2FACard(Map<String, dynamic>? user, AuthProvider authProvider) {
     final bool isEnabled = user?['email_2fa_enabled'] == 1 || user?['email_2fa_enabled'] == true;
 
     return Container(
@@ -289,14 +243,16 @@ class _SettingsPageState extends State<SettingsPage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: authProvider.loading ? null : () => _toggle2FA(authProvider, isEnabled),
               style: ElevatedButton.styleFrom(
                 backgroundColor: isEnabled ? Colors.red : AppTheme.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 elevation: 0,
               ),
-              child: Text(isEnabled ? 'Disable 2FA' : 'Enable 2FA', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+              child: authProvider.loading
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                : Text(isEnabled ? 'Disable 2FA' : 'Enable 2FA', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
             ),
           ),
         ],

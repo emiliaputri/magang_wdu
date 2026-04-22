@@ -10,7 +10,12 @@ import 'dashboard_page.dart';
 
 class OtpPage extends StatefulWidget {
   final String email;
-  const OtpPage({super.key, required this.email});
+  final bool isActivationFlow;
+  const OtpPage({
+    super.key, 
+    required this.email, 
+    this.isActivationFlow = false,
+  });
 
   @override
   State<OtpPage> createState() => _OtpPageState();
@@ -71,18 +76,29 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
     }
 
     final provider = context.read<AuthProvider>();
-    final success = await provider.verifyOtp(code);
-
-    if (!mounted) return;
-
-    if (success) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const DashboardPage()),
-        (route) => false,
-      );
+    
+    if (widget.isActivationFlow) {
+      // 2FA Activation Flow
+      final success = await provider.confirm2FA(code);
+      if (!mounted) return;
+      if (success) {
+        Navigator.pop(context, true); // Return to SettingsPage
+      } else {
+        _showSnackBar(provider.errorMessage ?? 'Kode salah atau kedaluwarsa', isError: true);
+      }
     } else {
-      _showSnackBar(provider.errorMessage ?? 'Kode salah atau kedaluwarsa', isError: true);
+      // Standard Login Flow
+      final success = await provider.verifyOtp(code);
+      if (!mounted) return;
+      if (success) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const DashboardPage()),
+          (route) => false,
+        );
+      } else {
+        _showSnackBar(provider.errorMessage ?? 'Kode salah atau kedaluwarsa', isError: true);
+      }
     }
   }
 
@@ -149,7 +165,7 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
                     TextButton(
                       onPressed: provider.loading ? null : () => Navigator.pop(context),
                       child: const Text(
-                        'Kembali ke Login',
+                        'Kembali',
                         style: TextStyle(color: Color(0xFF999999)),
                       ),
                     ),
@@ -180,10 +196,10 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Verifikasi 2FA',
+          Text(
+            widget.isActivationFlow ? 'Konfirmasi 2FA' : 'Verifikasi 2FA',
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,
               color: Color(0xFF1A1A1A),
@@ -255,7 +271,7 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
                 child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
               )
             : const Text(
-                'Verifikasi',
+                'Konfirmasi',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -291,4 +307,3 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
     );
   }
 }
-

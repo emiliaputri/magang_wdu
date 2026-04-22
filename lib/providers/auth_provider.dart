@@ -131,6 +131,53 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  // ── TOGGLE 2FA ────────────────────────────────────────────
+  Future<bool> toggle2FA(bool enable, String password) async {
+    _loading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final success = await _authService.toggle2FA(enable, password);
+      _loading = false;
+      notifyListeners();
+      return success;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _loading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // ── CONFIRM 2FA ───────────────────────────────────────────
+  Future<bool> confirm2FA(String code) async {
+    _loading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final data = await _authService.confirm2FA(code);
+      if (data != null && _user != null) {
+        final updatedUser = Map<String, dynamic>.from(_user!);
+        updatedUser['email_2fa_enabled'] = data['email_2fa_enabled'];
+        _user = updatedUser;
+        
+        _loading = false;
+        notifyListeners();
+        return true;
+      }
+      _loading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _loading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   // ── LOGOUT ────────────────────────────────────────────────
   Future<void> logout() async {
     await _authService.logout();
