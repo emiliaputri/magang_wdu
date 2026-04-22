@@ -6,23 +6,16 @@ class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
 
   bool _loading = false;
-  bool _rememberMe = false;
   bool _obscurePassword = true;
 
   String? _errorMessage;
 
   // ── GETTERS ───────────────────────────────────────────────
   bool get loading => _loading;
-  bool get rememberMe => _rememberMe;
   bool get obscurePassword => _obscurePassword;
   String? get errorMessage => _errorMessage;
 
   // ── TOGGLE ────────────────────────────────────────────────
-  void toggleRememberMe() {
-    _rememberMe = !_rememberMe;
-    notifyListeners();
-  }
-
   void toggleObscurePassword() {
     _obscurePassword = !_obscurePassword;
     notifyListeners();

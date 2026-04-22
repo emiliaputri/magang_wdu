@@ -219,7 +219,7 @@ class _LoginPageState extends State<LoginPage>
           const SizedBox(height: 16),
 
           // REMEMBER ME + FORGOT PASSWORD
-          _buildRememberRow(provider),
+          _buildRememberRow(),
           const SizedBox(height: 28),
 
           // LOGIN BUTTON
@@ -229,36 +229,11 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  // ── REMEMBER ME ROW ───────────────────────────────────────
-  Widget _buildRememberRow(AuthProvider provider) {
+  // ── FORGOT PASSWORD ROW ───────────────────────────────────
+  Widget _buildRememberRow() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        GestureDetector(
-          onTap: provider.toggleRememberMe,
-          child: Row(
-            children: [
-              SizedBox(
-                width: 22,
-                height: 22,
-                child: Checkbox(
-                  value: provider.rememberMe,
-                  activeColor: AppTheme.primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  side: const BorderSide(color: Color(0xFFCCCCCC)),
-                  onChanged: (_) => provider.toggleRememberMe(),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                'Remember me',
-                style: TextStyle(fontSize: 12, color: Color(0xFF555555)),
-              ),
-            ],
-          ),
-        ),
         GestureDetector(
           onTap: () {},
           child: const Text(
@@ -315,7 +290,7 @@ class _LoginPageState extends State<LoginPage>
   Widget _buildFooter() {
     return Center(
       child: Text(
-        "© 2024 Survey's Integrated System",
+        "© 2026 Survey's Integrated System",
         style: TextStyle(
           fontSize: 11,
           color: AppTheme.darkGreenColor.withOpacity(0.6),

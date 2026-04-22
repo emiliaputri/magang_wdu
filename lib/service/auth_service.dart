@@ -25,9 +25,6 @@ class AuthService {
     await StorageHelper.saveToken(token);
     if (userId != null) await StorageHelper.saveUserId(userId);
 
-    final rememberMe = await StorageHelper.getRememberMe();
-    if (rememberMe) await StorageHelper.saveLastEmail(email);
-
     return true;
   }
 
