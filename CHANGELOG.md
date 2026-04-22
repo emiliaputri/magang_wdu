@@ -5,6 +5,24 @@ All notable changes to this Flutter project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
+## [1.4.1] - 2026-04-23
+### Added
+- **2FA System (Email OTP)**: Integrasi verifikasi OTP email saat login. *By Fadel
+- **OTP Resend Timer**: Fitur hitung mundur 60 detik untuk kirim ulang kode. *By Fadel
+- **OTP Input Limit**: Pembatasan input tepat 6 digit angka untuk OTP. *By Fadel
+- **X-App-Platform Header**: Identifikasi OS (Android/iOS) ke server Laravel. *By Fadel
+- **Foundation Package**: Menggunakan package foundation untuk deteksi platform aman. *By Fadel
+
+### Improved
+- **Error Messages**: Validasi password salah dan OTP expired diperjelas tanpa embel-embel teknis. *By Fadel
+- **Navigation Logic**: Perbaikan redirect otomatis ke Dashboard atau OTP Page setelah login. *By Fadel
+- **Login Footer**: Update tahun copyright ke 2026 dan penyesuaian UI. *By Fadel
+
+### Fixed
+- **Platform Error**: Solusi crash `Unsupported operation: Platform` pada Flutter Web. *By Fadel
+- **Merge Conflicts**: Pembersihan sisa konflik dan impor yang hilang pada halaman submission. *By Fadel
+
+---
 ## [1.4.0] - 2026-04-22
 ### Added
 - **Biodata Toggle Setting**: Added support for `is_biodata_enabled` in survey_settings table to control whether respondent biodata form is required before starting the survey.

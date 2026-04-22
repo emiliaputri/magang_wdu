@@ -3,29 +3,71 @@ import '../core/api/api_client.dart';
 import '../core/constants/endpoints.dart';
 import '../core/utils/storage.dart';
 
+enum AuthStatus { success, twoFactorRequired, error }
+
+class AuthResponse {
+  final AuthStatus status;
+  final String? message;
+  final Map<String, dynamic>? user;
+
+  AuthResponse({required this.status, this.message, this.user});
+}
+
 class AuthService {
   final _api = ApiClient();
 
   // ── LOGIN ─────────────────────────────────────────────────
   // POST /api/login
-  Future<bool> login(String email, String password) async {
+  Future<AuthResponse> performLogin(String email, String password) async {
     final response = await _api.post(
       Endpoints.login,
       body: {'email': email, 'password': password},
       requireAuth: false,
     );
 
+    final status = response.data?['status'] as String?;
     final token = response.data?['token'] as String?;
-    final userId = response.data?['user']?['id']?.toString();
+    final user = response.data?['user'] as Map<String, dynamic>?;
 
     if (token == null) {
       throw ApiException('Token tidak ditemukan dalam respons server');
     }
 
     await StorageHelper.saveToken(token);
+
+    if (status == '2fa_required') {
+      return AuthResponse(
+        status: AuthStatus.twoFactorRequired,
+        message: response.data?['message'],
+      );
+    }
+
+    final userId = user?['id']?.toString();
     if (userId != null) await StorageHelper.saveUserId(userId);
 
-    return true;
+    return AuthResponse(status: AuthStatus.success, user: user);
+  }
+
+  // ── 2FA VERIFY ───────────────────────────────────────────
+  Future<bool> verifyOtp(String code) async {
+    final response = await _api.post(
+      Endpoints.verifyOtp,
+      body: {'code': code},
+    );
+
+    if (response.success) {
+      final user = response.data?['user'] as Map<String, dynamic>?;
+      final userId = user?['id']?.toString();
+      if (userId != null) await StorageHelper.saveUserId(userId);
+      return true;
+    }
+    return false;
+  }
+
+  // ── 2FA RESEND ───────────────────────────────────────────
+  Future<String> resendOtp() async {
+    final response = await _api.post(Endpoints.resendOtp, body: {});
+    return response.data?['message'] ?? 'Kode verifikasi telah dikirim.';
   }
 
   // ── GET USER ──────────────────────────────────────────────

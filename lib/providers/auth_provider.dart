@@ -22,28 +22,63 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // ── LOGIN ─────────────────────────────────────────────────
-  /// Mengembalikan true jika login berhasil, false jika gagal
-  Future<bool> login(String email, String password) async {
+  /// Mengembalikan AuthResponse
+  Future<AuthResponse> performLogin(String email, String password) async {
     _loading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final success = await _authService.login(email, password);
+      final response = await _authService.performLogin(email, password);
       _loading = false;
       notifyListeners();
-      return success;
+      return response;
     } catch (e) {
-      _errorMessage = e
-          .toString()
-          .replaceFirst('ApiException: ', '')
-          .replaceFirst('ApiException(null): ', '');
+      _errorMessage = e.toString();
       if (e is UnauthorizedException) {
         _errorMessage = 'Email atau password salah';
       }
       _loading = false;
       notifyListeners();
+      return AuthResponse(status: AuthStatus.error, message: _errorMessage);
+    }
+  }
+
+  // ── 2FA VERIFY ───────────────────────────────────────────
+  Future<bool> verifyOtp(String code) async {
+    _loading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final success = await _authService.verifyOtp(code);
+      _loading = false;
+      notifyListeners();
+      return success;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _loading = false;
+      notifyListeners();
       return false;
+    }
+  }
+
+  // ── 2FA RESEND ───────────────────────────────────────────
+  Future<String?> resendOtp() async {
+    _loading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final message = await _authService.resendOtp();
+      _loading = false;
+      notifyListeners();
+      return message;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _loading = false;
+      notifyListeners();
+      return null;
     }
   }
 

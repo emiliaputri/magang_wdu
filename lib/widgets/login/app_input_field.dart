@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/theme/app_theme.dart';
 
 class AppInputField extends StatelessWidget {
@@ -8,6 +9,7 @@ class AppInputField extends StatelessWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final VoidCallback? onToggleObscure;
+  final List<TextInputFormatter>? inputFormatters;
 
   const AppInputField({
     super.key,
@@ -17,6 +19,7 @@ class AppInputField extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType,
     this.onToggleObscure,
+    this.inputFormatters,
   });
 
   @override
@@ -25,6 +28,7 @@ class AppInputField extends StatelessWidget {
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       style: const TextStyle(fontSize: 12, color: Color(0xFF1A1A1A)),
       decoration: InputDecoration(
         hintText: hint,

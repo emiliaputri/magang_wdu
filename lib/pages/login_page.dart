@@ -3,9 +3,11 @@ import 'package:provider/provider.dart';
 
 import '../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
+import '../service/auth_service.dart';
 import '../widgets/login/app_input_field.dart';
 import '../widgets/login/sis_logo.dart';
 import 'dashboard_page.dart';
+import 'otp_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -47,57 +49,63 @@ class _LoginPageState extends State<LoginPage>
   }
 
   // ── HANDLE LOGIN ──────────────────────────────────────────
-  // Tidak perlu parameter provider, ambil langsung dari context
   Future<void> _handleLogin() async {
     FocusScope.of(context).unfocus();
 
-    // Gunakan context.read agar tidak trigger rebuild saat action
     final provider = context.read<AuthProvider>();
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final email = _emailController.text.trim();
 
-    final success = await provider.login(
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
-
-    if (!mounted) return;
-
-    if (success) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          settings: const RouteSettings(name: '/dashboard'),
-          builder: (_) => const DashboardPage(),
-        ),
+    try {
+      final response = await provider.performLogin(
+        email,
+        _passwordController.text,
       );
-    } else {
-      final error = provider.errorMessage ?? 'Email atau password salah';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error),
-          backgroundColor: Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+
+      if (response.status == AuthStatus.success) {
+        navigator.pushReplacement(
+          MaterialPageRoute(
+            settings: const RouteSettings(name: '/dashboard'),
+            builder: (_) => const DashboardPage(),
           ),
-          margin: const EdgeInsets.all(16),
-        ),
+        );
+      } else if (response.status == AuthStatus.twoFactorRequired) {
+        navigator.push(
+          MaterialPageRoute(
+            builder: (_) => OtpPage(email: email),
+          ),
+        );
+      } else {
+        final error = response.message ?? 'Email atau password salah';
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text(error),
+            backgroundColor: Colors.red.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+      }
+    } catch (e) {
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Terjadi kesalahan sistem')),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Ambil AuthProvider dari MultiProvider di main.dart (tidak dibuat ulang)
     final provider = context.watch<AuthProvider>();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F6),
       body: Stack(
         children: [
-          // ── DECORATIVE BACKGROUND ──
           _buildBackgroundBlobs(),
-
-          // ── MAIN CONTENT ──
           SafeArea(
             child: SingleChildScrollView(
               physics: const ClampingScrollPhysics(),
@@ -129,7 +137,6 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  // ── BACKGROUND BLOBS ──────────────────────────────────────
   Widget _buildBackgroundBlobs() {
     return Stack(
       children: [
@@ -163,7 +170,6 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  // ── LOGIN CARD ────────────────────────────────────────────
   Widget _buildCard(BuildContext context, AuthProvider provider) {
     return Container(
       decoration: BoxDecoration(
@@ -181,7 +187,6 @@ class _LoginPageState extends State<LoginPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // JUDUL
           const Text(
             'Login',
             textAlign: TextAlign.center,
@@ -198,8 +203,6 @@ class _LoginPageState extends State<LoginPage>
             style: TextStyle(fontSize: 12, color: Color(0xFF999999)),
           ),
           const SizedBox(height: 28),
-
-          // EMAIL
           AppInputField(
             controller: _emailController,
             hint: 'Email address',
@@ -207,8 +210,6 @@ class _LoginPageState extends State<LoginPage>
             keyboardType: TextInputType.emailAddress,
           ),
           const SizedBox(height: 14),
-
-          // PASSWORD
           AppInputField(
             controller: _passwordController,
             hint: 'Password',
@@ -217,19 +218,14 @@ class _LoginPageState extends State<LoginPage>
             onToggleObscure: provider.toggleObscurePassword,
           ),
           const SizedBox(height: 16),
-
-          // REMEMBER ME + FORGOT PASSWORD
           _buildRememberRow(),
           const SizedBox(height: 28),
-
-          // LOGIN BUTTON
           _buildLoginButton(provider),
         ],
       ),
     );
   }
 
-  // ── FORGOT PASSWORD ROW ───────────────────────────────────
   Widget _buildRememberRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -249,12 +245,10 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  // ── LOGIN BUTTON ──────────────────────────────────────────
   Widget _buildLoginButton(AuthProvider provider) {
     return SizedBox(
       height: 52,
       child: ElevatedButton(
-        // Tidak perlu pass provider ke _handleLogin
         onPressed: provider.loading ? null : _handleLogin,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.primaryColor,
@@ -286,7 +280,6 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  // ── FOOTER ────────────────────────────────────────────────
   Widget _buildFooter() {
     return Center(
       child: Text(

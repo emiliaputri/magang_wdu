@@ -30,7 +30,7 @@ class ApiException implements Exception {
   ApiException(this.message, {this.statusCode});
 
   @override
-  String toString() => 'ApiException($statusCode): $message';
+  String toString() => message;
 }
 
 class UnauthorizedException extends ApiException {
