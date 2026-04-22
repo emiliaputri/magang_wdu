@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/monitoring_provider.dart';
-import '../widgets/monitoring_surveys/pulse_dot.dart';
 import '../widgets/monitoring_surveys/list_respon_widget.dart';
 import 'cek_edit_monitor.dart';
 
@@ -143,7 +142,7 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.stretch,
                                     children: [
-                                      // Sort UI
+                                      // Filter UI
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,
@@ -160,32 +159,40 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                                                     horizontal: 10,
                                                   ),
                                               decoration: BoxDecoration(
-                                                color: Colors.white,
+                                                color: provider.dateFilter != 'all'
+                                                    ? const Color(0xFF15803D)
+                                                    : Colors.white,
                                                 borderRadius:
                                                     BorderRadius.circular(14),
                                                 border: Border.all(
                                                   color: const Color(
                                                     0xFF15803D,
-                                                  ).withOpacity(0.3),
+                                                  ).withValues(alpha: 0.3),
                                                 ),
                                               ),
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
-                                                children: const [
+                                                children: [
                                                   Icon(
                                                     Icons.filter_list,
                                                     size: 14,
-                                                    color: Color(0xFF15803D),
+                                                    color: provider.dateFilter != 'all'
+                                                        ? Colors.white
+                                                        : const Color(0xFF15803D),
                                                   ),
-                                                  SizedBox(width: 4),
+                                                  const SizedBox(width: 4),
                                                   Text(
-                                                    'Filter',
+                                                    provider.dateFilter != 'all'
+                                                        ? _filterLabel(provider.dateFilter)
+                                                        : 'Filter',
                                                     style: TextStyle(
                                                       fontFamily: 'Inter',
                                                       fontSize: 11,
                                                       fontWeight:
                                                           FontWeight.w600,
-                                                      color: Color(0xFF15803D),
+                                                      color: provider.dateFilter != 'all'
+                                                          ? Colors.white
+                                                          : const Color(0xFF15803D),
                                                     ),
                                                   ),
                                                 ],
@@ -421,6 +428,29 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
     return '${parts.length} Provinsi';
   }
 
+  String _filterLabel(String filter) {
+    switch (filter) {
+      case 'last_week':
+        return 'Minggu lalu';
+      case 'last_month':
+        return 'Bulan lalu';
+      case 'last_year':
+        return 'Setahun terakhir';
+      case 'custom':
+        return 'Rentang tanggal';
+      default:
+        return 'Filter';
+    }
+  }
+
+  String _fmtShortDate(DateTime dt) {
+    final m = [
+      '', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+    ];
+    return '${dt.day} ${m[dt.month]} ${dt.year}';
+  }
+
   void _showFilterSheet(BuildContext context, MonitoringProvider provider) {
     showModalBottomSheet(
       context: context,
@@ -428,9 +458,9 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) {
+      builder: (sheetCtx) {
         return StatefulBuilder(
-          builder: (context, setState) {
+          builder: (sheetCtx, setSheetState) {
             final Map<String, String> options = {
               'all': 'Semua tanggal',
               'last_week': 'Minggu lalu',
@@ -471,13 +501,13 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                         onTap: () async {
                           if (isCustom) {
                             final picked = await showDateRangePicker(
-                              context: context,
+                              context: sheetCtx,
                               firstDate: DateTime(2000),
                               lastDate: DateTime.now(),
                               initialDateRange: provider.customDateRange,
-                              builder: (context, child) {
+                              builder: (ctx, child) {
                                 return Theme(
-                                  data: Theme.of(context).copyWith(
+                                  data: Theme.of(ctx).copyWith(
                                     colorScheme: const ColorScheme.light(
                                       primary: Color(0xFF15803D),
                                     ),
@@ -491,11 +521,13 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                                 'custom',
                                 customRange: picked,
                               );
-                              if (context.mounted) Navigator.pop(context);
+                              setState(() => _currentPage = 1);
+                              if (sheetCtx.mounted) Navigator.pop(sheetCtx);
                             }
                           } else {
                             provider.setDateFilter(entry.key);
-                            if (context.mounted) Navigator.pop(context);
+                            setState(() => _currentPage = 1);
+                            if (sheetCtx.mounted) Navigator.pop(sheetCtx);
                           }
                         },
                         child: Padding(
@@ -506,15 +538,40 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                entry.value,
-                                style: const TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 14,
-                                  color: Colors.black87,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      entry.value,
+                                      style: TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontSize: 14,
+                                        color: isSelected
+                                            ? const Color(0xFF15803D)
+                                            : Colors.black87,
+                                        fontWeight: isSelected
+                                            ? FontWeight.w600
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                    // Tampilkan rentang tanggal yang dipilih
+                                    if (isCustom && isSelected && provider.customDateRange != null)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 4),
+                                        child: Text(
+                                          '${_fmtShortDate(provider.customDateRange!.start)} - ${_fmtShortDate(provider.customDateRange!.end)}',
+                                          style: const TextStyle(
+                                            fontFamily: 'Inter',
+                                            fontSize: 12,
+                                            color: Color(0xFF6F7A6B),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
-                              if (isCustom)
+                              if (isCustom && !isSelected)
                                 const Icon(
                                   Icons.chevron_right,
                                   color: Colors.grey,
@@ -528,7 +585,7 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                                     shape: BoxShape.circle,
                                     border: Border.all(
                                       color: isSelected
-                                          ? Colors.black
+                                          ? const Color(0xFF15803D)
                                           : const Color(0xFFE5E7EB),
                                       width: 2,
                                     ),
@@ -538,7 +595,7 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                                       ? Container(
                                           decoration: const BoxDecoration(
                                             shape: BoxShape.circle,
-                                            color: Colors.black,
+                                            color: Color(0xFF15803D),
                                           ),
                                         )
                                       : null,
@@ -579,7 +636,10 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
           ),
           const SizedBox(height: 16),
           TextButton(
-            onPressed: () => provider.setDateFilter('all'),
+            onPressed: () {
+              provider.setDateFilter('all');
+              setState(() => _currentPage = 1);
+            },
             child: Text(
               'Tampilkan semua data',
               style: GoogleFonts.inter(

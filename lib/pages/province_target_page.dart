@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/theme/app_theme.dart';
 import '../models/provinsi_model.dart';
 
 class ProvinceTargetPage extends StatefulWidget {
@@ -19,10 +20,10 @@ class _ProvinceTargetPageState extends State<ProvinceTargetPage> {
   final TextEditingController _searchController = TextEditingController();
   List<ProvinceTarget> _filtered = [];
 
-  static const _green      = Color(0xFF4CAF50);
-  static const _greenLight = Color(0xFFF0FAF3);
-  static const _greenMid   = Color(0xFFDDF2E4);
-  static const _greenText  = Color(0xFF2E7D32);
+  static const _green      = AppTheme.ijoTerang;
+  static const _greenLight = Color(0xFFF1F9F0);
+  static const _greenMid   = Color(0xFFE0F2DF);
+  static const _greenText  = AppTheme.ijoGelap;
   static const _bg         = Color(0xFFF5F7F6);
 
   @override

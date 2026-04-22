@@ -16,7 +16,7 @@ class SubmissionPage extends StatefulWidget {
   final Map<String, dynamic>? biodata;
   final String surveyTitle;
 
-  const SubmissionPage({
+  const SubmissionPage({    
     super.key,
     required this.surveySlug,
     required this.clientSlug,
@@ -607,7 +607,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, color: Colors.red, size: 48),
+          const Icon(Icons.error_outline, color: AppTheme.monGreenMid, size: 48),
           const SizedBox(height: 16),
           Text(_errorMessage ?? "Terjadi kesalahan"),
           const SizedBox(height: 16),
@@ -738,11 +738,11 @@ class _SubmissionPageState extends State<SubmissionPage> {
                   ),
                 ),
               ),
-              if (q.required)
+              if (q.required == 1)
                 const Text(
                   '*',
                   style: TextStyle(
-                    color: Colors.red,
+                    color: AppTheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -784,10 +784,10 @@ class _SubmissionPageState extends State<SubmissionPage> {
           margin: const EdgeInsets.only(bottom: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: isSelected ? const Color(0xFFF0F7FF) : Colors.transparent,
+            color: isSelected ? AppTheme.monGreenPale : Colors.transparent,
             border: Border.all(
               color: isSelected
-                  ? const Color(0xFF4285F4)
+                  ? AppTheme.primary
                   : Colors.grey.shade300,
               width: isSelected ? 2 : 1,
             ),
@@ -806,7 +806,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
                 fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
               ),
             ),
-            activeColor: const Color(0xFF4285F4),
+            activeColor: AppTheme.primary,
             contentPadding: const EdgeInsets.symmetric(horizontal: 8),
             controlAffinity: ListTileControlAffinity.trailing,
           ),
@@ -827,10 +827,10 @@ class _SubmissionPageState extends State<SubmissionPage> {
           margin: const EdgeInsets.only(bottom: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: isSelected ? const Color(0xFFF0F7FF) : Colors.transparent,
+            color: isSelected ? AppTheme.monGreenPale : Colors.transparent,
             border: Border.all(
               color: isSelected
-                  ? const Color(0xFF4285F4)
+                  ? AppTheme.primary
                   : Colors.grey.shade300,
               width: isSelected ? 2 : 1,
             ),
@@ -858,7 +858,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
                 fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
               ),
             ),
-            activeColor: const Color(0xFF4285F4),
+            activeColor: AppTheme.primary,
             contentPadding: const EdgeInsets.symmetric(horizontal: 8),
             controlAffinity: ListTileControlAffinity.trailing,
           ),
@@ -885,7 +885,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF4285F4)),
+          borderSide: BorderSide(color: AppTheme.primary),
         ),
       ),
     );
@@ -910,7 +910,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF4285F4)),
+          borderSide: BorderSide(color: AppTheme.primary),
         ),
       ),
     );
@@ -935,7 +935,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF4285F4)),
+          borderSide: BorderSide(color: AppTheme.primary),
         ),
       ),
     );
@@ -968,7 +968,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF4285F4)),
+          borderSide: BorderSide(color: AppTheme.primary),
         ),
       ),
     );
@@ -1044,7 +1044,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
                       child: Radio<int>(
                         value: colIndex,
                         groupValue: currentMap[rowIndex] as int?,
-                        activeColor: const Color(0xFF4285F4),
+                        activeColor: AppTheme.primary,
                         onChanged: (val) {
                           setState(() {
                             currentMap[rowIndex] = val;
@@ -1061,7 +1061,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
                     return Center(
                       child: Checkbox(
                         value: rowCols.contains(colIndex),
-                        activeColor: const Color(0xFF4285F4),
+                        activeColor: AppTheme.primary,
                         onChanged: (checked) {
                           setState(() {
                             if (checked == true) {
@@ -1214,7 +1214,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Gagal mengirim kuisioner"),
-              backgroundColor: Colors.red,
+              backgroundColor: AppTheme.primary,
             ),
           );
         }

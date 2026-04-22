@@ -243,7 +243,7 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
           width: double.infinity,
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xffe8faf4), Color(0xffc8f0e2), Color(0xffb2e8d6)],
+              colors: [Color(0xFFF7FDF9), Color(0xFFE9FBF1), Color(0xFFDAF5E7)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -253,7 +253,7 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildClientLogo(),
+                Center(child: _buildClientLogo()),
                 const SizedBox(height: 20),
                 Text(
                   widget.clientName,
@@ -269,7 +269,7 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
                   width: 44,
                   height: 3,
                   decoration: BoxDecoration(
-                    color: const Color(0xff1a7a5e),
+                    color: AppTheme.ijoTerang,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -301,9 +301,9 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
                   vertical: 7,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xff1a7a5e).withOpacity(0.08),
+                  color: AppTheme.ijoTerang.withOpacity(0.08),
                   border: Border.all(
-                    color: const Color(0xff1a7a5e).withOpacity(0.25),
+                    color: AppTheme.ijoTerang.withOpacity(0.25),
                     width: 1.5,
                   ),
                   borderRadius: BorderRadius.circular(20),
@@ -323,7 +323,7 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.5,
-                        color: Color(0xff1a7a5e),
+                        color: AppTheme.ijoGelap,
                       ),
                     ),
                   ],
@@ -347,7 +347,7 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
                   style: GoogleFonts.manrope(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xff1a7a5e),
+                    color: AppTheme.ijoGelap,
                   ),
                 ),
               ),
@@ -360,15 +360,15 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
 
   Widget _buildClientLogo() {
     return Container(
-      width: 90,
-      height: 90,
+      width: 120,
+      height: 120,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: Colors.white,
         border: Border.all(color: Colors.white, width: 3),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xff1a7a5e).withOpacity(0.15),
+            color: AppTheme.ijoTerang.withOpacity(0.15),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -388,10 +388,16 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
 
   Widget _buildFallbackLogo() {
     String nameLower = widget.clientName.toLowerCase();
-    if (nameLower.contains('transjakarta') || nameLower.contains('trans jakarta')) {
-      return ClipOval(child: Image.asset('assets/images/logo_trans.jpeg', fit: BoxFit.cover));
-    } else if (nameLower.contains('bpk') || nameLower.contains('badan pemeriksa keuangan')) {
-      return ClipOval(child: Image.asset('assets/images/logo_bpk.png', fit: BoxFit.cover));
+    if (nameLower.contains('transjakarta') ||
+        nameLower.contains('trans jakarta')) {
+      return ClipOval(
+        child: Image.asset('assets/images/logo_trans.jpeg', fit: BoxFit.cover),
+      );
+    } else if (nameLower.contains('bpk') ||
+        nameLower.contains('badan pemeriksa keuangan')) {
+      return ClipOval(
+        child: Image.asset('assets/images/logo_bpk.png', fit: BoxFit.cover),
+      );
     } else {
       return _defaultLogoIcon(widget.clientName);
     }
@@ -412,7 +418,10 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: LinearGradient(
-          colors: [AppTheme.primary.withOpacity(0.1), AppTheme.primary.withOpacity(0.2)],
+          colors: [
+            AppTheme.primary.withOpacity(0.1),
+            AppTheme.primary.withOpacity(0.2),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -435,10 +444,13 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
     if (nameLower.contains('bpk') || nameLower.contains('badan pemeriksa')) {
       return 'Badan Pemeriksa Keuangan (BPK) adalah lembaga negara yang bebas dan mandiri, bertugas memeriksa pengelolaan dan tanggung jawab keuangan negara, berdasarkan UUD 1945 dan UU terkait. BPK berperan memastikan transparansi dan akuntabilitas publik.';
     }
-    if (nameLower.contains('indeks masyarakat digital') || nameLower.contains('imdi')) {
+    if (nameLower.contains('indeks masyarakat digital') ||
+        nameLower.contains('imdi')) {
       return 'Indeks Masyarakat Digital Indonesia (IMDI) adalah alat ukur komprehensif untuk memetakan tingkat literasi dan kompetensi digital masyarakat di tingkat Kabupaten/Kota. Data IMDI digunakan untuk mendukung perumusan kebijakan pengembangan SDM digital yang tepat sasaran.';
     }
-    if (nameLower.contains('kementerian komunikasi') || nameLower.contains('komunikasi dan digital') || nameLower.contains('kominfo')) {
+    if (nameLower.contains('kementerian komunikasi') ||
+        nameLower.contains('komunikasi dan digital') ||
+        nameLower.contains('kominfo')) {
       return 'Kementerian Komunikasi dan Digital (dahulu Kemkominfo) bertanggung jawab atas urusan komunikasi dan informatika di Indonesia. Lembaga ini memastikan ketersediaan infrastruktur digital, tata kelola informasi, serta percepatan transformasi digital nasional.';
     }
     if (nameLower.contains('logo tes')) {

@@ -69,12 +69,12 @@ class ViewSurveyCard extends StatelessWidget {
                   onTap: onTapResponden,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8, // 🔥 kecilin
-                      vertical: 4,
+                      horizontal: 10,
+                      vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4CAF50),
-                      borderRadius: BorderRadius.circular(16),
+                      color: AppTheme.primary,
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -82,15 +82,15 @@ class ViewSurveyCard extends StatelessWidget {
                         const Icon(
                           Icons.bar_chart_rounded,
                           color: Colors.white,
-                          size: 12, // 🔥 kecil
+                          size: 14,
                         ),
-                        const SizedBox(width: 2),
+                        const SizedBox(width: 4),
                         Text(
                           '${survey.responseCount}',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 10, // 🔥 kecil
+                            fontWeight: FontWeight.w800,
+                            fontSize: 11,
                           ),
                         ),
                       ],
@@ -100,22 +100,22 @@ class ViewSurveyCard extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
 
             // ── DESCRIPTION ──
             if (survey.desc != null && survey.desc!.isNotEmpty)
               Text(
                 survey.desc!,
-                maxLines: 2, // 🔥 penting
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 11,
-                  color: Color(0xFF777777),
+                  color: AppTheme.onSurfaceVariant,
                   height: 1.3,
                 ),
               ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
 
             // ── LOCATION + STATUS ──
             Row(
@@ -123,9 +123,9 @@ class ViewSurveyCard extends StatelessWidget {
                 const Icon(
                   Icons.location_on_outlined,
                   size: 12,
-                  color: Color(0xFFAAAAAA),
+                  color: AppTheme.onSurfaceVariant,
                 ),
-                const SizedBox(width: 3),
+                const SizedBox(width: 4),
                 if (survey.provinceTargets.isEmpty)
                   Expanded(
                     child: Text(
@@ -134,7 +134,7 @@ class ViewSurveyCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 10,
-                        color: Color(0xFFAAAAAA),
+                        color: AppTheme.onSurfaceVariant,
                       ),
                     ),
                   )
@@ -142,24 +142,39 @@ class ViewSurveyCard extends StatelessWidget {
                   const Spacer(),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
+                    horizontal: 12,
+                    vertical: 6,
                   ),
                   decoration: BoxDecoration(
                     color: isOpen
-                        ? const Color(0xFF4CAF50).withOpacity(0.1)
-                        : const Color(0xFFEF5350).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(16),
+                        ? AppTheme.primaryContainer
+                        : AppTheme.error.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Text(
-                    isOpen ? 'DIBUKA' : 'DITUTUP',
-                    style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      color: isOpen
-                          ? const Color(0xFF2E7D32)
-                          : const Color(0xFFB71C1C),
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: isOpen ? AppTheme.primary : AppTheme.error,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        isOpen ? 'DIBUKA' : 'DITUTUP',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: isOpen
+                              ? AppTheme.onPrimaryContainer
+                              : AppTheme.error,
+                          fontFamily: 'Inter',
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -176,7 +191,7 @@ class ViewSurveyCard extends StatelessWidget {
                 Expanded(
                   child: _ActionBtn(
                     label: 'Isi Kuesioner',
-                    color: const Color(0xFF4CAF50),
+                    color: AppTheme.primary,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -195,7 +210,7 @@ class ViewSurveyCard extends StatelessWidget {
                 Expanded(
                   child: _ActionBtn(
                     label: 'Monitor',
-                    color: const Color(0xFF5C6BC0),
+                    color: AppTheme.primary,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(

@@ -50,7 +50,7 @@ class _StatusBadgeState extends State<StatusBadge>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceContainerLow,
+        color: AppTheme.primaryContainer,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -66,7 +66,7 @@ class _StatusBadgeState extends State<StatusBadge>
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: widget.color.withOpacity(0.3),
+                      color: widget.color.withValues(alpha: 0.3),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -76,6 +76,7 @@ class _StatusBadgeState extends State<StatusBadge>
                 height: 8,
                 decoration: BoxDecoration(
                   color: widget.color,
+                  
                   shape: BoxShape.circle,
                 ),
               ),
@@ -87,7 +88,7 @@ class _StatusBadgeState extends State<StatusBadge>
             style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w800,
-              color: AppTheme.onSurfaceVariant,
+              color: AppTheme.onPrimaryContainer,
               letterSpacing: -0.2,
             ),
           ),

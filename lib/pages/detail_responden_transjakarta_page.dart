@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/theme/app_theme.dart';
 
 
 class DetailRespondenSurveyTransjakartaPage extends StatefulWidget {
@@ -25,7 +26,7 @@ class _DetailRespondenSurveyTransjakartaPageState
       'title': 'Total Responden',
       'count': 0,
       'icon': Icons.groups_rounded,
-      'gradient': [Color(0xFF2E7D32), Color(0xFF43A047)],
+      'gradient': [AppTheme.ijoGelap, AppTheme.ijoTerang],
     },
     {
       'title': 'Responden Terdaftar',
@@ -99,7 +100,7 @@ class _DetailRespondenSurveyTransjakartaPageState
       width: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF1B5E20), Color(0xFF388E3C)],
+          colors: [AppTheme.ijoGelap, AppTheme.ijoTerang],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -231,7 +232,7 @@ class _DetailRespondenSurveyTransjakartaPageState
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF4CAF50) : Colors.transparent,
+                  color: isSelected ? AppTheme.ijoTerang : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -285,7 +286,7 @@ class _DetailRespondenSurveyTransjakartaPageState
           ),
           child: const Icon(
             Icons.mark_email_unread_rounded,
-            color: Color(0xFF4CAF50),
+            color: AppTheme.ijoTerang,
             size: 34,
           ),
         ),

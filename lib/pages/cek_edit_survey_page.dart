@@ -694,12 +694,12 @@ class _CekEditSurveyPageState extends State<CekEditSurveyPage>
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.1),
+              color: AppTheme.monGreenPale,
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Text(
               'Data matrix tidak tersedia',
-              style: TextStyle(color: Colors.orange),
+              style: TextStyle(color: AppTheme.monGreenDark),
             ),
           ),
         ],

@@ -292,7 +292,7 @@ class SurveyBentoCard extends StatelessWidget {
                         label: 'Isi Kuesioner',
                         icon: Icons.edit_note_rounded,
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF006A36), Color(0xFF71F69D)],
+                          colors: [AppTheme.ijoGelap, AppTheme.ijoTerang],
                         ),
                         onTap: () {
                           Navigator.push(
@@ -314,7 +314,7 @@ class SurveyBentoCard extends StatelessWidget {
                         label: 'Monitor',
                         icon: Icons.analytics_rounded,
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF006A36), Color(0xFF71F69D)],
+                          colors: [AppTheme.ijoGelap, AppTheme.ijoTerang],
                         ),
                         onTap: () {
                           Navigator.push(

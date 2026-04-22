@@ -247,7 +247,11 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, color: Colors.red, size: 48),
+          const Icon(
+            Icons.error_outline,
+            color: AppTheme.monGreenMid,
+            size: 48,
+          ),
           const SizedBox(height: 16),
           Text(_errorMessage ?? "Terjadi kesalahan"),
           const SizedBox(height: 16),
@@ -291,7 +295,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                   ),
                   child: const Icon(
                     Icons.assignment_outlined,
-                    color: AppTheme.monGreenMid,
+                    color: Color(0xFF4F46E5), // Indigo blue
                     size: 18,
                   ),
                 ),
@@ -387,7 +391,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                 width: 54,
                 height: 54,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF3F51B5),
+                  color: const Color(0xFF9333EA), // Purple
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Center(
@@ -431,7 +435,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEBEDFF),
+                        color: const Color(0xFFEEF2FF), // Soft Indigo
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -440,7 +444,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                           const Icon(
                             Icons.public,
                             size: 14,
-                            color: Color(0xFF3F51B5),
+                            color: Color(0xFF4F46E5), // Indigo
                           ),
                           const SizedBox(width: 6),
                           Text(
@@ -448,7 +452,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF3F51B5),
+                              color: Color(0xFF4F46E5), // Indigo
                             ),
                           ),
                         ],
@@ -573,12 +577,20 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildTimelineItem("MULAI", start, Colors.green),
-          _buildTimelineItem("SELESAI", finish, Colors.blue),
+          _buildTimelineItem(
+            "MULAI",
+            start,
+            const Color(0xFF10B981),
+          ), // Emerald
+          _buildTimelineItem(
+            "SELESAI",
+            finish,
+            const Color(0xFF3B82F6),
+          ), // Azure Blue
           _buildTimelineItem(
             "DURASI",
             durasi,
-            Colors.orange,
+            const Color(0xFFF59E0B), // Amber
             icon: Icons.access_time_rounded,
           ),
         ],
@@ -681,9 +693,11 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5E9),
+                  color: const Color(0xFFFFFBEB), // Soft Yellow
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFC8E6C9)),
+                  border: Border.all(
+                    color: const Color(0xFFFDE68A), // Light Amber
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -691,7 +705,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                       width: 6,
                       height: 6,
                       decoration: const BoxDecoration(
-                        color: Colors.green,
+                        color: Color(0xFFF59E0B), // Amber
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -701,7 +715,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        color: Colors.green,
+                        color: Color(0xFFB45309), // Dark Amber
                       ),
                     ),
                   ],
@@ -867,16 +881,18 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.08),
+                      color: AppTheme.monGreenMid.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                      border: Border.all(
+                        color: AppTheme.monGreenMid.withOpacity(0.3),
+                      ),
                     ),
                     child: const Row(
                       children: [
                         Icon(
                           Icons.open_in_new_rounded,
                           size: 12,
-                          color: Colors.blue,
+                          color: AppTheme.monGreenMid,
                         ),
                         SizedBox(width: 6),
                         Text(
@@ -884,7 +900,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: Colors.blue,
+                            color: AppTheme.monGreenMid,
                           ),
                         ),
                       ],
@@ -961,7 +977,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                   height: 40,
                   child: const Icon(
                     Icons.location_on,
-                    color: Colors.red,
+                    color: AppTheme.monGreenMid,
                     size: 40,
                   ),
                 ),
@@ -1023,7 +1039,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              color: Colors.grey,
+              color: AppTheme.monGreenMid,
               letterSpacing: 1.2,
             ),
           ),
@@ -1510,28 +1526,26 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
     if (totalColumns == 4) {
       switch (index) {
         case 0:
-          return AppTheme.monGreenDark; // SS
         case 1:
-          return AppTheme.monGreenMid; // S
         case 2:
-          return Colors.orange; // TS
         case 3:
-          return Colors.red; // STS
+          return AppTheme.monGreenDark;
+        default:
+          return AppTheme.monGreenMid;
       }
     }
     // Jika ada 5 kolom, asumsikan Likert standard + N/A
     if (totalColumns == 5) {
       switch (index) {
         case 0:
-          return AppTheme.monGreenDark;
         case 1:
-          return AppTheme.monGreenMid;
         case 2:
-          return Colors.orange;
         case 3:
-          return Colors.red;
+          return AppTheme.monGreenDark;
         case 4:
           return Colors.grey;
+        default:
+          return AppTheme.monGreenMid;
       }
     }
     // Default fallback
@@ -1577,7 +1591,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                     ),
                     decoration: BoxDecoration(
                       color: isChecked
-                          ? const Color(0xFFF0F7FF)
+                          ? AppTheme.monGreenPale
                           : Colors.transparent,
                       border: Border(
                         bottom: !isLast
@@ -1591,13 +1605,11 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                           width: 20,
                           height: 20,
                           decoration: BoxDecoration(
-                            color: isChecked
-                                ? const Color(0xFF4285F4)
-                                : Colors.white,
+                            color: isChecked ? AppTheme.ijoGelap : Colors.white,
                             borderRadius: BorderRadius.circular(4),
                             border: Border.all(
                               color: isChecked
-                                  ? const Color(0xFF4285F4)
+                                  ? AppTheme.ijoGelap
                                   : Colors.grey.shade400,
                               width: 2,
                             ),
@@ -1699,7 +1711,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? const Color(0xFFF0F7FF)
+                        ? AppTheme.monGreenPale
                         : Colors.transparent,
                     border: Border(
                       bottom: !isLast
@@ -1714,12 +1726,10 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                         height: 20,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: isSelected
-                              ? const Color(0xFF4285F4)
-                              : Colors.white,
+                          color: isSelected ? AppTheme.ijoGelap : Colors.white,
                           border: Border.all(
                             color: isSelected
-                                ? const Color(0xFF4285F4)
+                                ? AppTheme.ijoGelap
                                 : Colors.grey.shade400,
                             width: 2,
                           ),

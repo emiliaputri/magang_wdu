@@ -159,10 +159,10 @@ class _ProjectCardState extends State<ProjectCard>
                 // ── UPDATED INFO ──
                 Row(
                   children: [
-                    const Icon(
+                     const Icon(
                       Icons.schedule_rounded,
                       size: 14,
-                      color: Color(0xFF94A3B8),
+                      color: AppTheme.monTextMid,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -170,13 +170,13 @@ class _ProjectCardState extends State<ProjectCard>
                       style: GoogleFonts.inter(
                         fontSize: 10,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF64748B),
+                        color: AppTheme.monTextMid,
                       ),
                     ),
                     const SizedBox(width: 8),
                     const Text(
                       '•',
-                      style: TextStyle(color: Color(0xFFE2E8F0), fontSize: 10),
+                      style: TextStyle(color: AppTheme.monBorderColor, fontSize: 10),
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -184,7 +184,7 @@ class _ProjectCardState extends State<ProjectCard>
                       style: GoogleFonts.inter(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF15803D),
+                        color: AppTheme.ijoGelap,
                       ),
                     ),
                   ],

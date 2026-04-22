@@ -52,24 +52,32 @@ class MonitoringProvider extends ChangeNotifier {
   void _applyFiltersAndSort() {
     final now = DateTime.now();
     DateTime? startDate;
-    DateTime? endDate = now;
+    DateTime? endDate;
 
     if (dateFilter == 'last_week') {
-      startDate = now.subtract(const Duration(days: 7));
+      startDate = DateTime(now.year, now.month, now.day)
+          .subtract(const Duration(days: 7));
+      endDate = now;
     } else if (dateFilter == 'last_month') {
-      // FIX: Handle edge case jika month = 1 (Januari)
-      if (now.month > 1) {
-        startDate = DateTime(now.year, now.month - 1, now.day);
-      } else {
-        startDate = DateTime(now.year - 1, 12, now.day);
-      }
+      // Aman: DateTime constructor auto-adjust overflow (e.g. month 0 → Dec tahun sebelumnya)
+      final targetMonth = now.month - 1;
+      startDate = DateTime(now.year, targetMonth, now.day);
+      endDate = now;
     } else if (dateFilter == 'last_year') {
       startDate = DateTime(now.year - 1, now.month, now.day);
+      endDate = now;
     } else if (dateFilter == 'custom' && customDateRange != null) {
-      startDate = customDateRange!.start;
-      // Make end date inclusive of the whole day
-      endDate = customDateRange!.end.add(
-        const Duration(hours: 23, minutes: 59, seconds: 59),
+      // Strip waktu supaya inklusif: start dari jam 00:00, end sampai 23:59:59
+      startDate = DateTime(
+        customDateRange!.start.year,
+        customDateRange!.start.month,
+        customDateRange!.start.day,
+      );
+      endDate = DateTime(
+        customDateRange!.end.year,
+        customDateRange!.end.month,
+        customDateRange!.end.day,
+        23, 59, 59,
       );
     }
 
@@ -82,13 +90,13 @@ class MonitoringProvider extends ChangeNotifier {
     );
 
     responses = _rawResponses.where((r) {
-      if (startDate == null) return true;
+      if (startDate == null || endDate == null) return true;
       final dateStr =
           r['created_at']?.toString() ?? r['updated_at']?.toString() ?? '';
       final dt = DateTime.tryParse(dateStr);
       if (dt == null) return false;
-      final isInRange = dt.isAfter(startDate) && dt.isBefore(endDate!);
-      return isInRange;
+      // Gunakan >= dan <= (inklusif kedua sisi)
+      return !dt.isBefore(startDate) && !dt.isAfter(endDate);
     }).toList();
 
     debugPrint(
@@ -310,6 +318,10 @@ class MonitoringProvider extends ChangeNotifier {
       );
 
       if (success) {
+        // Hapus dari data mentah juga
+        _rawResponses.removeWhere(
+          (r) => r['id'] == responseId || r['response_id'] == responseId,
+        );
         responses.removeWhere(
           (r) => r['id'] == responseId || r['response_id'] == responseId,
         );

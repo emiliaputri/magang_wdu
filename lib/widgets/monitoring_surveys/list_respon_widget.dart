@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/monitoring_provider.dart';
 import '../../pages/lihat_monitor_page.dart';
+import '../../core/theme/app_theme.dart';
 
 class ListResponWidget extends StatelessWidget {
   final List<Map<String, dynamic>> responses;
@@ -57,7 +58,7 @@ class ListResponWidget extends StatelessWidget {
                 'Belum ada data respon',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF6F7A6B),
+                  color: AppTheme.monTextMid,
                 ),
               ),
             ),
@@ -130,12 +131,12 @@ class _CardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE1E3E1).withValues(alpha: 0.3)), // outline-variant
-        boxShadow: const [
+        border: Border.all(color: AppTheme.monBorderColor.withOpacity(0.5)),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x05000000), // 0.02 opacity
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 20,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -155,8 +156,8 @@ class _CardWidget extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF6F7A6B),
-                        letterSpacing: 1.5,
+                        color: AppTheme.monTextMid,
+                        letterSpacing: 1.2,
                         fontFamily: 'Inter',
                       ),
                     ),
@@ -166,16 +167,16 @@ class _CardWidget extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF191C1B),
+                        color: AppTheme.monTextDark,
                         fontFamily: 'Inter',
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Text(
                       waktu,
                       style: const TextStyle(
                         fontSize: 11,
-                        color: Color(0xFF6F7A6B),
+                        color: AppTheme.monTextMid,
                         fontFamily: 'Inter',
                       ),
                     ),
@@ -186,13 +187,13 @@ class _CardWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   _StatusBadge(status: _getModerationStatus(response)),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (onEditResponse != null)
                         IconButton(
-                          icon: const Icon(Icons.edit_outlined, size: 18, color: Color(0xFF006B1B)),
+                          icon: const Icon(Icons.edit_outlined, size: 18, color: AppTheme.ijoGelap),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                           onPressed: () => onEditResponse!(
@@ -206,7 +207,7 @@ class _CardWidget extends StatelessWidget {
                       if (onEditResponse != null && onDeleteResponse != null) const SizedBox(width: 8),
                       if (onDeleteResponse != null)
                         IconButton(
-                          icon: const Icon(Icons.delete_outline, size: 18, color: Color(0xFFBA1A1A)),
+                          icon: const Icon(Icons.delete_outline, size: 18, color: AppTheme.error),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                           onPressed: () {
@@ -241,8 +242,8 @@ class _CardWidget extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
               border: Border(
-                top: BorderSide(color: const Color(0xFFE1E3E1).withValues(alpha: 0.5)),
-                bottom: BorderSide(color: const Color(0xFFE1E3E1).withValues(alpha: 0.5)),
+                top: BorderSide(color: AppTheme.monBorderColor.withOpacity(0.5)),
+                bottom: BorderSide(color: AppTheme.monBorderColor.withOpacity(0.5)),
               ),
             ),
             child: Row(
@@ -253,17 +254,17 @@ class _CardWidget extends StatelessWidget {
                     children: [
                       const Text(
                         'PROVINCE',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF6F7A6B), letterSpacing: 1.5),
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppTheme.monTextMid, letterSpacing: 1.2),
                       ),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.location_on, size: 18, color: Color(0xFF7DDC7A)),
+                          const Icon(Icons.location_on, size: 18, color: AppTheme.monGreenMid),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               provinsi,
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF3F4A3D)),
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.monTextDark),
                             ),
                           ),
                         ],
@@ -277,17 +278,17 @@ class _CardWidget extends StatelessWidget {
                     children: [
                       const Text(
                         'ROLE',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF6F7A6B), letterSpacing: 1.5),
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppTheme.monTextMid, letterSpacing: 1.2),
                       ),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.person, size: 18, color: Color(0xFF7DDC7A)),
+                          const Icon(Icons.person, size: 18, color: AppTheme.monGreenMid),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               role,
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF3F4A3D)),
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.monTextDark),
                             ),
                           ),
                         ],
@@ -329,7 +330,7 @@ class _CardWidget extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF2F4F2), // surface-container-low
+                  color: AppTheme.monBgColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 alignment: Alignment.center,
@@ -338,7 +339,7 @@ class _CardWidget extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF006B1B),
+                    color: AppTheme.ijoGelap,
                     fontFamily: 'Manrope',
                   ),
                 ),
@@ -445,29 +446,29 @@ class _StatusBadge extends StatelessWidget {
       s = 'PENDING';
     }
 
-    Color bgColor = const Color(0xFFFEF9C3); // yellow-50
-    Color textColor = const Color(0xFFA16207); // yellow-700
-    Color borderColor = const Color(0xFFFEF08A); // yellow-200
-    Color dotColor = const Color(0xFFEAB308); // yellow-500
+    Color bgColor = const Color(0xFFFFFBEB); // Amber-50
+    Color textColor = const Color(0xFFB45309); // Amber-800
+    Color borderColor = const Color(0xFFFEF3C7); // Amber-200
+    Color dotColor = const Color(0xFFF59E0B); // Amber-500
 
     if (s.contains('REVISION')) {
       s = 'REVISION';
-      bgColor = const Color(0xFFFEF2F2); // red-50
-      textColor = const Color(0xFFBA1A1A); // error
-      borderColor = const Color(0xFFFEE2E2); // red-100
-      dotColor = const Color(0xFFBA1A1A); // error
+      bgColor = const Color(0xFFFEF2F2); // Red-50
+      textColor = const Color(0xFFB91C1C); // Red-700
+      borderColor = const Color(0xFFFEE2E2); // Red-100
+      dotColor = const Color(0xFFEF4444); // Red-500
     } else if (s.contains('APPROVE') || s.contains('ACCEPTED')) {
       s = 'ACCEPTED';
-      bgColor = const Color(0xFFF0FDF4); // green-50
-      textColor = const Color(0xFF006B1B); // primary
-      borderColor = const Color(0xFFDCFCE7); // green-100
-      dotColor = const Color(0xFF006B1B); // primary
+      bgColor = const Color(0xFFECFDF5); // Emerald-50
+      textColor = const Color(0xFF065F46); // Emerald-800
+      borderColor = const Color(0xFFD1FAE5); // Emerald-200
+      dotColor = const Color(0xFF10B981); // Emerald-500
     } else if (s.contains('DECLINE')) {
       s = 'DECLINE';
-      bgColor = const Color(0xFFFEF2F2); // red-50
-      textColor = const Color(0xFFBA1A1A); // error
-      borderColor = const Color(0xFFFEE2E2); // red-100
-      dotColor = const Color(0xFFBA1A1A); // error
+      bgColor = const Color(0xFFFFF1F1); // Rose-50
+      textColor = const Color(0xFF991B1B); // Rose-800
+      borderColor = const Color(0xFFFFE4E6); // Rose-200
+      dotColor = const Color(0xFFE11D48); // Rose-500
     }
 
     return Container(
@@ -532,7 +533,7 @@ class _Pagination extends StatelessWidget {
     mainAxisSize: MainAxisSize.min,
     children: [
       _PBtn(
-        child: const Icon(Icons.chevron_left, size: 20, color: Color(0xFF6F7A6B)),
+        child: const Icon(Icons.chevron_left, size: 20, color: AppTheme.monTextMid),
         onTap: currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
       ),
       const SizedBox(width: 8),
@@ -540,7 +541,7 @@ class _Pagination extends StatelessWidget {
         if (p == -1) {
           return const Padding(
             padding: EdgeInsets.symmetric(horizontal: 4),
-            child: Text('...', style: TextStyle(fontSize: 12, color: Color(0xFF6F7A6B))),
+            child: Text('...', style: TextStyle(fontSize: 12, color: AppTheme.monTextMid)),
           );
         }
         final active = p == currentPage;
@@ -554,7 +555,7 @@ class _Pagination extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: active ? FontWeight.bold : FontWeight.w500,
-                color: active ? Colors.white : const Color(0xFF3F4A3D),
+                color: active ? Colors.white : AppTheme.monTextDark,
               ),
             ),
           ),
@@ -562,7 +563,7 @@ class _Pagination extends StatelessWidget {
       }),
       const SizedBox(width: 8),
       _PBtn(
-        child: const Icon(Icons.chevron_right, size: 20, color: Color(0xFF6F7A6B)),
+        child: const Icon(Icons.chevron_right, size: 20, color: AppTheme.monTextMid),
         onTap: currentPage < totalPages ? () => onPageChanged(currentPage + 1) : null,
       ),
     ],
@@ -583,9 +584,9 @@ class _PBtn extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: isActive ? const Color(0xFF006B1B) : const Color(0xFFFFFFFF),
+        color: isActive ? AppTheme.ijoGelap : Colors.white,
         shape: BoxShape.circle,
-        boxShadow: isActive ? [BoxShadow(color: const Color(0xFF006B1B).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))] : null,
+        boxShadow: isActive ? [BoxShadow(color: AppTheme.ijoGelap.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))] : null,
       ),
       child: Center(child: child),
     ),

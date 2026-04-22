@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_theme.dart';
 
 class GradientButton extends StatelessWidget {
   final String label;
@@ -17,14 +18,14 @@ class GradientButton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF006A36), Color(0xFF71F69D)],
+          colors: [AppTheme.ijoGelap, AppTheme.ijoTerang],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF006A36).withOpacity(0.2),
+            color: AppTheme.ijoGelap.withOpacity(0.2),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

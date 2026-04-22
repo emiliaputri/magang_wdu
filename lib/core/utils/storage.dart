@@ -21,6 +21,7 @@ class StorageHelper {
   static const _keyRememberMe = 'remember_me';
   static const _keyLastEmail = 'last_email';
   static const _keyAppLanguage = 'app_language';
+  static const _keyFontSizeScale = 'font_size_scale';
   static const _keyLastRouteName = 'last_route_name';
   static const _keyLastRouteArgs = 'last_route_args';
 
@@ -127,6 +128,17 @@ class StorageHelper {
   static Future<String> getLanguage() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_keyAppLanguage) ?? 'id';
+  }
+
+  /// Simpan skala ukuran font
+  static Future<void> saveFontSizeScale(double scale) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_keyFontSizeScale, scale);
+  }
+
+  static Future<double> getFontSizeScale() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble(_keyFontSizeScale) ?? 1.0;
   }
 
   // ═══════════════════════════════════════════════════════════

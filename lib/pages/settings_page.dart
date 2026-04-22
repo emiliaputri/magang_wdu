@@ -26,8 +26,11 @@ class SettingsPage extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: AppTheme.primary, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: AppTheme.primary,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -54,7 +57,7 @@ class SettingsPage extends StatelessWidget {
           height: 100,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppTheme.primary.withOpacity(0.1),
+            color: AppTheme.primary.withValues(alpha: 0.1),
             border: Border.all(color: AppTheme.primary, width: 2),
           ),
           child: const Icon(
@@ -75,10 +78,7 @@ class SettingsPage extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           'Profil pengguna dan pengaturan',
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: AppTheme.outline,
-          ),
+          style: GoogleFonts.inter(fontSize: 14, color: AppTheme.outline),
         ),
       ],
     );
@@ -89,24 +89,37 @@ class SettingsPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.3)),
+        border: Border.all(
+          color: AppTheme.outlineVariant.withValues(alpha: 0.3),
+        ),
       ),
       child: Column(
         children: [
-          _buildMenuItem(Icons.person_outline_rounded, 'Data Diri (Biodata)', onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur data diri segera hadir')));
-          }),
+          _buildMenuItem(
+            Icons.person_outline_rounded,
+            'Data Diri (Biodata)',
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Fitur data diri segera hadir')),
+              );
+            },
+          ),
           const Divider(height: 1, indent: 56),
-          _buildMenuItem(Icons.lock_outline_rounded, 'Ubah Password', onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ChangePasswordPage()),
-            );
-          }),
+          _buildMenuItem(
+            Icons.lock_outline_rounded,
+            'Ubah Password',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ChangePasswordPage()),
+              );
+            },
+          ),
         ],
       ),
     );
   }
+
 
   Widget _buildMenuItem(IconData icon, String title, {VoidCallback? onTap}) {
     return ListTile(
@@ -120,7 +133,10 @@ class SettingsPage extends StatelessWidget {
           color: AppTheme.onSurface,
         ),
       ),
-      trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.outline),
+      trailing: const Icon(
+        Icons.chevron_right_rounded,
+        color: AppTheme.outline,
+      ),
     );
   }
 
@@ -141,7 +157,9 @@ class SettingsPage extends StatelessWidget {
             context: context,
             builder: (context) => AlertDialog(
               title: const Text('Keluar'),
-              content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
+              content: const Text(
+                'Apakah Anda yakin ingin keluar dari aplikasi?',
+              ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
@@ -149,7 +167,10 @@ class SettingsPage extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                    final authProvider = Provider.of<AuthProvider>(
+                      context,
+                      listen: false,
+                    );
                     authProvider.logout();
                     Navigator.pushAndRemoveUntil(
                       context,
@@ -157,7 +178,10 @@ class SettingsPage extends StatelessWidget {
                       (route) => false,
                     );
                   },
-                  child: const Text('Keluar', style: TextStyle(color: Colors.red)),
+                  child: const Text(
+                    'Keluar',
+                    style: TextStyle(color: Colors.red),
+                  ),
                 ),
               ],
             ),
@@ -170,10 +194,7 @@ class SettingsPage extends StatelessWidget {
             SizedBox(width: 8),
             Text(
               'Keluar',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
           ],
         ),

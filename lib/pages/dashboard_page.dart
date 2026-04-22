@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/dashboard_provider.dart';
+import '../providers/font_size_provider.dart';
 import '../widgets/dashboard_surveys/client_card.dart';
 import '../widgets/dashboard_surveys/project_card.dart';
 import 'login_page.dart';
@@ -147,9 +148,7 @@ class _DashboardViewState extends State<_DashboardView>
           ),
         ),
       ),
-      actions: [
-        const RingingBellIcon(),
-      ],
+      actions: [_buildFontSizeButton(context), const RingingBellIcon()],
     );
   }
 
@@ -220,7 +219,7 @@ class _DashboardViewState extends State<_DashboardView>
               borderRadius: BorderRadius.circular(16),
               gradient: isActive
                   ? const LinearGradient(
-                      colors: [Color(0xFF006A36), Color(0xFF71F69D)],
+                      colors: [AppTheme.ijoGelap, AppTheme.ijoTerang],
                     )
                   : null,
             ),
@@ -240,6 +239,128 @@ class _DashboardViewState extends State<_DashboardView>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFontSizeButton(BuildContext context) {
+    return Consumer<FontSizeProvider>(
+      builder: (context, provider, _) {
+        return IconButton(
+          icon: Icon(Icons.format_size_rounded, color: AppTheme.primary),
+          tooltip: 'Ukuran Font',
+          onPressed: () => _showFontSizeDialog(context),
+        );
+      },
+    );
+  }
+
+  void _showFontSizeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Consumer<FontSizeProvider>(
+          builder: (context, provider, _) {
+            return AlertDialog(
+              backgroundColor: AppTheme.surfaceContainerLowest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: Row(
+                children: [
+                  Icon(
+                    Icons.format_size_rounded,
+                    color: AppTheme.primary,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Ukuran Font',
+                    style: GoogleFonts.manrope(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildFontSizeOption(context, provider, 'Kecil', 0.85),
+                  _buildFontSizeOption(
+                    context,
+                    provider,
+                    'Sedang (Normal)',
+                    1.0,
+                  ),
+                  _buildFontSizeOption(context, provider, 'Besar', 1.2),
+                  _buildFontSizeOption(context, provider, 'Sangat Besar', 1.4),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Tutup',
+                    style: GoogleFonts.manrope(
+                      color: AppTheme.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildFontSizeOption(
+    BuildContext context,
+    FontSizeProvider provider,
+    String label,
+    double scale,
+  ) {
+    final isSelected = provider.fontSizeScale == scale;
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 3),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? AppTheme.primary.withValues(alpha: 0.08)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        border: isSelected
+            ? Border.all(color: AppTheme.primary.withValues(alpha: 0.3))
+            : null,
+      ),
+      child: ListTile(
+        dense: true,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        leading: Icon(
+          Icons.text_fields_rounded,
+          color: isSelected ? AppTheme.primary : AppTheme.outline,
+          size: 20,
+        ),
+        title: Text(
+          label,
+          style: GoogleFonts.manrope(
+            fontSize: 14 * scale,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            color: isSelected ? AppTheme.primary : AppTheme.onSurface,
+          ),
+        ),
+        trailing: isSelected
+            ? const Icon(
+                Icons.check_circle_rounded,
+                color: AppTheme.primary,
+                size: 22,
+              )
+            : null,
+        onTap: () {
+          provider.setFontSizeScale(scale);
+        },
       ),
     );
   }
@@ -270,18 +391,32 @@ class _ClientsSection extends StatelessWidget {
           style: GoogleFonts.inter(fontSize: 14, color: AppTheme.onSurface),
           decoration: InputDecoration(
             hintText: 'Search clients or projects...',
-            hintStyle: GoogleFonts.inter(color: AppTheme.outline.withOpacity(0.8), fontSize: 14),
-            prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.outline, size: 20),
+            hintStyle: GoogleFonts.inter(
+              color: AppTheme.outline.withOpacity(0.8),
+              fontSize: 14,
+            ),
+            prefixIcon: const Icon(
+              Icons.search_rounded,
+              color: AppTheme.outline,
+              size: 20,
+            ),
             filled: true,
             fillColor: AppTheme.surfaceContainerLowest,
-            contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 14,
+              horizontal: 16,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: AppTheme.outlineVariant.withOpacity(0.3)),
+              borderSide: BorderSide(
+                color: AppTheme.outlineVariant.withOpacity(0.3),
+              ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: AppTheme.outlineVariant.withOpacity(0.3)),
+              borderSide: BorderSide(
+                color: AppTheme.outlineVariant.withOpacity(0.3),
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),

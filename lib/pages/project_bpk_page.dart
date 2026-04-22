@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/theme/app_theme.dart';
 
 import '../models/client_model.dart';
 import '../models/project_model.dart';
@@ -15,8 +16,8 @@ class ProjectBpkPage extends StatefulWidget {
 }
 
 class _ProjectBpkPageState extends State<ProjectBpkPage> {
-  static const _green = Color(0xFF4CAF50);
-  static const _greenDark = Color(0xFF388E3C);
+  static const _green = AppTheme.ijoTerang;
+  static const _greenDark = AppTheme.ijoGelap;
   static const _textDark = Color(0xFF1A2340);
   static const _textGrey = Color(0xFF7A869A);
   static const _bgPage = Color(0xFFF4F6F8);
@@ -29,19 +30,21 @@ class _ProjectBpkPageState extends State<ProjectBpkPage> {
   @override
   void initState() {
     super.initState();
-    _projects = widget.client.projects != null 
+    _projects = widget.client.projects != null
         ? List.from(widget.client.projects!)
         : [];
   }
 
   List<Project> get _filtered => _projects
-      .where((p) => p.projectName.toLowerCase().contains(_searchQuery.toLowerCase()))
+      .where(
+        (p) => p.projectName.toLowerCase().contains(_searchQuery.toLowerCase()),
+      )
       .toList();
 
   @override
   void dispose() {
     _searchController.dispose();
-    super.dispose(); 
+    super.dispose();
   }
 
   @override
@@ -81,7 +84,8 @@ class _ProjectBpkPageState extends State<ProjectBpkPage> {
                     clientName: widget.client.clientName,
                     projectSlug: p.slug ?? '',
                     projectTitle: p.projectName,
-                    clientLogoUrl: widget.client.imageUrl ?? widget.client.image,
+                    clientLogoUrl:
+                        widget.client.imageUrl ?? widget.client.image,
                   ),
                 ),
               );
@@ -101,11 +105,9 @@ class _ProjectBpkPageState extends State<ProjectBpkPage> {
         title: 'Tambah Project',
         onSave: (title, desc) {
           setState(() {
-            _projects.add(Project(
-              id: _projects.length + 1,
-              projectName: title,
-              desc: desc,
-            ));
+            _projects.add(
+              Project(id: _projects.length + 1, projectName: title, desc: desc),
+            );
           });
         },
       ),
@@ -123,10 +125,7 @@ class _ProjectBpkPageState extends State<ProjectBpkPage> {
           setState(() {
             final idx = _projects.indexOf(project);
             if (idx != -1) {
-              _projects[idx] = project.copyWith(
-                projectName: title,
-                desc: desc,
-              );
+              _projects[idx] = project.copyWith(projectName: title, desc: desc);
             }
           });
         },
@@ -143,7 +142,9 @@ class _ProjectBpkPageState extends State<ProjectBpkPage> {
           'Hapus Project?',
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
-        content: Text('Project "${project.projectName}" akan dihapus permanen.'),
+        content: Text(
+          'Project "${project.projectName}" akan dihapus permanen.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -153,7 +154,8 @@ class _ProjectBpkPageState extends State<ProjectBpkPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             onPressed: () {
               setState(() => _projects.remove(project));
@@ -170,7 +172,7 @@ class _ProjectBpkPageState extends State<ProjectBpkPage> {
 // ── Client Card ───────────────────────────────────────────────────────────────
 
 class _ClientCard extends StatelessWidget {
-  static const _green = Color(0xFF4CAF50);
+  static const _green = AppTheme.ijoTerang;
   static const _textDark = Color(0xFF1A2340);
   static const _textGrey = Color(0xFF7A869A);
 
@@ -206,8 +208,20 @@ class _ClientCard extends StatelessWidget {
             ),
             clipBehavior: Clip.hardEdge,
             child: url != null && url.isNotEmpty
-                ? Image.network(url, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.account_balance, size: 36, color: Color(0xFFBDBDBD)))
-                : const Icon(Icons.account_balance, size: 36, color: Color(0xFFBDBDBD)),
+                ? Image.network(
+                    url,
+                    fit: BoxFit.cover,
+                    errorBuilder: (c, e, s) => const Icon(
+                      Icons.account_balance,
+                      size: 36,
+                      color: Color(0xFFBDBDBD),
+                    ),
+                  )
+                : const Icon(
+                    Icons.account_balance,
+                    size: 36,
+                    color: Color(0xFFBDBDBD),
+                  ),
           ),
           const SizedBox(width: 20),
           Expanded(
@@ -257,7 +271,7 @@ class _ClientCard extends StatelessWidget {
 // ── Projects Section ──────────────────────────────────────────────────────────
 
 class _ProjectsSection extends StatelessWidget {
-  static const _green = Color(0xFF4CAF50);
+  static const _green = AppTheme.ijoTerang;
   static const _textDark = Color(0xFF1A2340);
   static const _textGrey = Color(0xFF7A869A);
 
@@ -331,8 +345,7 @@ class _ProjectsSection extends StatelessWidget {
                   decoration: const InputDecoration(
                     hintText: 'Cari project...',
                     hintStyle: TextStyle(color: _textGrey, fontSize: 12),
-                    prefixIcon:
-                        Icon(Icons.search, size: 18, color: _textGrey),
+                    prefixIcon: Icon(Icons.search, size: 18, color: _textGrey),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(vertical: 12),
                   ),
@@ -364,7 +377,9 @@ class _ProjectsSection extends StatelessWidget {
                 Container(
                   color: _green,
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 12),
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   child: Row(
                     children: const [
                       SizedBox(width: 28),
@@ -372,13 +387,16 @@ class _ProjectsSection extends StatelessWidget {
                       Expanded(
                         flex: 5,
                         child: _HeaderCell(
-                            icon: Icons.assignment_outlined,
-                            label: 'JUDUL PROJECT'),
+                          icon: Icons.assignment_outlined,
+                          label: 'JUDUL PROJECT',
+                        ),
                       ),
                       Expanded(
                         flex: 5,
                         child: _HeaderCell(
-                            icon: Icons.notes_outlined, label: 'DESKRIPSI'),
+                          icon: Icons.notes_outlined,
+                          label: 'DESKRIPSI',
+                        ),
                       ),
                     ],
                   ),
@@ -471,66 +489,65 @@ class _ProjectRow extends StatelessWidget {
           decoration: BoxDecoration(
             border: isLast
                 ? null
-                : const Border(
-                    bottom: BorderSide(color: Color(0xFFF0F0F0))),
+                : const Border(bottom: BorderSide(color: Color(0xFFF0F0F0))),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Number badge
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF0F0F0),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              '${project.id ?? index + 1}',
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: _textGrey,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-
-          // Title
-          Expanded(
-            flex: 5,
-            child: Text(
-              project.projectName,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: _textDark,
-                height: 1.4,
-              ),
-            ),
-          ),
-
-          // Description
-          Expanded(
-            flex: 5,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: Text(
-                project.desc ?? '-',
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: _textGrey,
-                  height: 1.4,
+            children: [
+              // Number badge
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0F0F0),
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
+                alignment: Alignment.center,
+                child: Text(
+                  '${project.id ?? index + 1}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: _textGrey,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 8),
+
+              // Title
+              Expanded(
+                flex: 5,
+                child: Text(
+                  project.projectName,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: _textDark,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+
+              // Description
+              Expanded(
+                flex: 5,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: Text(
+                    project.desc ?? '-',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: _textGrey,
+                      height: 1.4,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
         ),
       ),
     );
@@ -609,17 +626,17 @@ class _ProjectDialogState extends State<_ProjectDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Text(widget.title,
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Text(
+        widget.title,
+        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           _DialogField(controller: _titleCtrl, label: 'Judul Project'),
           const SizedBox(height: 12),
-          _DialogField(
-              controller: _descCtrl, label: 'Deskripsi', maxLines: 3),
+          _DialogField(controller: _descCtrl, label: 'Deskripsi', maxLines: 3),
         ],
       ),
       actions: [
@@ -629,14 +646,14 @@ class _ProjectDialogState extends State<_ProjectDialog> {
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF4CAF50),
+            backgroundColor: AppTheme.ijoTerang,
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8)),
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
           onPressed: () {
             if (_titleCtrl.text.trim().isNotEmpty) {
-              widget.onSave(
-                  _titleCtrl.text.trim(), _descCtrl.text.trim());
+              widget.onSave(_titleCtrl.text.trim(), _descCtrl.text.trim());
               Navigator.pop(context);
             }
           },
@@ -667,23 +684,25 @@ class _DialogField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(fontSize: 12),
-        border:
-            OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-              color: Color(0xFF4CAF50), width: 1.5),
+          borderSide: const BorderSide(color: AppTheme.ijoTerang, width: 1.5),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 10,
+        ),
       ),
     );
   }
 }
 
 void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: ProjectBpkPage(client: Client(clientName: 'Demo Client')),
-  ));
+  runApp(
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: ProjectBpkPage(client: Client(clientName: 'Demo Client')),
+    ),
+  );
 }

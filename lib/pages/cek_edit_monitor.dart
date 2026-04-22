@@ -233,14 +233,29 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
     if (q.typeString == 'info') {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Text(
-          q.plainText,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: AppTheme.monTextDark,
-            height: 1.5,
-          ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                q.plainText,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
+                  height: 1.4,
+                ),
+              ),
+            ),
+            if (q.required == 1)
+              const Text(
+                '*',
+                style: TextStyle(
+                  color: AppTheme.monGreenMid,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+          ],
         ),
       );
     }
@@ -724,27 +739,25 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
     if (totalColumns == 4) {
       switch (index) {
         case 0:
-          return AppTheme.monGreenDark;
         case 1:
-          return AppTheme.monGreenMid;
         case 2:
-          return Colors.orange;
         case 3:
-          return Colors.red;
+          return AppTheme.monGreenDark;
+        default:
+          return AppTheme.monGreenMid;
       }
     }
     if (totalColumns == 5) {
       switch (index) {
         case 0:
-          return AppTheme.monGreenDark;
         case 1:
-          return AppTheme.monGreenMid;
         case 2:
-          return Colors.orange;
         case 3:
-          return Colors.red;
+          return AppTheme.monGreenDark;
         case 4:
           return Colors.grey;
+        default:
+          return AppTheme.monGreenMid;
       }
     }
     return AppTheme.monGreenMid;
@@ -859,7 +872,7 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
             Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: isSuccess ? AppTheme.monGreenMid : Colors.redAccent,
+        backgroundColor: isSuccess ? AppTheme.monGreenMid : AppTheme.primary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         margin: const EdgeInsets.only(bottom: 80, left: 20, right: 20),

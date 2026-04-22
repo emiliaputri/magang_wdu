@@ -18,6 +18,7 @@ import 'pages/camera_capture_page.dart';
 import 'providers/auth_provider.dart';
 import 'providers/survey_provider.dart';
 import 'providers/notification_provider.dart';
+import 'providers/font_size_provider.dart';
 import 'models/client_model.dart';
 import 'models/provinsi_model.dart';
 
@@ -97,14 +98,25 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => SurveyProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => FontSizeProvider()),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.themeData,
-        navigatorObservers: [AppRouteObserver()],
-        initialRoute: isLoggedIn ? initialRoute : null,
-        home: _getHome(),
-        onGenerateRoute: (settings) {
+      child: Consumer<FontSizeProvider>(
+        builder: (context, fontSizeProvider, _) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.themeData,
+            navigatorObservers: [AppRouteObserver()],
+            initialRoute: isLoggedIn ? initialRoute : null,
+            home: _getHome(),
+            builder: (context, child) {
+              return MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: TextScaler.linear(fontSizeProvider.fontSizeScale),
+                ),
+                child: child!,
+              );
+            },
+            onGenerateRoute: (settings) {
           final name = settings.name;
           final args =
               (settings.arguments as Map<String, dynamic>?) ??
@@ -282,6 +294,8 @@ class MyApp extends StatelessWidget {
               );
           }
         },
+      );
+    },
       ),
     );
   }
