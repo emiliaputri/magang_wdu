@@ -5,22 +5,22 @@ All notable changes to this Flutter project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
-## [1.4.1] - 2026-04-23
+## [1.4.1] - 2026-04-23 *By Fadel
 ### Added
-- **2FA System (Email OTP)**: Integrasi verifikasi OTP email saat login. *By Fadel
-- **OTP Resend Timer**: Fitur hitung mundur 60 detik untuk kirim ulang kode. *By Fadel
-- **OTP Input Limit**: Pembatasan input tepat 6 digit angka untuk OTP. *By Fadel
-- **X-App-Platform Header**: Identifikasi OS (Android/iOS) ke server Laravel. *By Fadel
-- **Foundation Package**: Menggunakan package foundation untuk deteksi platform aman. *By Fadel
+- **2FA System (Email OTP)**: Integrated email OTP verification during login.
+- **OTP Resend Timer**: Added a 60-second countdown for resending codes.
+- **OTP Input Limit**: Restricted OTP input to exactly 6 digits.
+- **X-App-Platform Header**: Added OS identification (Android/iOS) for Laravel server.
+- **Foundation Package**: Utilized the foundation package for safe platform detection.
 
 ### Improved
-- **Error Messages**: Validasi password salah dan OTP expired diperjelas tanpa embel-embel teknis. *By Fadel
-- **Navigation Logic**: Perbaikan redirect otomatis ke Dashboard atau OTP Page setelah login. *By Fadel
-- **Login Footer**: Update tahun copyright ke 2026 dan penyesuaian UI. *By Fadel
+- **Error Messages**: Enhanced clarity for incorrect password and expired OTP messages by removing technical jargon.
+- **Navigation Logic**: Fixed automatic redirection to Dashboard or OTP Page post-login.
+- **Login Footer**: Updated copyright year to 2026 and refined the UI.
 
 ### Fixed
-- **Platform Error**: Solusi crash `Unsupported operation: Platform` pada Flutter Web. *By Fadel
-- **Merge Conflicts**: Pembersihan sisa konflik dan impor yang hilang pada halaman submission. *By Fadel
+- **Platform Error**: Resolved `Unsupported operation: Platform` crash on Flutter Web.
+- **Merge Conflicts**: Cleaned up remaining conflicts and missing imports on the submission page.
 
 ---
 ## [1.4.0] - 2026-04-22
