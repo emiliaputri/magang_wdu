@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../constants/endpoints.dart';
 import '../utils/storage.dart';
 import '../utils/logger.dart';
@@ -58,11 +59,31 @@ class ApiClient {
 
   // ── BUILD HEADERS ──────────────────────────────────────────
   Future<Map<String, String>> _buildHeaders({bool requireAuth = true}) async {
+    String platform = 'Unknown';
+    if (kIsWeb) {
+      platform = 'Web';
+    } else {
+      switch (defaultTargetPlatform) {
+        case TargetPlatform.android:
+          platform = 'Android';
+          break;
+        case TargetPlatform.iOS:
+          platform = 'iOS';
+          break;
+        case TargetPlatform.windows:
+          platform = 'Windows';
+          break;
+        default:
+          platform = 'Unknown';
+      }
+    }
+    
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'User-Agent': 'WDU-Flutter-App',
+      'User-Agent': 'WDU-Flutter-App/$platform',
       'X-App-Source': 'WDU-Flutter-App',
+      'X-App-Platform': platform,
     };
 
     if (requireAuth) {
