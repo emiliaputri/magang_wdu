@@ -43,6 +43,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
   final Map<int, dynamic> _answers = {};
 
   int _currentPageIndex = 0;
+  late PageController _pageController;
   bool _hasDraft = false;
 
   String? _voiceNotePath;
@@ -50,50 +51,8 @@ class _SubmissionPageState extends State<SubmissionPage> {
   bool _isPlaying = false;
   Duration _recordingDuration = Duration.zero;
 
-  // Static fallback provinces (38 provinces of Indonesia)
-  static const _fallbackProvinces = [
-    {'id': 1, 'name': 'Nanggroe Aceh Darussalam'},
-    {'id': 2, 'name': 'Sumatera Utara'},
-    {'id': 3, 'name': 'Sumatera Selatan'},
-    {'id': 4, 'name': 'Sumatera Barat'},
-    {'id': 5, 'name': 'Bengkulu'},
-    {'id': 6, 'name': 'Riau'},
-    {'id': 7, 'name': 'Kepulauan Riau'},
-    {'id': 8, 'name': 'Jambi'},
-    {'id': 9, 'name': 'Lampung'},
-    {'id': 10, 'name': 'Bangka Belitung'},
-    {'id': 11, 'name': 'Kalimantan Barat'},
-    {'id': 12, 'name': 'Kalimantan Timur'},
-    {'id': 13, 'name': 'Kalimantan Selatan'},
-    {'id': 14, 'name': 'Kalimantan Tengah'},
-    {'id': 15, 'name': 'Kalimantan Utara'},
-    {'id': 16, 'name': 'Banten'},
-    {'id': 17, 'name': 'DKI Jakarta'},
-    {'id': 18, 'name': 'Jawa Barat'},
-    {'id': 19, 'name': 'Jawa Tengah'},
-    {'id': 20, 'name': 'Daerah Istimewa Yogyakarta'},
-    {'id': 21, 'name': 'Jawa Timur'},
-    {'id': 22, 'name': 'Bali'},
-    {'id': 23, 'name': 'Nusa Tenggara Timur'},
-    {'id': 24, 'name': 'Nusa Tenggara Barat'},
-    {'id': 25, 'name': 'Gorontalo'},
-    {'id': 26, 'name': 'Sulawesi Barat'},
-    {'id': 27, 'name': 'Sulawesi Tengah'},
-    {'id': 28, 'name': 'Sulawesi Utara'},
-    {'id': 29, 'name': 'Sulawesi Tenggara'},
-    {'id': 30, 'name': 'Sulawesi Selatan'},
-    {'id': 31, 'name': 'Maluku Utara'},
-    {'id': 32, 'name': 'Maluku'},
-    {'id': 33, 'name': 'Papua Barat'},
-    {'id': 34, 'name': 'Papua'},
-    {'id': 35, 'name': 'Papua Tengah'},
-    {'id': 36, 'name': 'Papua Pegunungan'},
-    {'id': 37, 'name': 'Papua Selatan'},
-    {'id': 38, 'name': 'Papua Barat Daya'},
-  ];
-
   List<Map<String, dynamic>> get _provinces {
-    // Use API data if available, otherwise use fallback
+    // Use API data if available
     if (_data?.provinceTargets != null && _data!.provinceTargets.isNotEmpty) {
       return _data!.provinceTargets
           .map((p) => {
@@ -102,27 +61,53 @@ class _SubmissionPageState extends State<SubmissionPage> {
               })
           .toList();
     }
-    return _fallbackProvinces.map((e) => {
-      'id': e['id'].toString(),
-      'name': e['name'].toString(),
-    }).toList();
+    return [];
+  }
+
+  // ── SKIP LOGIC HELPERS ──
+
+  bool _isQuestionVisible(SurveyQuestionData q) {
+    // 1 = Always Display
+    if (q.logicType == '1' || q.logicType.isEmpty) return true;
+
+    if (q.questionChoiceId == null) return true;
+
+    final triggerId = q.questionChoiceId;
+
+    // Cek apakah triggerId ada di antara semua jawaban saat ini
+    return _answers.values.any((ans) {
+      if (ans == null) return false;
+      if (ans is List) {
+        return ans.contains(triggerId.toString()) || ans.contains(triggerId);
+      }
+      return ans.toString() == triggerId.toString();
+    });
+  }
+
+  bool _isPageVisible(SurveyPageData page) {
+    // Halaman terlihat jika minimal ada satu pertanyaan yang terlihat
+    // Atau jika halaman tersebut tidak punya pertanyaan (tapi ini jarang)
+    if (page.questions.isEmpty) return true;
+    return page.questions.any((q) => _isQuestionVisible(q));
+  }
+
+  List<SurveyPageData> get _visiblePages {
+    if (_data == null) return [];
+    return _data!.pages.where(_isPageVisible).toList();
   }
 
   @override
   void initState() {
     super.initState();
-    _loadData().then((_) => _loadDraftIfExists());
-    _audioPlayer.onPlayerStateChanged.listen((state) {
-      if (mounted) {
-        setState(() {
-          _isPlaying = state == PlayerState.playing;
-        });
-      }
+    _pageController = PageController(initialPage: _currentPageIndex);
+    _loadData().then((_) {
+      _loadDraftIfExists();
     });
   }
 
   @override
   void dispose() {
+    _pageController.dispose();
     _recorder.dispose();
     _audioPlayer.dispose();
     super.dispose();
@@ -696,6 +681,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
     return Column(
       children: [
         _buildVoiceNoteSection(),
+        _buildPageIndicator(),
         Expanded(child: _buildQuestionPages()),
         _buildBottomBar(),
       ],
@@ -703,7 +689,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
   }
 
   Widget _buildPageIndicator() {
-    final totalPages = _data!.pages.length;
+    final totalPages = _visiblePages.length;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -726,28 +712,39 @@ class _SubmissionPageState extends State<SubmissionPage> {
   Widget _buildQuestionPages() {
     final pages = _data!.pages;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: pages.expand((page) {
-          return [
-            if (page.pageName.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Text(
-                  page.pageName,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.monTextDark,
+    return PageView.builder(
+      controller: _pageController,
+      onPageChanged: (index) {
+        setState(() {
+          _currentPageIndex = index;
+        });
+      },
+      itemCount: _visiblePages.length,
+      itemBuilder: (context, pageIndex) {
+        final page = _visiblePages[pageIndex];
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (page.pageName.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(
+                    page.pageName,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.monTextDark,
+                    ),
                   ),
                 ),
-              ),
-            ...page.questions.map((q) => _buildQuestionItem(q)),
-          ];
-        }).toList(),
-      ),
+              ...page.questions.map((q) => _buildQuestionItem(q)),
+              const SizedBox(height: 80), // Space for bottom bar
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -848,9 +845,16 @@ class _SubmissionPageState extends State<SubmissionPage> {
   }
 
   Widget _buildProvinceDropdown(SurveyQuestionData q) {
+    // 1. Prioritaskan pilihan dari DATABASE (q.choice) jika ada
+    if (q.choice.isNotEmpty) {
+      return _buildDropdownInput(q);
+    }
+
+    // 2. Jika q.choice kosong, pakai target provinsi projek
     final provinces = _provinces;
 
     if (provinces.isEmpty) {
+      // Jika benar-benar kosong, tampilkan dropdown kosong atau pesan
       return _buildDropdownInput(q);
     }
 
@@ -865,10 +869,14 @@ class _SubmissionPageState extends State<SubmissionPage> {
           ),
         );
       }).toList(),
-      onChanged: (val) => setState(() => _answers[q.id] = val),
+      onChanged: (val) {
+        setState(() {
+          _answers[q.id] = val;
+        });
+      },
       icon: const Icon(
         Icons.keyboard_arrow_down_rounded,
-        color: Color(0xFF4285F4),
+        color: AppTheme.monGreenMid,
         size: 24,
       ),
       elevation: 2,
@@ -892,7 +900,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF4285F4), width: 2),
+          borderSide: const BorderSide(color: AppTheme.monGreenMid, width: 2),
         ),
       ),
       validator: (val) {
@@ -1092,7 +1100,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
       },
       icon: const Icon(
         Icons.keyboard_arrow_down_rounded,
-        color: Color(0xFF4285F4),
+        color: AppTheme.monGreenMid,
         size: 24,
       ),
       elevation: 2,
@@ -1116,7 +1124,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF4285F4), width: 2),
+          borderSide: const BorderSide(color: AppTheme.monGreenMid, width: 2),
         ),
       ),
       validator: (val) {
@@ -1241,6 +1249,9 @@ class _SubmissionPageState extends State<SubmissionPage> {
   }
 
   Widget _buildBottomBar() {
+    final totalPages = _visiblePages.length;
+    final isLastPage = _currentPageIndex == totalPages - 1;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -1253,58 +1264,103 @@ class _SubmissionPageState extends State<SubmissionPage> {
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: _submitSurvey,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.monGreenMid,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Kirim Jawaban',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            height: 44,
-            child: OutlinedButton(
-              onPressed: _saveDraft,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.orange.shade700,
-                side: BorderSide(color: Colors.orange.shade400),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.save_outlined, size: 18),
-                  SizedBox(width: 6),
-                  Text(
-                    'Simpan Draft',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                if (_currentPageIndex > 0)
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _previousPage,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.monGreenMid,
+                        side: const BorderSide(color: AppTheme.monGreenMid),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        'Sebelumnya',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
                   ),
-                ],
+                if (_currentPageIndex > 0) const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: ElevatedButton(
+                    onPressed: isLastPage ? _submitSurvey : _nextPage,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.monGreenMid,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      isLastPage ? 'Kirim Jawaban' : 'Selanjutnya',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              height: 44,
+              child: OutlinedButton(
+                onPressed: _saveDraft,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.orange.shade700,
+                  side: BorderSide(color: Colors.orange.shade400),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.save_outlined, size: 18),
+                    SizedBox(width: 6),
+                    Text(
+                      'Simpan Draft',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  void _nextPage() {
+    if (_currentPageIndex < _visiblePages.length - 1) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _previousPage() {
+    if (_currentPageIndex > 0) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   Future<void> _submitSurvey() async {
@@ -1398,24 +1454,25 @@ class _SubmissionPageState extends State<SubmissionPage> {
         }
         return {'checkboxes': []};
       case 9: // Matrix
-        return {'matrix': _buildMatrixValue(q.matrixType, answer)};
+        return {'matrix': _buildMatrixValue(q, answer)};
       default:
         return {'texts': answer.toString()};
     }
   }
 
-  Map<String, dynamic> _buildMatrixValue(String matrixType, dynamic answer) {
-    if (answer is! Map || answer.isEmpty) return {};
+  dynamic _buildMatrixValue(SurveyQuestionData q, dynamic answer) {
+    if (answer is! Map || answer.isEmpty) return null;
 
     final Map<String, dynamic> result = {};
     answer.forEach((key, value) {
-      if (matrixType == 'radio') {
+      if (q.matrixType == 'radio') {
         result[key.toString()] = value;
       } else {
         result[key.toString()] = value is List ? value : [];
       }
     });
 
-    return result;
+    // Mengembalikan string JSON agar bisa disimpan sebagai TEXT/JSON di database
+    return jsonEncode(result);
   }
 }

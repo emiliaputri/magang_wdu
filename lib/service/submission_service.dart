@@ -136,45 +136,42 @@ class SurveySubmissionData {
     }
 
     List<ProvinceTarget> provinceTargets = [];
-    if (json.containsKey('survey') && json['survey'] is Map) {
-      final survey = json['survey'] as Map<String, dynamic>;
-      debugPrint(
-        'DEBUG: Survey has province_targets key: ${survey.containsKey('province_targets')}',
-      );
-      debugPrint(
-        'DEBUG: province_targets value: ${survey['province_targets']}',
-      );
 
-      if (survey.containsKey('province_targets')) {
-        try {
-          final targetsRaw = survey['province_targets'];
-          if (targetsRaw == null) {
-            debugPrint('DEBUG: province_targets is NULL');
-          } else if (targetsRaw is String && targetsRaw.isNotEmpty) {
-            debugPrint(
-              'DEBUG: province_targets is String with length: ${targetsRaw.length}',
-            );
-            final decoded = jsonDecode(targetsRaw) as List;
-            debugPrint('DEBUG: decoded list length: ${decoded.length}');
-            provinceTargets = decoded
-                .map((e) => ProvinceTarget.fromJson(e as Map<String, dynamic>))
-                .toList();
-          } else if (targetsRaw is List) {
-            debugPrint('DEBUG: province_targets is List, processing...');
-            provinceTargets = targetsRaw
-                .map((e) => ProvinceTarget.fromJson(e as Map<String, dynamic>))
-                .toList();
-          } else {
-            debugPrint(
-              'DEBUG: province_targets type: ${targetsRaw.runtimeType}',
-            );
-          }
-        } catch (e) {
-          print("Error parsing province_targets: $e");
+    // Helper function to parse province targets from dynamic raw data
+    List<ProvinceTarget> parseTargets(dynamic raw) {
+      if (raw == null) return [];
+      try {
+        if (raw is String && raw.isNotEmpty) {
+          final decoded = jsonDecode(raw) as List;
+          return decoded
+              .map((e) => ProvinceTarget.fromJson(e as Map<String, dynamic>))
+              .toList();
+        } else if (raw is List) {
+          return raw
+              .map((e) => ProvinceTarget.fromJson(e as Map<String, dynamic>))
+              .toList();
         }
+      } catch (e) {
+        debugPrint('Error parsing province targets: $e');
       }
-    } else {
-      debugPrint('DEBUG: survey key not found or not a Map');
+      return [];
+    }
+
+    // 1. Cek di top-level (paling sering untuk data master)
+    if (json.containsKey('province_targets')) {
+      provinceTargets = parseTargets(json['province_targets']);
+    } else if (json.containsKey('provinces')) {
+      provinceTargets = parseTargets(json['provinces']);
+    }
+
+    // 2. Jika masih kosong, cek di dalam objek survey (fallback lama)
+    if (provinceTargets.isEmpty &&
+        json.containsKey('survey') &&
+        json['survey'] is Map) {
+      final survey = json['survey'] as Map<String, dynamic>;
+      if (survey.containsKey('province_targets')) {
+        provinceTargets = parseTargets(survey['province_targets']);
+      }
     }
 
     debugPrint('DEBUG: Final provinceTargets count: ${provinceTargets.length}');

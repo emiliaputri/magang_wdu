@@ -205,7 +205,17 @@ class StorageHelper {
 
         rawAnswers.forEach((k, v) {
           final intKey = int.tryParse(k) ?? 0;
-          converted[intKey] = v;
+          if (v is Map) {
+            // Konversi key dalam map (untuk data Matrix: Row ID)
+            final convertedMatrix = <int, dynamic>{};
+            v.forEach((mk, mv) {
+              final mIntKey = int.tryParse(mk.toString()) ?? 0;
+              convertedMatrix[mIntKey] = mv;
+            });
+            converted[intKey] = convertedMatrix;
+          } else {
+            converted[intKey] = v;
+          }
         });
 
         data['answers'] = converted;
