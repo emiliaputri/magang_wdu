@@ -118,7 +118,6 @@ class _DashboardViewState extends State<_DashboardView>
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
     );
   }
 
@@ -148,98 +147,24 @@ class _DashboardViewState extends State<_DashboardView>
           ),
         ),
       ),
-      actions: [_buildFontSizeButton(context), const RingingBellIcon()],
+      actions: [
+        _buildFontSizeButton(context),
+        const RingingBellIcon(),
+        _buildSettingsButton(context),
+      ],
     );
   }
 
-  Widget _buildBottomNav() {
-    return SafeArea(
-      child: Container(
-        margin: const EdgeInsets.all(20),
-        height: 80,
-        decoration: BoxDecoration(
-          color: AppTheme.surfaceContainerLowest.withOpacity(0.8),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.15)),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.onSurface.withOpacity(0.08),
-              blurRadius: 48,
-              offset: const Offset(0, 12),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _navItem(
-                  Icons.dashboard_rounded,
-                  'Dashboard',
-                  isActive: true,
-                  onTap: () {},
-                ),
-                _navItem(
-                  Icons.settings_rounded,
-                  'Settings',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const SettingsPage()),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _navItem(
-    IconData icon,
-    String label, {
-    bool isActive = false,
-    VoidCallback? onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: isActive ? AppTheme.primary : Colors.transparent,
-              borderRadius: BorderRadius.circular(16),
-              gradient: isActive
-                  ? const LinearGradient(
-                      colors: [AppTheme.ijoGelap, AppTheme.ijoTerang],
-                    )
-                  : null,
-            ),
-            child: Icon(
-              icon,
-              color: isActive ? Colors.white : AppTheme.outline,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label.toUpperCase(),
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
-              color: isActive ? AppTheme.primary : AppTheme.outline,
-            ),
-          ),
-        ],
-      ),
+  Widget _buildSettingsButton(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.settings_rounded, color: AppTheme.primary),
+      tooltip: 'Settings',
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const SettingsPage()),
+        );
+      },
     );
   }
 

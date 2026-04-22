@@ -10,12 +10,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **2FA System (Email OTP)**: Integrated email OTP verification during login.
 - **OTP Resend Timer**: Added a 60-second countdown for resending codes.
 - **OTP Input Limit**: Restricted OTP input to exactly 6 digits.
+- **UniversalImage Widget**: Implemented a cross-platform image component that uses native HTML `<img>` tags on Web to bypass CORS restrictions for profile photos.
 - **X-App-Platform Header**: Added OS identification (Android/iOS) for Laravel server.
 - **Foundation Package**: Utilized the foundation package for safe platform detection.
 
 ### Improved
-- **Profile Settings UI**: Revamped the settings page to match Laravel Jetstream's profile structure, including dynamic user data (name, email, photo) and 2FA status.
-- **Profile Photo Fix**: Added URL sanitization to ensure profile photos load correctly in local development environments.
+- **Profile Settings UI**: Fully revamped the settings page to mirror Laravel Jetstream's profile structure, including dynamic user data (name, email, photo) and real-time 2FA status.
+- **UI Restructuring**: Removed the bottom navigation bar and moved the settings button to the Dashboard AppBar actions for a more streamlined experience.
+- **Profile Photo Logic**: Integrated sanitization and the new `UniversalImage` widget to ensure profile photos load correctly across all environments.
 - **Error Messages**: Enhanced clarity for incorrect password and expired OTP messages by removing technical jargon.
 - **Navigation Logic**: Fixed automatic redirection to Dashboard or OTP Page post-login.
 - **Login Footer**: Updated copyright year to 2026 and refined the UI.

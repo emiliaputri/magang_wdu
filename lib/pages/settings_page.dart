@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/universal_image.dart';
 import 'change_password_page.dart';
 import 'login_page.dart';
 
@@ -119,20 +120,18 @@ class _SettingsPageState extends State<SettingsPage> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: AppTheme.primary.withValues(alpha: 0.1),
-              image: photoUrl != null 
-                ? DecorationImage(
-                    image: NetworkImage(photoUrl), 
-                    fit: BoxFit.cover,
-                    onError: (exception, stackTrace) {
-                      debugPrint('[SettingsPage] Error loading profile photo: $exception');
-                    },
-                  )
-                : null,
               border: Border.all(color: AppTheme.primary, width: 2),
             ),
-            child: photoUrl == null 
-              ? const Icon(Icons.person_rounded, size: 50, color: AppTheme.primary)
-              : null,
+            child: photoUrl != null 
+              ? UniversalImage(
+                  imageUrl: photoUrl,
+                  width: 100,
+                  height: 100,
+                  borderRadius: 50,
+                  fit: BoxFit.cover,
+                  errorWidget: const Icon(Icons.person_rounded, size: 50, color: AppTheme.primary),
+                )
+              : const Icon(Icons.person_rounded, size: 50, color: AppTheme.primary),
           ),
           const SizedBox(height: 16),
           Text(

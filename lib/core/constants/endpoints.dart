@@ -9,7 +9,7 @@ class Endpoints {
     // Untuk HP Fisik: Gunakan IP Komputer (misal 192.168.x.x)
     // Untuk Emulator: Gunakan 10.0.2.2
     // default ke produksi jika tidak ada env
-    return 'http://localhost:8000/api';
+    return 'http: ';
   }
 
   static String get storageUrl {

@@ -7,6 +7,7 @@ class AuthProvider extends ChangeNotifier {
 
   bool _loading = false;
   bool _obscurePassword = true;
+  Map<String, dynamic>? _user;
 
   String? _errorMessage;
 
@@ -14,11 +15,30 @@ class AuthProvider extends ChangeNotifier {
   bool get loading => _loading;
   bool get obscurePassword => _obscurePassword;
   String? get errorMessage => _errorMessage;
+  Map<String, dynamic>? get user => _user;
 
   // ── TOGGLE ────────────────────────────────────────────────
   void toggleObscurePassword() {
     _obscurePassword = !_obscurePassword;
     notifyListeners();
+  }
+
+  // ── USER DATA ─────────────────────────────────────────────
+  Future<void> getUser() async {
+    _loading = true;
+    notifyListeners();
+
+    try {
+      final userData = await _authService.getUser();
+      if (userData != null) {
+        _user = userData['user'];
+      }
+    } catch (e) {
+      debugPrint('[AuthProvider] getUser error: $e');
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
   }
 
   // ── LOGIN ─────────────────────────────────────────────────
