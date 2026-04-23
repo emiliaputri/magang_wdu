@@ -276,7 +276,7 @@ class SurveyBentoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(100),
       ),
       child: Text(
-        isActive ? 'AKTIF' : 'DITUTUP',
+        isActive ? 'DIBUKA' : 'DITUTUP',
         style: GoogleFonts.inter(
           fontSize: 9,
           fontWeight: FontWeight.w900,
