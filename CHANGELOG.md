@@ -52,8 +52,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
-=======
->>>>>>> 29466a375922dff18e251f6d527733c9aeeb54d6
 ## [1.3.8] - 2026-04-20
 ### Added
 - **UniversalImage**: Implemented a cross-platform image loading solution that uses native HTML `<img>` tags on Web to bypass CORS decoding issues (`EncodingError`) while maintaining `CachedNetworkImage` for Mobile/Desktop.
