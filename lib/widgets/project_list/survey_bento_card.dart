@@ -186,20 +186,16 @@ class SurveyBentoCard extends StatelessWidget {
                               color: AppTheme.onSurface,
                               height: 1.2,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
                           Text(
                             survey.desc ??
-                                'Evaluasi pemanfaatan infrastruktur digital nasional.',
+                                'No description',
                             style: GoogleFonts.inter(
                               fontSize: 10,
                               color: AppTheme.onSurfaceVariant.withOpacity(0.7),
                               height: 1.3,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
@@ -210,79 +206,6 @@ class SurveyBentoCard extends StatelessWidget {
                       children: [_buildStatusBadge()],
                     ),
                   ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    _infoEntry(
-                      Icons.location_on_outlined,
-                      survey.provinceTargets.isEmpty
-                          ? 'Nasional'
-                          : '${survey.provinceTargets.length} Provinsi',
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      height: 12,
-                      width: 1,
-                      color: AppTheme.outlineVariant.withOpacity(0.2),
-                    ),
-                    const SizedBox(width: 8),
-                    _infoEntry(Icons.calendar_today_rounded, 'Batch 1'),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'TARGET PROVINCES',
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w900,
-                              color: AppTheme.onSurfaceVariant.withOpacity(0.6),
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () => _showAllProvinces(context),
-                            child: Text(
-                              'View all',
-                              style: GoogleFonts.inter(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.primary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
-                        children: [
-                          ...survey.provinceTargets
-                              .take(3)
-                              .map((p) => _chip(p.name)),
-                          if (survey.provinceTargets.length > 3)
-                            _chip(
-                              '+${survey.provinceTargets.length - 3} Others',
-                            ),
-                          if (survey.provinceTargets.isEmpty)
-                            _chip('Nasional (All Provinces)', isSpecial: true),
-                        ],
-                      ),
-                    ],
-                  ),
                 ),
                 const SizedBox(height: 8),
                 Row(

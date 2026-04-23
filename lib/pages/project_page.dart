@@ -166,7 +166,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
           crossAxisCount: isDesktop ? 2 : 1,
           mainAxisSpacing: 24,
           crossAxisSpacing: 24,
-          mainAxisExtent: 460,
+          mainAxisExtent: 180,
         ),
         delegate: SliverChildBuilderDelegate((context, index) {
           // Placeholder/Create Card

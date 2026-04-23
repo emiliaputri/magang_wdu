@@ -220,7 +220,7 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
           crossAxisCount: isDesktop ? 2 : 1,
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
-          mainAxisExtent: 290,
+          mainAxisExtent: 180,
         ),
         delegate: SliverChildBuilderDelegate((context, index) {
           final survey = filtered[index];
