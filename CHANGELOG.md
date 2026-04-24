@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Conditional Camera Flow**: Implemented logic to skip or show the camera capture page based on the `is_camera_enabled` setting from the Laravel dashboard.
 
 ### Improved
+- **Monitoring UI**: Redesigned "Capaian Status" breakdown to be centered and full-width for better visibility.
+- **List Survey UI**: Removed text truncation from survey titles and descriptions to show complete information.
 - **Metadata Handling**: Updated camera capture to only collect necessary metadata (GPS/Time) without personal biodata dependencies.
 - **Service Resilience**: Enhanced model parsing to handle both `setting` and `survey_settings` keys from the API.
 
