@@ -232,7 +232,6 @@ class SurveyBentoCard extends StatelessWidget {
                                     clientSlug: clientSlug,
                                     projectSlug: projectSlug,
                                     surveyTitle: survey.title,
-                                    biodata: const {},
                                   ),
                                 ),
                               );
@@ -283,7 +282,6 @@ class SurveyBentoCard extends StatelessWidget {
                                     clientSlug: clientSlug,
                                     projectSlug: projectSlug,
                                     surveyTitle: survey.title,
-                                    biodata: const {},
                                   ),
                                 ),
                               );

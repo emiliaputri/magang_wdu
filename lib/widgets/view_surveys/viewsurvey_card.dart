@@ -201,7 +201,6 @@ class ViewSurveyCard extends StatelessWidget {
                             clientSlug: clientSlug,
                             projectSlug: projectSlug,
                             surveyTitle: survey.title,
-                            biodata: const {},
                           ),
                         ),
                       );
