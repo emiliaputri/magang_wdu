@@ -5,6 +5,50 @@ All notable changes to this Flutter project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
+## [1.4.4] - 2026-04-24 *By Fadel
+### Changed
+- **Direct Survey Flow**: Completely removed the biodata form requirement. Respondents now go directly to the questionnaire.
+- **Conditional Camera Flow**: Implemented logic to skip or show the camera capture page based on the `is_camera_enabled` setting from the Laravel dashboard.
+
+### Improved
+- **Monitoring UI**: Redesigned "Capaian Status" breakdown to be centered and full-width for better visibility.
+- **List Survey UI**: Removed text truncation from survey titles and descriptions to show complete information.
+- **Metadata Handling**: Updated camera capture to only collect necessary metadata (GPS/Time) without personal biodata dependencies.
+- **Service Resilience**: Enhanced model parsing to handle both `setting` and `survey_settings` keys from the API.
+
+### Removed
+- **Biodata UI & Logic**: Deleted `BiodataPage` and stripped all biodata-related draft saving and submission logic.
+
+---
+
+## [1.4.3] - 2026-04-24 *By Fadel
+### Added
+- **Real-time Notifications (WebSockets)**: Integrated `laravel_echo` and `pusher_client` to support instant "bell" notifications via Laravel Reverb.
+- **WebSocket Service**: New dedicated service for managing persistent socket connections with auto-host detection and authentication handling.
+- **In-App Alerts**: Added "Kring-Kring" audio alerts and reactive unread badges that update instantly when a survey is audited (status change/flagging).
+- **Fallback Listeners**: Implemented raw event listeners for `BroadcastNotificationCreated` to ensure maximum reliability across platform versions.
+
+### Fixed
+- **Exporting & Overlap UI**: Resolved UI overlap issues in the monitoring summary and fixed data exporting inconsistencies in the submission flow.
+- **Dependency Conflicts**: Resolved version mismatches between `pusher_channels_flutter`, `flutter_secure_storage`, and the `js` package.
+- **Model Robustness**: Updated `AppNotification` to gracefully handle varying Laravel database notification payloads.
+
+---
+
+## [1.4.2] - 2026-04-23 *By Fadel
+### Added
+- **Activity Logging**: Implemented background logging to Laravel for login, logout, 2FA changes, and active session detection with [SIS-APP] prefix and user email.
+
+### Fixed
+- **Survey Status Validation**: Fixed an issue where "DIBUKA" (open) surveys were incorrectly displayed as "DITUTUP" (closed) due to rigid status parsing. Added support for boolean and multiple string formats from the API.
+- **UI Improvements**: Fixed `SurveyBentoCard` to prevent title/description truncation and removed excessive white space in survey grids.
+- **Monitoring UI Refactor**: Redesigned monitoring header with status breakdown (Pending, Revision, etc.), implemented a compact list view for responses, and synchronized response timing with Laravel's `updated_at`.
+- **Monitor Detail Improvements**: Redesigned detail page with a minimalist respondent info section, consistent frosted glass header, and intelligent question filtering.
+- **Advanced Answer Fetching**: Implemented strict response ID validation and recursive data merging to prevent stale data between different responses.
+- **Image Support in Monitoring**: Added visual preview for "Document" type questions with automatic image detection, correct path mapping to `/documents/`, and aspect-ratio preservation.
+- **Client Image Fixes**: Resolved image loading issues by implementing `UniversalImage` for CORS bypass, automatic URL encoding for special characters, and improved logo scaling/padding (zoom-out effect) across project and survey pages.
+
+---
 ## [1.4.1] - 2026-04-23 *By Fadel
 ### Added
 - **Integrated 2FA Settings**: Implemented a comprehensive 2FA management page (`TwoFactorSettingsPage`) that handles password confirmation and OTP verification in a single, seamless flow.

@@ -11,7 +11,7 @@ class SurveyCard extends StatelessWidget {
 
   Color _statusColor(String status) {
     switch (status) {
-      case "Aktif":
+      case "DIBUKA":
         return Colors.green;
       case "Selesai":
         return Colors.blue;

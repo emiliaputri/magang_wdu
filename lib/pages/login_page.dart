@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
+import '../providers/notification_provider.dart';
 import '../service/auth_service.dart';
 import '../widgets/login/app_input_field.dart';
 import '../widgets/login/sis_logo.dart';
@@ -64,6 +65,11 @@ class _LoginPageState extends State<LoginPage>
       );
 
       if (response.status == AuthStatus.success) {
+        // Initialize notifications and websockets
+        if (mounted) {
+          context.read<NotificationProvider>().init();
+        }
+
         navigator.pushReplacement(
           MaterialPageRoute(
             settings: const RouteSettings(name: '/dashboard'),

@@ -161,33 +161,64 @@ class _ProjectListPageState extends State<ProjectListPage> {
 
     return SliverPadding(
       padding: const EdgeInsets.all(20),
-      sliver: SliverGrid(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: isDesktop ? 2 : 1,
-          mainAxisSpacing: 24,
-          crossAxisSpacing: 24,
-          mainAxisExtent: 460,
-        ),
-        delegate: SliverChildBuilderDelegate((context, index) {
-          // Placeholder/Create Card
-          if (index == surveys.length) return _buildNewPlaceholder();
+      sliver: isDesktop
+          ? SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 24,
+                crossAxisSpacing: 24,
+                mainAxisExtent: 220,
+              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                // Placeholder/Create Card
+                if (index == surveys.length) return _buildNewPlaceholder();
 
-          final survey = surveys[index];
-          // Find parent project slug for survey context
-          final parentProject = _projects.firstWhere(
-            (p) => p.surveys?.any((s) => s.id == survey.id) ?? false,
-            orElse: () => _projects.isNotEmpty
-                ? _projects.first
-                : Project(projectName: 'Unknown'),
-          );
+                final survey = surveys[index];
+                final parentProject = _projects.firstWhere(
+                  (p) => p.surveys?.any((s) => s.id == survey.id) ?? false,
+                  orElse: () => _projects.isNotEmpty
+                      ? _projects.first
+                      : Project(projectName: 'Unknown'),
+                );
 
-          return SurveyBentoCard(
-            survey: survey,
-            clientSlug: widget.client.slug ?? '',
-            projectSlug: parentProject.slug ?? '',
-          );
-        }, childCount: surveys.length + 1),
-      ),
+                return SurveyBentoCard(
+                  survey: survey,
+                  clientSlug: widget.client.slug ?? '',
+                  projectSlug: parentProject.slug ?? '',
+                );
+              }, childCount: surveys.length + 1),
+            )
+          : SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                // Placeholder/Create Card
+                if (index == surveys.length) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    child: SizedBox(
+                      height: 200,
+                      child: _buildNewPlaceholder(),
+                    ),
+                  );
+                }
+
+                final survey = surveys[index];
+                final parentProject = _projects.firstWhere(
+                  (p) => p.surveys?.any((s) => s.id == survey.id) ?? false,
+                  orElse: () => _projects.isNotEmpty
+                      ? _projects.first
+                      : Project(projectName: 'Unknown'),
+                );
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: SurveyBentoCard(
+                    survey: survey,
+                    clientSlug: widget.client.slug ?? '',
+                    projectSlug: parentProject.slug ?? '',
+                  ),
+                );
+              }, childCount: surveys.length + 1),
+            ),
     );
   }
 

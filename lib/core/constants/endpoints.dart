@@ -32,6 +32,14 @@ class Endpoints {
   static const String verifyOtp = '/2fa/verify';
   static const String resendOtp = '/2fa/resend';
 
+  // POST /api/logs/app-activity
+  static const String logAppActivity = '/logs/app-activity';
+
+  // ── NOTIFICATIONS ─────────────────────────────────────────
+  static const String notifications = '/notifications';
+  static String markNotificationRead(String id) => '/notifications/$id/read';
+  static const String markAllNotificationsRead = '/notifications/read-all';
+
   // ── CLIENT ────────────────────────────────────────────────
   // GET /api/clients
   static const String clients = '/clients';

@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/survey_model.dart';
 import '../../pages/monitor_survey_page.dart';
-import '../../pages/biodata_page.dart';
 import '../../pages/submission_page.dart';
+import '../../pages/camera_capture_page.dart';
 
 class SurveyBentoCard extends StatelessWidget {
   final SurveyModel survey;
@@ -170,6 +170,7 @@ class SurveyBentoCard extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,155 +187,158 @@ class SurveyBentoCard extends StatelessWidget {
                               color: AppTheme.onSurface,
                               height: 1.2,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
                           Text(
                             survey.desc ??
-                                'Evaluasi pemanfaatan infrastruktur digital nasional.',
+                                'No description',
                             style: GoogleFonts.inter(
                               fontSize: 10,
                               color: AppTheme.onSurfaceVariant.withOpacity(0.7),
                               height: 1.3,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [_buildStatusBadge()],
-                    ),
+                    _buildStatusBadge(),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    _infoEntry(
-                      Icons.location_on_outlined,
-                      survey.provinceTargets.isEmpty
-                          ? 'Nasional'
-                          : '${survey.provinceTargets.length} Provinsi',
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      height: 12,
-                      width: 1,
-                      color: AppTheme.outlineVariant.withOpacity(0.2),
-                    ),
-                    const SizedBox(width: 8),
-                    _infoEntry(Icons.calendar_today_rounded, 'Batch 1'),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                const SizedBox(height: 16),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    // Jika lebar tidak cukup untuk 2 button (asumsi min 100 per button)
+                    // maka stack vertically
+                    if (constraints.maxWidth < 220) {
+                      return Column(
                         children: [
-                          Text(
-                            'TARGET PROVINCES',
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w900,
-                              color: AppTheme.onSurfaceVariant.withOpacity(0.6),
-                              letterSpacing: 1.2,
+                          _actionButton(
+                            label: 'Isi Kuesioner',
+                            icon: Icons.edit_note_rounded,
+                            gradient: const LinearGradient(
+                              colors: [AppTheme.ijoGelap, AppTheme.ijoTerang],
                             ),
+                            onTap: () {
+                              if (survey.isCameraEnabled) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => CameraCapturePage(
+                                      surveySlug: survey.slug,
+                                      clientSlug: clientSlug,
+                                      projectSlug: projectSlug,
+                                      surveyTitle: survey.title,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                Navigator.pushNamed(
+                                  context,
+                                  '/submission',
+                                  arguments: {
+                                    'surveySlug': survey.slug,
+                                    'clientSlug': clientSlug,
+                                    'projectSlug': projectSlug,
+                                    'surveyTitle': survey.title,
+                                  },
+                                );
+                              }
+                            },
                           ),
-                          GestureDetector(
-                            onTap: () => _showAllProvinces(context),
-                            child: Text(
-                              'View all',
-                              style: GoogleFonts.inter(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.primary,
-                              ),
+                          const SizedBox(height: 8),
+                          _actionButton(
+                            label: 'Monitor',
+                            icon: Icons.analytics_rounded,
+                            gradient: const LinearGradient(
+                              colors: [AppTheme.ijoGelap, AppTheme.ijoTerang],
                             ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => MonitoringSurveyPage(
+                                    surveyName: survey.title,
+                                    clientSlug: clientSlug,
+                                    projectSlug: projectSlug,
+                                    surveySlug: survey.slug,
+                                    totalRespon: survey.responseCount,
+                                    targetLocation: survey.targetLocation,
+                                    isOpen: survey.isOpen,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ],
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
-                        children: [
-                          ...survey.provinceTargets
-                              .take(3)
-                              .map((p) => _chip(p.name)),
-                          if (survey.provinceTargets.length > 3)
-                            _chip(
-                              '+${survey.provinceTargets.length - 3} Others',
+                      );
+                    }
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: _actionButton(
+                            label: 'Isi Kuesioner',
+                            icon: Icons.edit_note_rounded,
+                            gradient: const LinearGradient(
+                              colors: [AppTheme.ijoGelap, AppTheme.ijoTerang],
                             ),
-                          if (survey.provinceTargets.isEmpty)
-                            _chip('Nasional (All Provinces)', isSpecial: true),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _actionButton(
-                        label: 'Isi Kuesioner',
-                        icon: Icons.edit_note_rounded,
-                        gradient: const LinearGradient(
-                          colors: [AppTheme.ijoGelap, AppTheme.ijoTerang],
+                            onTap: () {
+                              if (survey.isCameraEnabled) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => CameraCapturePage(
+                                      surveySlug: survey.slug,
+                                      clientSlug: clientSlug,
+                                      projectSlug: projectSlug,
+                                      surveyTitle: survey.title,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                Navigator.pushNamed(
+                                  context,
+                                  '/submission',
+                                  arguments: {
+                                    'surveySlug': survey.slug,
+                                    'clientSlug': clientSlug,
+                                    'projectSlug': projectSlug,
+                                    'surveyTitle': survey.title,
+                                  },
+                                );
+                              }
+                            },
+                          ),
                         ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => BiodataPage(
-                                surveySlug: survey.slug,
-                                clientSlug: clientSlug,
-                                projectSlug: projectSlug,
-                              ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _actionButton(
+                            label: 'Monitor',
+                            icon: Icons.analytics_rounded,
+                            gradient: const LinearGradient(
+                              colors: [AppTheme.ijoGelap, AppTheme.ijoTerang],
                             ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _actionButton(
-                        label: 'Monitor',
-                        icon: Icons.analytics_rounded,
-                        gradient: const LinearGradient(
-                          colors: [AppTheme.ijoGelap, AppTheme.ijoTerang],
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => MonitoringSurveyPage(
+                                    surveyName: survey.title,
+                                    clientSlug: clientSlug,
+                                    projectSlug: projectSlug,
+                                    surveySlug: survey.slug,
+                                    totalRespon: survey.responseCount,
+                                    targetLocation: survey.targetLocation,
+                                    isOpen: survey.isOpen,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => MonitoringSurveyPage(
-                                surveyName: survey.title,
-                                clientSlug: clientSlug,
-                                projectSlug: projectSlug,
-                                surveySlug: survey.slug,
-                                totalRespon: survey.responseCount,
-                                targetLocation: survey.targetLocation,
-                                isOpen: survey.isOpen,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  }
                 ),
               ],
             ),
@@ -353,7 +357,7 @@ class SurveyBentoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(100),
       ),
       child: Text(
-        isActive ? 'AKTIF' : 'DITUTUP',
+        isActive ? 'DIBUKA' : 'DITUTUP',
         style: GoogleFonts.inter(
           fontSize: 9,
           fontWeight: FontWeight.w900,
@@ -366,15 +370,19 @@ class SurveyBentoCard extends StatelessWidget {
 
   Widget _infoEntry(IconData icon, String text) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 14, color: AppTheme.onSurfaceVariant.withOpacity(0.6)),
         const SizedBox(width: 4),
-        Text(
-          text,
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.onSurfaceVariant.withOpacity(0.8),
+        Flexible(
+          child: Text(
+            text,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.onSurfaceVariant.withOpacity(0.8),
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
@@ -412,7 +420,7 @@ class SurveyBentoCard extends StatelessWidget {
     Gradient? gradient,
   }) {
     return Container(
-      height: 44,
+      constraints: const BoxConstraints(minHeight: 40),
       decoration: BoxDecoration(
         color: color,
         gradient: gradient,
@@ -430,20 +438,27 @@ class SurveyBentoCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: Colors.white, size: 18),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: GoogleFonts.manrope(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 11,
-                  color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: Colors.white, size: 16),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    label,
+                    style: GoogleFonts.manrope(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 10,
+                      color: Colors.white,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

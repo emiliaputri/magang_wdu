@@ -10,10 +10,7 @@ import 'pages/cek_edit_monitor.dart';
 import 'pages/cek_edit_survey_page.dart';
 import 'pages/province_target_page.dart';
 import 'pages/project_page.dart';
-import 'pages/detail_responden_bpk_page.dart';
-import 'pages/detail_responden_transjakarta_page.dart';
 import 'pages/submission_page.dart';
-import 'pages/biodata_page.dart';
 import 'pages/camera_capture_page.dart';
 import 'providers/auth_provider.dart';
 import 'providers/survey_provider.dart';
@@ -95,9 +92,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()..checkSessionAndLog()),
         ChangeNotifierProvider(create: (_) => SurveyProvider()),
-        ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) {
+          final provider = NotificationProvider();
+          debugPrint('[Main] NotificationProvider created');
+          return provider;
+        }),
         ChangeNotifierProvider(create: (_) => FontSizeProvider()),
       ],
       child: Consumer<FontSizeProvider>(
@@ -225,27 +226,8 @@ class MyApp extends StatelessWidget {
                 builder: (_) => ProjectListPage(client: client),
               );
 
-            case '/detail_responden_bpk':
-              return MaterialPageRoute(
-                settings: const RouteSettings(name: '/detail_responden_bpk'),
-                builder: (_) => const DetailRespondenSurveyBpkPage(),
-              );
-
-            case '/detail_responden_tj':
-              return MaterialPageRoute(
-                settings: const RouteSettings(name: '/detail_responden_tj'),
-                builder: (_) => const DetailRespondenSurveyTransjakartaPage(),
-              );
-
             case '/submission':
               final safeArgs = args ?? {};
-              final provinceTargetsRaw =
-                  safeArgs['provinceTargets'] as List? ?? [];
-              final provinceTargets = provinceTargetsRaw
-                  .map(
-                    (p) => ProvinceTarget.fromJson(p as Map<String, dynamic>),
-                  )
-                  .toList();
               return MaterialPageRoute(
                 settings: RouteSettings(
                   name: '/submission',
@@ -255,19 +237,7 @@ class MyApp extends StatelessWidget {
                   surveySlug: (safeArgs['surveySlug'] ?? '').toString(),
                   clientSlug: safeArgs['clientSlug'] ?? '',
                   projectSlug: safeArgs['projectSlug'] ?? '',
-                  biodata: safeArgs['biodata'] as Map<String, dynamic>?,
                   surveyTitle: safeArgs['surveyTitle'] ?? '',
-                ),
-              );
-
-            case '/biodata':
-              final safeArgs = args ?? {};
-              return MaterialPageRoute(
-                settings: RouteSettings(name: '/biodata', arguments: safeArgs),
-                builder: (_) => BiodataPage(
-                  surveySlug: (safeArgs['surveySlug'] ?? '').toString(),
-                  clientSlug: safeArgs['clientSlug'] ?? '',
-                  projectSlug: safeArgs['projectSlug'] ?? '',
                 ),
               );
 
@@ -282,7 +252,6 @@ class MyApp extends StatelessWidget {
                   surveySlug: (safeArgs['surveySlug'] ?? '').toString(),
                   clientSlug: safeArgs['clientSlug'] ?? '',
                   projectSlug: safeArgs['projectSlug'] ?? '',
-                  biodata: safeArgs['biodata'] as Map<String, dynamic>?,
                   surveyTitle: safeArgs['surveyTitle'] ?? '',
                 ),
               );

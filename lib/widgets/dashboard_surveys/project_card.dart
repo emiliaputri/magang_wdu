@@ -137,6 +137,8 @@ class _ProjectCardState extends State<ProjectCard>
                     color: AppTheme.onSurface,
                     height: 1.1,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -146,6 +148,8 @@ class _ProjectCardState extends State<ProjectCard>
                     color: AppTheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
 
@@ -159,32 +163,40 @@ class _ProjectCardState extends State<ProjectCard>
                 // ── UPDATED INFO ──
                 Row(
                   children: [
-                     const Icon(
+                    const Icon(
                       Icons.schedule_rounded,
                       size: 14,
                       color: AppTheme.monTextMid,
                     ),
                     const SizedBox(width: 6),
-                    Text(
-                      'Updated ${p.updatedAt ?? 'baru saja'}',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: AppTheme.monTextMid,
+                    Flexible(
+                      child: Text(
+                        'Updated ${p.updatedAt ?? 'baru saja'}',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.monTextMid,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 4),
                     const Text(
                       '•',
                       style: TextStyle(color: AppTheme.monBorderColor, fontSize: 10),
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${p.surveyCount} SURVEYS TOTAL',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.ijoGelap,
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        '${p.surveyCount} SURVEYS TOTAL',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.ijoGelap,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],

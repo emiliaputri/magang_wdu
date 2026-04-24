@@ -43,14 +43,6 @@ class ClientCard extends StatelessWidget {
   }
 
   Widget _buildFallback(String name) {
-    final lower = name.toLowerCase();
-    if (lower.contains('transjakarta') || lower.contains('trans jakarta')) {
-      return Image.asset('assets/images/logo_trans.jpeg', fit: BoxFit.cover);
-    } else if (lower.contains('bpk') || lower.contains('badan pemeriksa keuangan')) {
-      return Image.asset('assets/images/logo_bpk.png', fit: BoxFit.cover);
-    }
-    
-    // Premium Initials Fallback
     final initials = _getInitials(name);
     return Container(
       decoration: BoxDecoration(

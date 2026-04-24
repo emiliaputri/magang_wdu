@@ -108,10 +108,12 @@ class _DashboardViewState extends State<_DashboardView>
                       );
                     }),
 
+                  /*
                   const SizedBox(height: 20),
 
                   // 🔥 CLIENT SECTION
                   _ClientsSection(provider: provider),
+                  */
                 ]),
               ),
             ),

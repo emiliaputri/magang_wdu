@@ -24,9 +24,9 @@ class UserProject {
   });
 
   factory UserProject.fromJson(Map<String, dynamic> json) {
-    // Mencoba berbagai kemungkinan key untuk gambar klien (termasuk dari join table)
-    String? rawImage = json['image'] ?? 
-                       json['image_url'] ?? 
+    // Mencoba berbagai kemungkinan key untuk gambar klien
+    String? rawImage = json['image_url'] ?? 
+                       json['image'] ?? 
                        json['client_image'] ?? 
                        json['client_logo'] ?? 
                        json['logo'];
@@ -34,7 +34,7 @@ class UserProject {
     // Jika masih null, coba cek di dalam objek 'client' jika ada (nested relationship)
     if (rawImage == null && json['client'] != null && json['client'] is Map) {
       final clientJson = json['client'] as Map<String, dynamic>;
-      rawImage = clientJson['image'] ?? clientJson['image_url'];
+      rawImage = clientJson['image_url'] ?? clientJson['image'];
     }
 
     return UserProject(
@@ -46,7 +46,7 @@ class UserProject {
       clientSlug:  json['client_slug'] ?? '',
       surveyCount: json['survey_count'] ?? 0,
       updatedAt:   json['updated_at'],
-      clientImage: _buildImageUrl(rawImage), // ✅ Gunakan helper untuk prefix URL
+      clientImage: _buildImageUrl(rawImage),
     );
   }
 
@@ -78,19 +78,29 @@ class UserProject {
     if (url == null || url.isEmpty) return null;
     
     // Jika sudah full URL, langsung kembalikan
-    if (url.startsWith('http://') || url.startsWith('https://')) return url;
-
-    final base = Endpoints.storageUrl;
-    
-    // Normalisasi url: buang leading slash
-    final path = url.startsWith('/') ? url.substring(1) : url;
-
-    // Jika mengandung 'img/client/', tempel langsung ke base
-    if (path.contains('img/client/')) {
-       return '$base/$path';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+       return url.contains(' ') ? Uri.encodeFull(url) : url;
     }
 
-    // Default ke img/client/
-    return '$base/img/client/$path';
+    // Ambil base domain (tanpa /api atau /storage)
+    final root = Endpoints.baseUrl.split('/api').first;
+    
+    // Normalisasi url: buang leading slash
+    String path = url.startsWith('/') ? url.substring(1) : url;
+
+    // Tentukan folder dasar
+    String finalPath;
+    if (path.contains('img/client/')) {
+       finalPath = path;
+    } else if (path.contains('storage/')) {
+       finalPath = path;
+    } else {
+       finalPath = 'img/client/$path';
+    }
+
+    // Encode path
+    final encodedPath = finalPath.split('/').map((s) => Uri.encodeComponent(s)).join('/');
+    
+    return '$root/$encodedPath';
   }
 }

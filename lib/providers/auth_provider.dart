@@ -11,6 +11,8 @@ class AuthProvider extends ChangeNotifier {
   Map<String, dynamic>? _user;
 
   String? _errorMessage;
+  int _loginFailCount = 0;
+  String? _lastFailedEmail;
 
   // ── GETTERS ───────────────────────────────────────────────
   bool get loading => _loading;
@@ -79,6 +81,17 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final response = await _authService.performLogin(email, password);
+      
+      if (response.status == AuthStatus.success) {
+        // Reset fail count on success
+        _loginFailCount = 0;
+        _lastFailedEmail = null;
+
+        // Log activity after successful direct login
+        final userEmail = response.user?['email'] ?? email;
+        _authService.logAppActivity('login', '[SIS-APP] User ($userEmail) logged in via SIS WDU App');
+      }
+
       _loading = false;
       notifyListeners();
       return response;
@@ -86,6 +99,22 @@ class AuthProvider extends ChangeNotifier {
       _errorMessage = e.toString();
       if (e is UnauthorizedException) {
         _errorMessage = 'Email atau password salah';
+        
+        // Track failed attempts
+        if (_lastFailedEmail == email) {
+          _loginFailCount++;
+        } else {
+          _lastFailedEmail = email;
+          _loginFailCount = 1;
+        }
+
+        // Log repeated failures (3 or more)
+        if (_loginFailCount >= 3) {
+          _authService.logAppActivity(
+            'login_failed', 
+            '[SIS-APP] Repeated login failure for ($email) - Attempt #$_loginFailCount'
+          );
+        }
       }
       _loading = false;
       notifyListeners();
@@ -101,6 +130,10 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final success = await _authService.verifyOtp(code);
+      if (success) {
+        final userEmail = _user?['email'] ?? 'Unknown';
+        _authService.logAppActivity('login', '[SIS-APP] User ($userEmail) logged in via SIS WDU App (OTP)');
+      }
       _loading = false;
       notifyListeners();
       return success;
@@ -160,8 +193,17 @@ class AuthProvider extends ChangeNotifier {
       final data = await _authService.confirm2FA(code);
       if (data != null && _user != null) {
         final updatedUser = Map<String, dynamic>.from(_user!);
-        updatedUser['email_2fa_enabled'] = data['email_2fa_enabled'];
+        final bool isEnabled = data['email_2fa_enabled'] ?? false;
+        updatedUser['email_2fa_enabled'] = isEnabled;
         _user = updatedUser;
+        
+        // Log 2FA toggle
+        final userEmail = _user?['email'] ?? 'Unknown';
+        final statusStr = isEnabled ? 'enabled' : 'disabled';
+        _authService.logAppActivity(
+          '2fa_toggle', 
+          '[SIS-APP] User ($userEmail) $statusStr 2FA (OTP)'
+        );
         
         _loading = false;
         notifyListeners();
@@ -180,6 +222,11 @@ class AuthProvider extends ChangeNotifier {
 
   // ── LOGOUT ────────────────────────────────────────────────
   Future<void> logout() async {
+    final userEmail = _user?['email'] ?? 'Unknown';
+    await _authService.logAppActivity(
+      'logout',
+      '[SIS-APP] User ($userEmail) logged out from SIS WDU App',
+    );
     await _authService.logout();
     notifyListeners();
   }
@@ -200,6 +247,14 @@ class AuthProvider extends ChangeNotifier {
         newPassword: newPassword,
         confirmPassword: confirmPassword,
       );
+
+      // Log success
+      final userEmail = _user?['email'] ?? 'Unknown';
+      _authService.logAppActivity(
+        'change_password', 
+        '[SIS-APP] User ($userEmail) successfully changed password'
+      );
+
       _loading = false;
       notifyListeners();
       return true;
@@ -211,6 +266,25 @@ class AuthProvider extends ChangeNotifier {
       _loading = false;
       notifyListeners();
       return false;
+    }
+  }
+
+  // ── SESSION LOGGING ───────────────────────────────────────
+  Future<void> checkSessionAndLog() async {
+    final hasToken = await _authService.isLoggedIn();
+    if (hasToken) {
+      debugPrint('[AuthProvider] Active session detected, logging app activity...');
+      
+      // Get user data first if not available to get the email
+      if (_user == null) {
+        await getUser();
+      }
+      
+      final userEmail = _user?['email'] ?? 'Unknown';
+      await _authService.logAppActivity(
+        'active_session',
+        '[SIS-APP] User ($userEmail) opened SIS WDU App with existing active session',
+      );
     }
   }
 }

@@ -15,7 +15,6 @@ class SubmissionPage extends StatefulWidget {
   final String surveySlug;
   final String clientSlug;
   final String projectSlug;
-  final Map<String, dynamic>? biodata;
   final String surveyTitle;
 
   const SubmissionPage({    
@@ -23,7 +22,6 @@ class SubmissionPage extends StatefulWidget {
     required this.surveySlug,
     required this.clientSlug,
     required this.projectSlug,
-    this.biodata,
     this.surveyTitle = '',
   });
 
@@ -155,7 +153,6 @@ class _SubmissionPageState extends State<SubmissionPage> {
     await StorageHelper.saveDraftSurvey(
       surveySlug: widget.surveySlug,
       answers: _answers.map((key, value) => MapEntry(key.toString(), value)),
-      biodata: widget.biodata ?? {},
       currentPageIndex: _currentPageIndex,
     );
   }
@@ -1473,10 +1470,6 @@ class _SubmissionPageState extends State<SubmissionPage> {
 
   Map<String, dynamic> _buildPayload() {
     final Map<String, dynamic> payload = {};
-
-    if (widget.biodata != null && widget.biodata!.isNotEmpty) {
-      payload['biodata'] = widget.biodata;
-    }
 
     payload['page'] = _data!.pages.map((page) {
       return {

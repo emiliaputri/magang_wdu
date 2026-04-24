@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../providers/monitoring_provider.dart';
 import '../../pages/lihat_monitor_page.dart';
 import '../../core/theme/app_theme.dart';
@@ -49,7 +50,7 @@ class ListResponWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Cards List
+        // Compact List
         if (_paged.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 32),
@@ -58,20 +59,43 @@ class ListResponWidget extends StatelessWidget {
                 'Belum ada data respon',
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppTheme.monTextMid,
+                  color: AppTheme.onSurfaceVariant,
                 ),
               ),
             ),
           )
         else
-          ..._paged.map(
-            (r) => _CardWidget(
-              response: r,
-              onDeleteResponse: onDeleteResponse,
-              onEditResponse: onEditResponse,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.1)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _paged.length,
+              separatorBuilder: (context, index) => Divider(
+                height: 1,
+                color: AppTheme.outlineVariant.withOpacity(0.05),
+                indent: 16,
+                endIndent: 16,
+              ),
+              itemBuilder: (context, index) => _ListItemWidget(
+                response: _paged[index],
+                onDeleteResponse: onDeleteResponse,
+                onEditResponse: onEditResponse,
+              ),
             ),
           ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         // Pagination
         Align(
           alignment: Alignment.center,
@@ -86,7 +110,7 @@ class ListResponWidget extends StatelessWidget {
   }
 }
 
-class _CardWidget extends StatelessWidget {
+class _ListItemWidget extends StatelessWidget {
   final Map<String, dynamic> response;
   final void Function(
     int responseId,
@@ -102,7 +126,7 @@ class _CardWidget extends StatelessWidget {
     Map<String, dynamic> responseData,
   )? onEditResponse;
 
-  const _CardWidget({
+  const _ListItemWidget({
     required this.response,
     this.onDeleteResponse,
     this.onEditResponse,
@@ -115,238 +139,154 @@ class _CardWidget extends StatelessWidget {
     final projectSlug = provider.projectSlug;
 
     final user = response['user'] as Map<String, dynamic>?;
-    final biodata = user?['biodata'] as Map<String, dynamic>?;
 
-    final waktu = _fmtDate(response['created_at'] ?? '');
+    final waktu = _fmtDate(response['updated_at'] ?? response['created_at'] ?? '');
     final nama = user?['name'] ?? '-';
     final token = user?['email'] ?? '';
-    final provinsi = _provinsi(biodata);
-    final role = _role(user);
 
     final responseId = int.tryParse((response['id'] ?? response['response_id'] ?? 0).toString()) ?? 0;
+    final identity = token.isNotEmpty ? token : nama;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.monBorderColor.withOpacity(0.5)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            settings: RouteSettings(
+              name: '/lihat_monitor',
+              arguments: {
+                'surveySlug': provider.surveySlug,
+                'clientSlug': clientSlug,
+                'projectSlug': projectSlug,
+                'responseId': responseId,
+              },
+            ),
+            builder: (_) => LihatMonitorPage(
+              responseId: responseId,
+              surveySlug: provider.surveySlug,
+              clientSlug: clientSlug,
+              projectSlug: projectSlug,
+            ),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'SOURCE & TIME',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.monTextMid,
-                        letterSpacing: 1.2,
-                        fontFamily: 'Inter',
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      token.isNotEmpty ? token : nama,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.monTextDark,
-                        fontFamily: 'Inter',
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      waktu,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppTheme.monTextMid,
-                        fontFamily: 'Inter',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            // Left Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _StatusBadge(status: _getModerationStatus(response)),
-                  const SizedBox(height: 12),
+                  Text(
+                    'Response #$responseId',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
                   Row(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (onEditResponse != null)
-                        IconButton(
-                          icon: const Icon(Icons.edit_outlined, size: 18, color: AppTheme.ijoGelap),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          onPressed: () => onEditResponse!(
-                            responseId,
-                            provider.surveySlug,
-                            clientSlug,
-                            projectSlug,
-                            response,
+                      Text(
+                        waktu,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: AppTheme.onSurfaceVariant.withOpacity(0.6),
+                        ),
+                      ),
+                      if (identity.isNotEmpty && identity != '-') ...[
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            identity,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: AppTheme.primary,
+                            ),
                           ),
                         ),
-                      if (onEditResponse != null && onDeleteResponse != null) const SizedBox(width: 8),
-                      if (onDeleteResponse != null)
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline, size: 18, color: AppTheme.error),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (ctx) => AlertDialog(
-                                title: const Text('Hapus Data'),
-                                content: const Text('Apakah Anda yakin ingin menghapus data ini?'),
-                                actions: [
-                                  TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(ctx);
-                                      onDeleteResponse!(responseId, provider.surveySlug, clientSlug, projectSlug);
-                                    },
-                                    child: const Text('Hapus', style: TextStyle(color: Colors.red)),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
+                      ],
                     ],
                   ),
                 ],
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Divider Replacement (border-y)
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: AppTheme.monBorderColor.withOpacity(0.5)),
-                bottom: BorderSide(color: AppTheme.monBorderColor.withOpacity(0.5)),
-              ),
             ),
-            child: Row(
+            const SizedBox(width: 12),
+            // Status & Actions
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'PROVINCE',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppTheme.monTextMid, letterSpacing: 1.2),
+                _StatusBadge(status: _getModerationStatus(response)),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (onEditResponse != null)
+                      _miniAction(
+                        icon: Icons.edit_outlined,
+                        color: AppTheme.primary,
+                        onTap: () => onEditResponse!(
+                          responseId,
+                          provider.surveySlug,
+                          clientSlug,
+                          projectSlug,
+                          response,
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on, size: 18, color: AppTheme.monGreenMid),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              provinsi,
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.monTextDark),
+                    if (onEditResponse != null && onDeleteResponse != null) const SizedBox(width: 8),
+                    if (onDeleteResponse != null)
+                      _miniAction(
+                        icon: Icons.delete_outline_rounded,
+                        color: AppTheme.error,
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('Hapus Data'),
+                              content: const Text('Apakah Anda yakin ingin menghapus data ini?'),
+                              actions: [
+                                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(ctx);
+                                    onDeleteResponse!(responseId, provider.surveySlug, clientSlug, projectSlug);
+                                  },
+                                  child: const Text('Hapus', style: TextStyle(color: Colors.red)),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'ROLE',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppTheme.monTextMid, letterSpacing: 1.2),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(Icons.person, size: 18, color: AppTheme.monGreenMid),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              role,
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.monTextDark),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 16),
-          // Full width button
-          SizedBox(
-            width: double.infinity,
-            child: InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    settings: RouteSettings(
-                      name: '/lihat_monitor',
-                      arguments: {
-                        'surveySlug': provider.surveySlug,
-                        'clientSlug': clientSlug,
-                        'projectSlug': projectSlug,
-                        'responseId': responseId,
-                      },
-                    ),
-                    builder: (_) => LihatMonitorPage(
-                      responseId: responseId,
-                      surveySlug: provider.surveySlug,
-                      clientSlug: clientSlug,
-                      projectSlug: projectSlug,
-                    ),
-                  ),
-                );
-              },
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                decoration: BoxDecoration(
-                  color: AppTheme.monBgColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                alignment: Alignment.center,
-                child: const Text(
-                  'View Details',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.ijoGelap,
-                    fontFamily: 'Manrope',
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _miniAction({required IconData icon, required Color color, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, size: 16, color: color),
       ),
     );
   }
@@ -401,33 +341,10 @@ class _CardWidget extends StatelessWidget {
         '', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
         'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
       ];
-      return '${dt.day.toString().padLeft(2, '0')} ${m[dt.month]} ${dt.year} • '
-          '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')} WIB';
+      return '${dt.day.toString().padLeft(2, '0')} ${m[dt.month]} ${dt.year} '
+          '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
     } catch (_) {
       return raw;
-    }
-  }
-
-  String _provinsi(Map<String, dynamic>? b) {
-    if (b == null) return 'Tidak ada';
-    final name = b['province_name'];
-    if (name != null && name.toString().isNotEmpty) return name.toString();
-    final id = b['province_id'];
-    if (id == null) return 'Tidak ada';
-    return 'Prov. $id';
-  }
-
-  String _role(Map<String, dynamic>? u) {
-    if (u == null) return 'Lainnya';
-    switch ((u['usertype'] as String? ?? '').toLowerCase()) {
-      case 'superadmin':
-        return 'S.Admin';
-      case 'admin':
-        return 'Admin';
-      case 'enumerator':
-        return 'Enum.';
-      default:
-        return 'Lainnya';
     }
   }
 }
@@ -446,59 +363,47 @@ class _StatusBadge extends StatelessWidget {
       s = 'PENDING';
     }
 
-    Color bgColor = const Color(0xFFFFFBEB); // Amber-50
-    Color textColor = const Color(0xFFB45309); // Amber-800
-    Color borderColor = const Color(0xFFFEF3C7); // Amber-200
-    Color dotColor = const Color(0xFFF59E0B); // Amber-500
-
+    Color color = const Color(0xFFF59E0B); // Pending (Amber)
     if (s.contains('REVISION')) {
       s = 'REVISION';
-      bgColor = const Color(0xFFFEF2F2); // Red-50
-      textColor = const Color(0xFFB91C1C); // Red-700
-      borderColor = const Color(0xFFFEE2E2); // Red-100
-      dotColor = const Color(0xFFEF4444); // Red-500
+      color = const Color(0xFFEF4444); // Revision (Red)
     } else if (s.contains('APPROVE') || s.contains('ACCEPTED')) {
       s = 'ACCEPTED';
-      bgColor = const Color(0xFFECFDF5); // Emerald-50
-      textColor = const Color(0xFF065F46); // Emerald-800
-      borderColor = const Color(0xFFD1FAE5); // Emerald-200
-      dotColor = const Color(0xFF10B981); // Emerald-500
+      color = const Color(0xFF10B981); // Approved (Emerald)
     } else if (s.contains('DECLINE')) {
       s = 'DECLINE';
-      bgColor = const Color(0xFFFFF1F1); // Rose-50
-      textColor = const Color(0xFF991B1B); // Rose-800
-      borderColor = const Color(0xFFFFE4E6); // Rose-200
-      dotColor = const Color(0xFFE11D48); // Rose-500
+      color = const Color(0xFF6366F1); // Declined (Indigo)
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(
-        color: bgColor,
+        color: color.withOpacity(0.08),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: color.withOpacity(0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 6,
-            height: 6,
+            width: 4,
+            height: 4,
             decoration: BoxDecoration(
-              color: dotColor,
+              color: color,
               shape: BoxShape.circle,
             ),
           ),
           const SizedBox(width: 6),
           Text(
             s,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: textColor,
+            style: GoogleFonts.inter(
+              fontSize: 9,
+              fontWeight: FontWeight.w900,
+              color: color,
               letterSpacing: 0.5,
-              fontFamily: 'Inter',
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -529,44 +434,48 @@ class _Pagination extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      _PBtn(
-        child: const Icon(Icons.chevron_left, size: 20, color: AppTheme.monTextMid),
-        onTap: currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
-      ),
-      const SizedBox(width: 8),
-      ..._pages.map((p) {
-        if (p == -1) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4),
-            child: Text('...', style: TextStyle(fontSize: 12, color: AppTheme.monTextMid)),
-          );
-        }
-        final active = p == currentPage;
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: _PBtn(
-            isActive: active,
-            onTap: () => onPageChanged(p),
-            child: Text(
-              '$p',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: active ? FontWeight.bold : FontWeight.w500,
-                color: active ? Colors.white : AppTheme.monTextDark,
+  Widget build(BuildContext context) => SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    physics: const BouncingScrollPhysics(),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _PBtn(
+          child: const Icon(Icons.chevron_left, size: 20, color: AppTheme.onSurfaceVariant),
+          onTap: currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
+        ),
+        const SizedBox(width: 8),
+        ..._pages.map((p) {
+          if (p == -1) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4),
+              child: Text('...', style: TextStyle(fontSize: 12, color: AppTheme.onSurfaceVariant)),
+            );
+          }
+          final active = p == currentPage;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: _PBtn(
+              isActive: active,
+              onTap: () => onPageChanged(p),
+              child: Text(
+                '$p',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: active ? FontWeight.bold : FontWeight.w500,
+                  color: active ? Colors.white : AppTheme.onSurface,
+                ),
               ),
             ),
-          ),
-        );
-      }),
-      const SizedBox(width: 8),
-      _PBtn(
-        child: const Icon(Icons.chevron_right, size: 20, color: AppTheme.monTextMid),
-        onTap: currentPage < totalPages ? () => onPageChanged(currentPage + 1) : null,
-      ),
-    ],
+          );
+        }),
+        const SizedBox(width: 8),
+        _PBtn(
+          child: const Icon(Icons.chevron_right, size: 20, color: AppTheme.onSurfaceVariant),
+          onTap: currentPage < totalPages ? () => onPageChanged(currentPage + 1) : null,
+        ),
+      ],
+    ),
   );
 }
 
@@ -581,11 +490,12 @@ class _PBtn extends StatelessWidget {
     onTap: onTap,
     child: AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      width: 40,
-      height: 40,
+      width: 36,
+      height: 36,
       decoration: BoxDecoration(
         color: isActive ? AppTheme.ijoGelap : Colors.white,
         shape: BoxShape.circle,
+        border: isActive ? null : Border.all(color: AppTheme.outlineVariant.withOpacity(0.1)),
         boxShadow: isActive ? [BoxShadow(color: AppTheme.ijoGelap.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))] : null,
       ),
       child: Center(child: child),

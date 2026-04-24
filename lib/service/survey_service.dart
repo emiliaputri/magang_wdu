@@ -94,18 +94,15 @@ class SurveyService {
         '_t': DateTime.now().millisecondsSinceEpoch.toString(),
       };
 
+      // Fetch survey structure and individual response in parallel
       final results = await Future.wait([
         _api.get(
-          Endpoints.surveyReport(
-            clientSlug,
-            projectSlug,
-            surveySlug,
-            responseId,
-          ),
+          Endpoints.surveyReport(clientSlug, projectSlug, surveySlug, responseId),
           queryParams: cacheBuster,
         ),
         _api.get(
           Endpoints.surveyAllReport(clientSlug, projectSlug, surveySlug),
+          queryParams: cacheBuster,
         ),
       ]);
 
@@ -114,11 +111,43 @@ class SurveyService {
 
       if (reportData == null && allReportData == null) return null;
 
-      final Map<String, dynamic> combined = {};
+      // Create a fresh map for this specific responseId
+      final Map<String, dynamic> combined = <String, dynamic>{};
 
+      // 1. Populate with structural data (questions/pages) from all-report
+      if (allReportData != null) {
+        final actualData = allReportData['data'] ?? allReportData;
+        if (actualData is Map<String, dynamic>) {
+          // Identify structural data
+          if (actualData.containsKey('page')) {
+            combined['detail_pages'] = actualData['page'];
+          } else if (actualData.containsKey('pages')) {
+            combined['detail_pages'] = actualData['pages'];
+          } 
+          
+          if (actualData.containsKey('question')) {
+            combined['detail_questions'] = actualData['question'];
+          } else if (actualData.containsKey('questions')) {
+            combined['detail_questions'] = actualData['questions'];
+          }
+
+          if (actualData.containsKey('surveys')) {
+            final sData = actualData['surveys'];
+            if (sData is Map) {
+              combined['detail_pages'] ??= sData['page'] ?? sData['pages'];
+              combined['detail_questions'] ??= sData['questions'] ?? sData['question'];
+              combined['surveys'] = sData; // Original survey info
+            }
+          }
+        }
+      }
+
+      // 2. Overlay with specific response data (answers/metadata)
+      // This will overwrite overlapping keys like 'id' or 'created_at' with response-specific values
       if (reportData != null) {
         combined.addAll(reportData);
-        // Ensure pages don't block from all-report
+        
+        // Ensure that empty pages/page from reportData don't wipe out structural data
         if (combined['pages'] is List && (combined['pages'] as List).isEmpty) {
           combined.remove('pages');
         }
@@ -127,39 +156,12 @@ class SurveyService {
         }
       }
 
-      if (allReportData != null) {
-        final actualData = allReportData['data'] ?? allReportData;
-        if (actualData is Map<String, dynamic>) {
-          if (actualData.containsKey('page')) {
-            combined['detail_pages'] = actualData['page'];
-          } else if (actualData.containsKey('pages')) {
-            combined['detail_pages'] = actualData['pages'];
-          } else if (actualData.containsKey('surveys')) {
-            final sData = actualData['surveys'];
-            if (sData is Map) {
-              combined['detail_pages'] =
-                  sData['page'] ?? sData['pages'] ?? sData['questions'];
-            }
-          }
-        }
-      }
+      // Force responseId to ensure we are looking at the right data
+      combined['response_id'] = responseId;
 
       return SurveyResponseDetail.fromJson(combined);
     } catch (e, st) {
-      debugPrint('Error getFullSurveyDetail: $e');
-      debugPrint('Stack: $st');
-      // Debug: print raw response
-      try {
-        final rawReport = await _api.get(
-          Endpoints.surveyReport(
-            clientSlug,
-            projectSlug,
-            surveySlug,
-            responseId,
-          ),
-        );
-        debugPrint('Raw report response: ${rawReport.data}');
-      } catch (_) {}
+      debugPrint('[SurveyService] Error getFullSurveyDetail: $e');
       return null;
     }
   }
