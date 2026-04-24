@@ -291,14 +291,21 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
             ),
           ),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _statusItem('Pending', provider.pendingCount, const Color(0xFFF59E0B)),
-              _statusItem('Revision', provider.revisionCount, const Color(0xFFEF4444)),
-              _statusItem('Approved', provider.approvedCount, const Color(0xFF10B981)),
-              _statusItem('Declined', provider.declinedCount, const Color(0xFF6366F1)),
-            ],
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _statusItem('Pending', provider.pendingCount, const Color(0xFFF59E0B)),
+                const SizedBox(width: 8),
+                _statusItem('Revision', provider.revisionCount, const Color(0xFFEF4444)),
+                const SizedBox(width: 8),
+                _statusItem('Approved', provider.approvedCount, const Color(0xFF10B981)),
+                const SizedBox(width: 8),
+                _statusItem('Declined', provider.declinedCount, const Color(0xFF6366F1)),
+              ],
+            ),
           ),
         ],
       ),
@@ -306,7 +313,8 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
   }
 
   Widget _statusItem(String label, int count, Color color) {
-    return Expanded(
+    return Container(
+      constraints: const BoxConstraints(minWidth: 80),
       child: Column(
         children: [
           Text(
@@ -325,6 +333,8 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
               fontWeight: FontWeight.w500,
               color: AppTheme.onSurfaceVariant.withOpacity(0.7),
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

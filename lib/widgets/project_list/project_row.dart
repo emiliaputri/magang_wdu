@@ -33,9 +33,9 @@ class ProjectRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildIndex(),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
           Expanded(
-            flex: 5,
+            flex: 3,
             child: Text(
               project.projectName,
               style: const TextStyle(
@@ -44,28 +44,26 @@ class ProjectRow extends StatelessWidget {
                 color: AppTheme.textDark,
                 height: 1.4,
               ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
+          const SizedBox(width: 8),
           Expanded(
-            flex: 5,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: Text(
-                project.desc ?? '-',
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppTheme.textGrey,
-                  height: 1.4,
-                ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
+            flex: 4,
+            child: Text(
+              project.desc ?? '-',
+              style: const TextStyle(
+                fontSize: 11,
+                color: AppTheme.textGrey,
+                height: 1.4,
               ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          SizedBox(
-            width: 80,
-            child: Center(child: _buildSurveysButton(context)),
-          ),
+          const SizedBox(width: 12),
+          _buildSurveysButton(context),
         ],
       ),
     );
@@ -98,19 +96,23 @@ class ProjectRow extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
         onTap: () => _navigateToSurveys(context),
-        child: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.list_alt_outlined, size: 13, color: AppTheme.green),
-              SizedBox(width: 4),
-              Text(
-                'Surveys',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.green,
+              const Icon(Icons.list_alt_outlined, size: 14, color: AppTheme.green),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  'Surveys',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.green,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],

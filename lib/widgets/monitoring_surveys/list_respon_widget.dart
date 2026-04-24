@@ -402,6 +402,8 @@ class _StatusBadge extends StatelessWidget {
               color: color,
               letterSpacing: 0.5,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -432,44 +434,48 @@ class _Pagination extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      _PBtn(
-        child: const Icon(Icons.chevron_left, size: 20, color: AppTheme.onSurfaceVariant),
-        onTap: currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
-      ),
-      const SizedBox(width: 8),
-      ..._pages.map((p) {
-        if (p == -1) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4),
-            child: Text('...', style: TextStyle(fontSize: 12, color: AppTheme.onSurfaceVariant)),
-          );
-        }
-        final active = p == currentPage;
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: _PBtn(
-            isActive: active,
-            onTap: () => onPageChanged(p),
-            child: Text(
-              '$p',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: active ? FontWeight.bold : FontWeight.w500,
-                color: active ? Colors.white : AppTheme.onSurface,
+  Widget build(BuildContext context) => SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    physics: const BouncingScrollPhysics(),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _PBtn(
+          child: const Icon(Icons.chevron_left, size: 20, color: AppTheme.onSurfaceVariant),
+          onTap: currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
+        ),
+        const SizedBox(width: 8),
+        ..._pages.map((p) {
+          if (p == -1) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4),
+              child: Text('...', style: TextStyle(fontSize: 12, color: AppTheme.onSurfaceVariant)),
+            );
+          }
+          final active = p == currentPage;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: _PBtn(
+              isActive: active,
+              onTap: () => onPageChanged(p),
+              child: Text(
+                '$p',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: active ? FontWeight.bold : FontWeight.w500,
+                  color: active ? Colors.white : AppTheme.onSurface,
+                ),
               ),
             ),
-          ),
-        );
-      }),
-      const SizedBox(width: 8),
-      _PBtn(
-        child: const Icon(Icons.chevron_right, size: 20, color: AppTheme.onSurfaceVariant),
-        onTap: currentPage < totalPages ? () => onPageChanged(currentPage + 1) : null,
-      ),
-    ],
+          );
+        }),
+        const SizedBox(width: 8),
+        _PBtn(
+          child: const Icon(Icons.chevron_right, size: 20, color: AppTheme.onSurfaceVariant),
+          onTap: currentPage < totalPages ? () => onPageChanged(currentPage + 1) : null,
+        ),
+      ],
+    ),
   );
 }
 

@@ -9,7 +9,7 @@ class Endpoints {
     // Untuk HP Fisik: Gunakan IP Komputer (misal 192.168.x.x)
     // Untuk Emulator: Gunakan 10.0.2.2
     // default ke produksi jika tidak ada env
-    return 'https://sis.wahanadata.co.id/api';
+    return 'http://localhost:8000/api';
   }
 
   static String get storageUrl {
@@ -34,6 +34,11 @@ class Endpoints {
 
   // POST /api/logs/app-activity
   static const String logAppActivity = '/logs/app-activity';
+
+  // ── NOTIFICATIONS ─────────────────────────────────────────
+  static const String notifications = '/notifications';
+  static String markNotificationRead(String id) => '/notifications/$id/read';
+  static const String markAllNotificationsRead = '/notifications/read-all';
 
   // ── CLIENT ────────────────────────────────────────────────
   // GET /api/clients

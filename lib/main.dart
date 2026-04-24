@@ -10,8 +10,6 @@ import 'pages/cek_edit_monitor.dart';
 import 'pages/cek_edit_survey_page.dart';
 import 'pages/province_target_page.dart';
 import 'pages/project_page.dart';
-import 'pages/detail_responden_bpk_page.dart';
-import 'pages/detail_responden_transjakarta_page.dart';
 import 'pages/submission_page.dart';
 import 'pages/biodata_page.dart';
 import 'pages/camera_capture_page.dart';
@@ -97,7 +95,11 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()..checkSessionAndLog()),
         ChangeNotifierProvider(create: (_) => SurveyProvider()),
-        ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) {
+          final provider = NotificationProvider();
+          debugPrint('[Main] NotificationProvider created');
+          return provider;
+        }),
         ChangeNotifierProvider(create: (_) => FontSizeProvider()),
       ],
       child: Consumer<FontSizeProvider>(
@@ -223,18 +225,6 @@ class MyApp extends StatelessWidget {
                   arguments: safeArgs,
                 ),
                 builder: (_) => ProjectListPage(client: client),
-              );
-
-            case '/detail_responden_bpk':
-              return MaterialPageRoute(
-                settings: const RouteSettings(name: '/detail_responden_bpk'),
-                builder: (_) => const DetailRespondenSurveyBpkPage(),
-              );
-
-            case '/detail_responden_tj':
-              return MaterialPageRoute(
-                settings: const RouteSettings(name: '/detail_responden_tj'),
-                builder: (_) => const DetailRespondenSurveyTransjakartaPage(),
               );
 
             case '/submission':

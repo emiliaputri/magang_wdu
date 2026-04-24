@@ -274,7 +274,7 @@ class ApiClient {
     } catch (e, st) {
       AppLogger.error(
         'Unexpected error pada GET $endpoint',
-        error: e,
+        error: 'Type: ${e.runtimeType}, Message: $e',
         stackTrace: st,
         category: 'API',
       );

@@ -216,23 +216,38 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
 
     return SliverPadding(
       padding: const EdgeInsets.all(20),
-      sliver: SliverGrid(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: isDesktop ? 2 : 1,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          mainAxisExtent: 180,
-        ),
-        delegate: SliverChildBuilderDelegate((context, index) {
-          final survey = filtered[index];
-          return SurveyBentoCard(
-            survey: survey,
-            clientSlug: widget.clientSlug,
-            projectSlug: widget.projectSlug,
-            hasAnswered: provider.hasUserAnswered(survey.slug),
-          );
-        }, childCount: filtered.length),
-      ),
+      sliver: isDesktop
+          ? SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                mainAxisExtent: 220,
+              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final survey = filtered[index];
+                return SurveyBentoCard(
+                  survey: survey,
+                  clientSlug: widget.clientSlug,
+                  projectSlug: widget.projectSlug,
+                  hasAnswered: provider.hasUserAnswered(survey.slug),
+                );
+              }, childCount: filtered.length),
+            )
+          : SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final survey = filtered[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: SurveyBentoCard(
+                    survey: survey,
+                    clientSlug: widget.clientSlug,
+                    projectSlug: widget.projectSlug,
+                    hasAnswered: provider.hasUserAnswered(survey.slug),
+                  ),
+                );
+              }, childCount: filtered.length),
+            ),
     );
   }
 
@@ -388,16 +403,7 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
   }
 
   Widget _buildFallbackLogo() {
-    String nameLower = widget.clientName.toLowerCase();
-    if (nameLower.contains('transjakarta') ||
-        nameLower.contains('trans jakarta')) {
-      return Image.asset('assets/images/logo_trans.jpeg', fit: BoxFit.contain);
-    } else if (nameLower.contains('bpk') ||
-        nameLower.contains('badan pemeriksa keuangan')) {
-      return Image.asset('assets/images/logo_bpk.png', fit: BoxFit.contain);
-    } else {
-      return _defaultLogoIcon(widget.clientName);
-    }
+    return _defaultLogoIcon(widget.clientName);
   }
 
   Widget _defaultLogoIcon(String name) {
@@ -437,22 +443,6 @@ class _SurveyBpkPageState extends State<SurveyBpkPage> {
   }
 
   String _clientDescription(String name) {
-    String nameLower = name.toLowerCase();
-    if (nameLower.contains('bpk') || nameLower.contains('badan pemeriksa')) {
-      return 'Badan Pemeriksa Keuangan (BPK) adalah lembaga negara yang bebas dan mandiri, bertugas memeriksa pengelolaan dan tanggung jawab keuangan negara, berdasarkan UUD 1945 dan UU terkait. BPK berperan memastikan transparansi dan akuntabilitas publik.';
-    }
-    if (nameLower.contains('indeks masyarakat digital') ||
-        nameLower.contains('imdi')) {
-      return 'Indeks Masyarakat Digital Indonesia (IMDI) adalah alat ukur komprehensif untuk memetakan tingkat literasi dan kompetensi digital masyarakat di tingkat Kabupaten/Kota. Data IMDI digunakan untuk mendukung perumusan kebijakan pengembangan SDM digital yang tepat sasaran.';
-    }
-    if (nameLower.contains('kementerian komunikasi') ||
-        nameLower.contains('komunikasi dan digital') ||
-        nameLower.contains('kominfo')) {
-      return 'Kementerian Komunikasi dan Digital (dahulu Kemkominfo) bertanggung jawab atas urusan komunikasi dan informatika di Indonesia. Lembaga ini memastikan ketersediaan infrastruktur digital, tata kelola informasi, serta percepatan transformasi digital nasional.';
-    }
-    if (nameLower.contains('logo tes')) {
-      return 'Profil klien ini digunakan untuk keperluan pengujian sistem, validasi tampilan kuesioner, serta pemastian integrasi logo klien dari server backend Wahana Data Utama (WDU).';
-    }
     return name;
   }
 }
