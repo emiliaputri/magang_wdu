@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../pages/monitor_survey_page.dart';
 import '../../pages/province_target_page.dart';
-import '../../pages/biodata_page.dart';
+import '../../pages/camera_capture_page.dart';
 import '../../models/survey_model.dart';
 
 class ViewSurveyCard extends StatelessWidget {
@@ -193,20 +193,33 @@ class ViewSurveyCard extends StatelessWidget {
                     label: 'Isi Kuesioner',
                     color: AppTheme.primary,
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => BiodataPage(
-                            surveySlug: survey.slug,
-                            clientSlug: clientSlug,
-                            projectSlug: projectSlug,
+                      if (survey.isCameraEnabled) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CameraCapturePage(
+                              surveySlug: survey.slug,
+                              clientSlug: clientSlug,
+                              projectSlug: projectSlug,
+                              surveyTitle: survey.title,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      } else {
+                        Navigator.pushNamed(
+                          context,
+                          '/submission',
+                          arguments: {
+                            'surveySlug': survey.slug,
+                            'clientSlug': clientSlug,
+                            'projectSlug': projectSlug,
+                            'surveyTitle': survey.title,
+                          },
+                        );
+                      }
                     },
                   ),
-                ),
-                const SizedBox(width: 8), // 🔥 dari 24 → 8
+                ), // 🔥 dari 24 → 8
                 Expanded(
                   child: _ActionBtn(
                     label: 'Monitor',

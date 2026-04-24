@@ -20,7 +20,7 @@ class CameraCapturePage extends StatefulWidget {
     required this.surveySlug,
     required this.clientSlug,
     required this.projectSlug,
-    required this.biodata,
+    this.biodata,
     required this.surveyTitle,
   });
 

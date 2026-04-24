@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/survey_model.dart';
 import '../../pages/monitor_survey_page.dart';
-import '../../pages/biodata_page.dart';
 import '../../pages/submission_page.dart';
+import '../../pages/camera_capture_page.dart';
 
 class SurveyBentoCard extends StatelessWidget {
   final SurveyModel survey;
@@ -224,16 +224,30 @@ class SurveyBentoCard extends StatelessWidget {
                               colors: [AppTheme.ijoGelap, AppTheme.ijoTerang],
                             ),
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => BiodataPage(
-                                    surveySlug: survey.slug,
-                                    clientSlug: clientSlug,
-                                    projectSlug: projectSlug,
+                              if (survey.isCameraEnabled) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => CameraCapturePage(
+                                      surveySlug: survey.slug,
+                                      clientSlug: clientSlug,
+                                      projectSlug: projectSlug,
+                                      surveyTitle: survey.title,
+                                    ),
                                   ),
-                                ),
-                              );
+                                );
+                              } else {
+                                Navigator.pushNamed(
+                                  context,
+                                  '/submission',
+                                  arguments: {
+                                    'surveySlug': survey.slug,
+                                    'clientSlug': clientSlug,
+                                    'projectSlug': projectSlug,
+                                    'surveyTitle': survey.title,
+                                  },
+                                );
+                              }
                             },
                           ),
                           const SizedBox(height: 8),
@@ -273,16 +287,30 @@ class SurveyBentoCard extends StatelessWidget {
                               colors: [AppTheme.ijoGelap, AppTheme.ijoTerang],
                             ),
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => BiodataPage(
-                                    surveySlug: survey.slug,
-                                    clientSlug: clientSlug,
-                                    projectSlug: projectSlug,
+                              if (survey.isCameraEnabled) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => CameraCapturePage(
+                                      surveySlug: survey.slug,
+                                      clientSlug: clientSlug,
+                                      projectSlug: projectSlug,
+                                      surveyTitle: survey.title,
+                                    ),
                                   ),
-                                ),
-                              );
+                                );
+                              } else {
+                                Navigator.pushNamed(
+                                  context,
+                                  '/submission',
+                                  arguments: {
+                                    'surveySlug': survey.slug,
+                                    'clientSlug': clientSlug,
+                                    'projectSlug': projectSlug,
+                                    'surveyTitle': survey.title,
+                                  },
+                                );
+                              }
                             },
                           ),
                         ),

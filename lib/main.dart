@@ -11,7 +11,6 @@ import 'pages/cek_edit_survey_page.dart';
 import 'pages/province_target_page.dart';
 import 'pages/project_page.dart';
 import 'pages/submission_page.dart';
-import 'pages/biodata_page.dart';
 import 'pages/camera_capture_page.dart';
 import 'providers/auth_provider.dart';
 import 'providers/survey_provider.dart';
@@ -229,13 +228,6 @@ class MyApp extends StatelessWidget {
 
             case '/submission':
               final safeArgs = args ?? {};
-              final provinceTargetsRaw =
-                  safeArgs['provinceTargets'] as List? ?? [];
-              final provinceTargets = provinceTargetsRaw
-                  .map(
-                    (p) => ProvinceTarget.fromJson(p as Map<String, dynamic>),
-                  )
-                  .toList();
               return MaterialPageRoute(
                 settings: RouteSettings(
                   name: '/submission',
@@ -245,19 +237,7 @@ class MyApp extends StatelessWidget {
                   surveySlug: (safeArgs['surveySlug'] ?? '').toString(),
                   clientSlug: safeArgs['clientSlug'] ?? '',
                   projectSlug: safeArgs['projectSlug'] ?? '',
-                  biodata: safeArgs['biodata'] as Map<String, dynamic>?,
                   surveyTitle: safeArgs['surveyTitle'] ?? '',
-                ),
-              );
-
-            case '/biodata':
-              final safeArgs = args ?? {};
-              return MaterialPageRoute(
-                settings: RouteSettings(name: '/biodata', arguments: safeArgs),
-                builder: (_) => BiodataPage(
-                  surveySlug: (safeArgs['surveySlug'] ?? '').toString(),
-                  clientSlug: safeArgs['clientSlug'] ?? '',
-                  projectSlug: safeArgs['projectSlug'] ?? '',
                 ),
               );
 
@@ -272,7 +252,6 @@ class MyApp extends StatelessWidget {
                   surveySlug: (safeArgs['surveySlug'] ?? '').toString(),
                   clientSlug: safeArgs['clientSlug'] ?? '',
                   projectSlug: safeArgs['projectSlug'] ?? '',
-                  biodata: safeArgs['biodata'] as Map<String, dynamic>?,
                   surveyTitle: safeArgs['surveyTitle'] ?? '',
                 ),
               );
