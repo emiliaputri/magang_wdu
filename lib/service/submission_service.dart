@@ -213,14 +213,28 @@ class SurveyInfo {
   });
 
   factory SurveyInfo.fromJson(Map<String, dynamic> json) {
-    bool biodataEnabled = true;
-    if (json.containsKey('survey_settings') && json['survey_settings'] != null) {
-      final settings = json['survey_settings'] as Map<String, dynamic>;
-      if (settings.containsKey('is_biodata_enabled')) {
-         biodataEnabled = settings['is_biodata_enabled'] == 1 || settings['is_biodata_enabled'] == true || settings['is_biodata_enabled'] == '1';
+    bool cameraEnabled = true;
+    final settingsMap = json['setting'] ?? json['survey_settings'];
+
+    if (kDebugMode) {
+      final keys = (settingsMap is Map) ? settingsMap.keys.toList() : 'not a map';
+      print('SurveyInfo DEBUG [${json['title']}]: settingsMap type = ${settingsMap.runtimeType}, keys = $keys');
+    }
+
+    if (settingsMap != null && settingsMap is Map<String, dynamic>) {
+      if (settingsMap.containsKey('is_camera_enabled')) {
+         cameraEnabled = settingsMap['is_camera_enabled'] == 1 || 
+                         settingsMap['is_camera_enabled'] == true || 
+                         settingsMap['is_camera_enabled'] == '1';
       }
-    } else if (json.containsKey('is_biodata_enabled')) {
-      biodataEnabled = json['is_biodata_enabled'] == 1 || json['is_biodata_enabled'] == true || json['is_biodata_enabled'] == '1';
+    } else if (json.containsKey('is_camera_enabled')) {
+      cameraEnabled = json['is_camera_enabled'] == 1 || 
+                      json['is_camera_enabled'] == true || 
+                      json['is_camera_enabled'] == '1';
+    }
+
+    if (kDebugMode) {
+      print('SurveyInfo DEBUG [${json['title']}]: cameraEnabled final = $cameraEnabled');
     }
 
     return SurveyInfo(
