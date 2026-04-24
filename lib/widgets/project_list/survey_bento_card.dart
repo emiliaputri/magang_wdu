@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/survey_model.dart';
 import '../../pages/monitor_survey_page.dart';
-import '../../pages/biodata_page.dart';
+import '../../pages/camera_capture_page.dart';
 import '../../pages/submission_page.dart';
 
 class SurveyBentoCard extends StatelessWidget {
@@ -227,10 +227,12 @@ class SurveyBentoCard extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => BiodataPage(
+                                  builder: (_) => CameraCapturePage(
                                     surveySlug: survey.slug,
                                     clientSlug: clientSlug,
                                     projectSlug: projectSlug,
+                                    surveyTitle: survey.title,
+                                    biodata: const {},
                                   ),
                                 ),
                               );
@@ -276,10 +278,12 @@ class SurveyBentoCard extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => BiodataPage(
+                                  builder: (_) => CameraCapturePage(
                                     surveySlug: survey.slug,
                                     clientSlug: clientSlug,
                                     projectSlug: projectSlug,
+                                    surveyTitle: survey.title,
+                                    biodata: const {},
                                   ),
                                 ),
                               );

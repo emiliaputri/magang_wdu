@@ -279,12 +279,10 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
 
   Widget _buildSimpleRespondentInfo() {
     final location = _detail?.location;
-    final biodata = _detail?.biodata;
-    
-    final latRaw = biodata?['latitude'] ?? location?['latitude'];
-    final lngRaw = biodata?['longitude'] ?? location?['longitude'];
-    final coords = (latRaw != null && lngRaw != null) ? "$latRaw, $lngRaw" : "-";
 
+    final latRaw = location?['latitude'];
+    final lngRaw = location?['longitude'];
+    final coords = (latRaw != null && lngRaw != null) ? "$latRaw, $lngRaw" : "-";
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(

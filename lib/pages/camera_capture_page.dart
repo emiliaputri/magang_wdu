@@ -12,7 +12,6 @@ class CameraCapturePage extends StatefulWidget {
   final String surveySlug;
   final String clientSlug;
   final String projectSlug;
-  final Map<String, dynamic>? biodata;
   final String surveyTitle;
 
   const CameraCapturePage({
@@ -20,7 +19,6 @@ class CameraCapturePage extends StatefulWidget {
     required this.surveySlug,
     required this.clientSlug,
     required this.projectSlug,
-    required this.biodata,
     required this.surveyTitle,
   });
 
@@ -129,20 +127,19 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
   }
 
   Future<void> _lanjutkan() async {
-    final biodata =
-        Map<String, dynamic>.from(widget.biodata ?? {});
+    final metadata = <String, dynamic>{};
 
     if (_imageFile != null) {
-      biodata['photo_path'] = _imageFile!.path;
+      metadata['photo_path'] = _imageFile!.path;
     }
 
     if (_position != null) {
-      biodata['latitude'] = _position!.latitude;
-      biodata['longitude'] = _position!.longitude;
+      metadata['latitude'] = _position!.latitude;
+      metadata['longitude'] = _position!.longitude;
     }
 
     if (_timestamp != null) {
-      biodata['capture_time'] =
+      metadata['capture_time'] =
           _timestamp!.toIso8601String();
     }
 
@@ -153,7 +150,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
         'surveySlug': widget.surveySlug,
         'clientSlug': widget.clientSlug,
         'projectSlug': widget.projectSlug,
-        'biodata': biodata,
+        'biodata': metadata,
         'surveyTitle': widget.surveyTitle,
       },
     );
@@ -264,22 +261,6 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
           Divider(color: Colors.grey.shade200),
 
           const SizedBox(height: 18),
-
-          _rowInfo(
-            Icons.person_outline,
-            "Nama Responden",
-            widget.biodata?['name'] ?? '-',
-          ),
-
-          const SizedBox(height: 16),
-
-          _rowInfo(
-            Icons.business_outlined,
-            "Instansi",
-            widget.biodata?['instansi'] ?? '-',
-          ),
-
-          const SizedBox(height: 16),
 
           _rowInfo(
             Icons.location_on_outlined,

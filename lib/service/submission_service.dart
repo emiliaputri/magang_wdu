@@ -199,7 +199,6 @@ class SurveyInfo {
   final int projectId;
   final bool status;
   final String? spreadsheetUrl;
-  final bool isBiodataEnabled;
 
   SurveyInfo({
     required this.id,
@@ -209,20 +208,9 @@ class SurveyInfo {
     required this.projectId,
     required this.status,
     this.spreadsheetUrl,
-    this.isBiodataEnabled = true,
   });
 
   factory SurveyInfo.fromJson(Map<String, dynamic> json) {
-    bool biodataEnabled = true;
-    if (json.containsKey('survey_settings') && json['survey_settings'] != null) {
-      final settings = json['survey_settings'] as Map<String, dynamic>;
-      if (settings.containsKey('is_biodata_enabled')) {
-         biodataEnabled = settings['is_biodata_enabled'] == 1 || settings['is_biodata_enabled'] == true || settings['is_biodata_enabled'] == '1';
-      }
-    } else if (json.containsKey('is_biodata_enabled')) {
-      biodataEnabled = json['is_biodata_enabled'] == 1 || json['is_biodata_enabled'] == true || json['is_biodata_enabled'] == '1';
-    }
-
     return SurveyInfo(
       id: _parseInt(json['id']),
       title: json['title']?.toString() ?? '',
@@ -231,7 +219,6 @@ class SurveyInfo {
       projectId: _parseInt(json['project_id']),
       status: json['status'] ?? false,
       spreadsheetUrl: json['spreadsheet_url']?.toString(),
-      isBiodataEnabled: biodataEnabled,
     );
   }
 }

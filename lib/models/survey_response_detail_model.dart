@@ -34,7 +34,6 @@ class SurveyResponseDetail {
   final int? responseId;
   final Map<String, dynamic>? responses;
   final Map<String, dynamic>? location;
-  final Map<String, dynamic>? biodata;
 
   SurveyResponseDetail({
     this.survey,
@@ -46,7 +45,6 @@ class SurveyResponseDetail {
     this.responseId,
     this.responses,
     this.location,
-    this.biodata,
   });
 
   factory SurveyResponseDetail.fromJson(Map<String, dynamic> json) {
@@ -193,11 +191,6 @@ class SurveyResponseDetail {
           _extractMap(json['location']) ??
           (json['location'] is List && (json['location'] as List).isNotEmpty
               ? _extractMap((json['location'] as List).first)
-              : null),
-      biodata:
-          _extractMap(json['biodata']) ??
-          (json['biodata'] is List && (json['biodata'] as List).isNotEmpty
-              ? _extractMap((json['biodata'] as List).first)
               : null),
     );
   }

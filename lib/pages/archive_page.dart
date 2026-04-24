@@ -37,16 +37,6 @@ class _ArchivePageState extends State<ArchivePage> {
           'description': 'Draf pengisian jawaban kuisioner tersimpan.',
           'icon': Icons.assignment_late_rounded,
         });
-      } else if (key.startsWith('draft_biodata_')) {
-        final surveySlug = key.replaceFirst('draft_biodata_', '');
-        loadedDrafts.add({
-          'key': key,
-          'type': 'biodata',
-          'slug': surveySlug,
-          'title': 'Draf Biodata | $surveySlug',
-          'description': 'Draf pengisian profil / biodata responden.',
-          'icon': Icons.person_pin_rounded,
-        });
       }
     }
 
