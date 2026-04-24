@@ -187,8 +187,6 @@ class SurveyBentoCard extends StatelessWidget {
                               color: AppTheme.onSurface,
                               height: 1.2,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -199,8 +197,6 @@ class SurveyBentoCard extends StatelessWidget {
                               color: AppTheme.onSurfaceVariant.withOpacity(0.7),
                               height: 1.3,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),

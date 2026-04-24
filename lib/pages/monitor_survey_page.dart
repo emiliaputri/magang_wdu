@@ -291,21 +291,37 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
             ),
           ),
           const SizedBox(height: 16),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _statusItem('Pending', provider.pendingCount, const Color(0xFFF59E0B)),
-                const SizedBox(width: 8),
-                _statusItem('Revision', provider.revisionCount, const Color(0xFFEF4444)),
-                const SizedBox(width: 8),
-                _statusItem('Approved', provider.approvedCount, const Color(0xFF10B981)),
-                const SizedBox(width: 8),
-                _statusItem('Declined', provider.declinedCount, const Color(0xFF6366F1)),
-              ],
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: _statusItem(
+                  'Pending',
+                  provider.pendingCount,
+                  const Color(0xFFF59E0B),
+                ),
+              ),
+              Expanded(
+                child: _statusItem(
+                  'Revision',
+                  provider.revisionCount,
+                  const Color(0xFFEF4444),
+                ),
+              ),
+              Expanded(
+                child: _statusItem(
+                  'Approved',
+                  provider.approvedCount,
+                  const Color(0xFF10B981),
+                ),
+              ),
+              Expanded(
+                child: _statusItem(
+                  'Declined',
+                  provider.declinedCount,
+                  const Color(0xFF6366F1),
+                ),
+              ),
+            ],
           ),
         ],
       ),

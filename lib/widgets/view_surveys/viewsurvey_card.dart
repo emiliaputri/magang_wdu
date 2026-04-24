@@ -55,8 +55,6 @@ class ViewSurveyCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     survey.title,
-                    maxLines: 2, // 🔥 penting
-                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 11, // 🔥 dari 12 → 11
                       fontWeight: FontWeight.bold,
@@ -106,8 +104,6 @@ class ViewSurveyCard extends StatelessWidget {
             if (survey.desc != null && survey.desc!.isNotEmpty)
               Text(
                 survey.desc!,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 11,
                   color: AppTheme.onSurfaceVariant,
@@ -130,8 +126,6 @@ class ViewSurveyCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       survey.targetLocation,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 10,
                         color: AppTheme.onSurfaceVariant,
