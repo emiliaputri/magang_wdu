@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/client_model.dart';
-import '../../pages/project_bpk_page.dart';
+import '../../pages/project_page.dart';
 import '../universal_image.dart';
 
 class ClientCard extends StatelessWidget {
@@ -16,7 +16,7 @@ class ClientCard extends StatelessWidget {
       context,
       MaterialPageRoute(
         settings: const RouteSettings(name: '/project_detail'),
-        builder: (_) => ProjectBpkPage(client: client),
+        builder: (_) => ProjectListPage(client: client),
       ),
     );
   }
@@ -174,16 +174,7 @@ class ClientCard extends StatelessWidget {
   }
 
   Widget _buildFallback(String name) {
-    String nameLower = name.toLowerCase();
-    if (nameLower.contains('transjakarta') ||
-        nameLower.contains('trans jakarta')) {
-      return Image.asset('assets/images/logo_trans.jpeg', fit: BoxFit.contain);
-    } else if (nameLower.contains('bpk') ||
-        nameLower.contains('badan pemeriksa keuangan')) {
-      return Image.asset('assets/images/logo_bpk.png', fit: BoxFit.contain);
-    } else {
-      return _imagePlaceholder(name);
-    }
+    return _imagePlaceholder(name);
   }
 
   Widget _imagePlaceholder(String name) {
