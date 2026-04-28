@@ -49,8 +49,7 @@ dependencies:
   path_provider: ^2.1.5
   speech_to_text: ^7.0.0
   laravel_echo: 1.0.0-beta.1
-  pusher_channels_flutter: ^2.4.0
-  pusher_client: 2.0.0
+  pusher_channels_flutter: ^2.0.0
 
 dev_dependencies:
   flutter_test:

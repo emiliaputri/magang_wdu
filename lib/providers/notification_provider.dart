@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import '../models/notification_model.dart';
 import '../core/api/api_client.dart';
 import '../core/constants/endpoints.dart';
@@ -11,12 +12,12 @@ class NotificationProvider extends ChangeNotifier {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final ApiClient _api = ApiClient();
   final WebSocketService _ws = WebSocketService();
-  
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  // Placeholder sound for "kring kring"
-  static const String ringingSoundUrl = 'https://www.soundjay.com/phone/telephone-ring-03a.mp3';
+  static const String ringingSoundUrl =
+      'https://www.soundjay.com/phone/telephone-ring-03a.mp3';
 
   List<AppNotification> get notifications => _notifications;
   int get unreadCount => _notifications.where((n) => !n.isRead).length;
@@ -32,7 +33,7 @@ class NotificationProvider extends ChangeNotifier {
       await fetchNotifications();
       await setupWebSocket();
     } else {
-      debugPrint('[NotificationProvider] No user token found, skipping WS init');
+      debugPrint('[NotificationProvider] No user token found');
     }
   }
 
@@ -43,12 +44,14 @@ class NotificationProvider extends ChangeNotifier {
     try {
       final response = await _api.get(Endpoints.notifications);
       if (response.success) {
-        final List<dynamic> data = response.data?['notifications'] ?? [];
+        final List<dynamic> data =
+            response.data?['notifications'] ?? [];
         _notifications.clear();
         for (var item in data) {
           _notifications.add(AppNotification.fromMap(item));
         }
-        debugPrint('[NotificationProvider] Fetched ${_notifications.length} notifications');
+        debugPrint(
+            '[NotificationProvider] Fetched ${_notifications.length} notifications');
       }
     } catch (e) {
       debugPrint('[NotificationProvider] Fetch error: $e');
@@ -63,37 +66,50 @@ class NotificationProvider extends ChangeNotifier {
     final userId = await StorageHelper.getUserId();
 
     if (token != null && userId != null) {
-      debugPrint('[NotificationProvider] Setting up WS for User ID: $userId');
-      await _ws.initEcho(token);
-      
-      final channelName = 'App.Models.User.$userId';
-      
-      // Method 1: Use the standard .notification() helper
-      _ws.echo?.private(channelName).notification((notification) {
-        debugPrint('[NotificationProvider] Notification received via .notification(): $notification');
-        _handleIncomingNotification(notification);
-      });
+      debugPrint(
+          '[NotificationProvider] Setting up WS for User ID: $userId');
 
-      // Method 2: Fallback listener for the specific event name (sometimes .notification doesn't fire in beta)
-      _ws.echo?.private(channelName).listen(
-        '.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', 
-        (data) {
-          debugPrint('[NotificationProvider] Notification received via .listen(): $data');
-          _handleIncomingNotification(data);
+      await _ws.initEcho(token);
+
+      final channelName = 'private-App.Models.User.$userId';
+
+      // ✅ subscribe channel
+      await _ws.subscribe(channelName);
+
+      // ✅ listen event (pengganti Echo)
+      PusherChannelsFlutter.getInstance().onEvent = (event) {
+        if (event.channelName == channelName) {
+          debugPrint(
+              '[NotificationProvider] Event: ${event.eventName}');
+          debugPrint(
+              '[NotificationProvider] Data: ${event.data}');
+
+          // 🎯 khusus Laravel Notification
+          if (event.eventName ==
+              'Illuminate\\Notifications\\Events\\BroadcastNotificationCreated') {
+            _handleIncomingNotification(event.data);
+          }
+
+          // 🔁 fallback kalau nama event beda
+          else {
+            _handleIncomingNotification(event.data);
+          }
         }
-      );
+      };
     }
   }
 
   void _handleIncomingNotification(dynamic data) {
-    // Check if we already added this notification (to prevent double-handling if both listeners fire)
-    final id = data['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString();
+    final id = data['id']?.toString() ??
+        DateTime.now().millisecondsSinceEpoch.toString();
+
     if (_notifications.any((n) => n.id == id)) return;
 
-    // Laravel wraps data differently depending on how it's broadcasted
-    // If it comes from BroadcastNotificationCreated, it's usually inside the root or 'data'
-    String title = data['title'] ?? data['data']?['title'] ?? 'Notifikasi Baru';
-    String message = data['message'] ?? data['data']?['message'] ?? 'Ada pembaruan status survey.';
+    String title =
+        data['title'] ?? data['data']?['title'] ?? 'Notifikasi Baru';
+    String message =
+        data['message'] ?? data['data']?['message'] ??
+            'Ada pembaruan status survey.';
 
     final notification = AppNotification(
       id: id,
@@ -109,8 +125,8 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   void addNotification({
-    required String title, 
-    required String message, 
+    required String title,
+    required String message,
     bool playRinging = false,
   }) {
     final notification = AppNotification(
@@ -119,11 +135,13 @@ class NotificationProvider extends ChangeNotifier {
       message: message,
       timestamp: DateTime.now(),
     );
+
     _notifications.insert(0, notification);
-    
+
     if (playRinging) {
       _playRingingSound();
     }
+
     notifyListeners();
   }
 
@@ -138,24 +156,29 @@ class NotificationProvider extends ChangeNotifier {
       try {
         await _api.post(Endpoints.markNotificationRead(id), body: {});
       } catch (e) {
-        debugPrint('[NotificationProvider] Mark as read error: $e');
+        debugPrint(
+            '[NotificationProvider] Mark as read error: $e');
       }
     }
   }
 
   Future<void> markAllAsRead() async {
-    final unreadItems = _notifications.where((n) => !n.isRead).toList();
+    final unreadItems =
+    _notifications.where((n) => !n.isRead).toList();
     if (unreadItems.isEmpty) return;
 
     for (var n in _notifications) {
       n.isRead = true;
     }
+
     notifyListeners();
 
     try {
-      await _api.post(Endpoints.markAllNotificationsRead, body: {});
+      await _api.post(Endpoints.markAllNotificationsRead,
+          body: {});
     } catch (e) {
-      debugPrint('[NotificationProvider] Mark all as read error: $e');
+      debugPrint(
+          '[NotificationProvider] Mark all as read error: $e');
     }
   }
 
