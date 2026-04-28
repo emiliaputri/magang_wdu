@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
-import '../providers/notification_provider.dart';
 import '../widgets/login/app_input_field.dart';
 import '../widgets/login/sis_logo.dart';
 import 'dashboard_page.dart';
@@ -92,11 +91,6 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
       final success = await provider.verifyOtp(code);
       if (!mounted) return;
       if (success) {
-        // Initialize notifications and websockets
-        if (mounted) {
-          context.read<NotificationProvider>().init();
-        }
-
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const DashboardPage()),

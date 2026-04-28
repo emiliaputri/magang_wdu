@@ -154,7 +154,7 @@ class _TwoFactorSettingsPageState extends State<TwoFactorSettingsPage> {
               ),
               const SizedBox(height: 32),
               _buildButton(
-                label: 'Submit',
+                label: 'Activate 2FA',
                 onPressed: provider.loading ? null : _handleOtpVerify,
                 isLoading: provider.loading,
               ),

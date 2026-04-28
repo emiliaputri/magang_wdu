@@ -157,20 +157,4 @@ class AuthService {
     }
     return null;
   }
-
-  // ── LOG ACTIVITY ──────────────────────────────────────────
-  Future<void> logAppActivity(String action, String message) async {
-    try {
-      await _api.post(
-        Endpoints.logAppActivity,
-        body: {
-          'action': action,
-          'message': message,
-        },
-      );
-    } catch (e) {
-      // Silently fail for logging to not interrupt user experience
-      debugPrint('[AuthService] Error logging activity: $e');
-    }
-  }
 }

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import '../models/provinsi_model.dart';
 
 class SurveyModel {
@@ -17,7 +16,6 @@ class SurveyModel {
   final DateTime? spreadsheetUpdatedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  final bool isCameraEnabled;
 
   // computed dari API (bukan fillable, tapi sering di-append)
   final int responseCount;
@@ -37,7 +35,6 @@ class SurveyModel {
     this.spreadsheetUpdatedAt,
     this.createdAt,
     this.updatedAt,
-    this.isCameraEnabled = true,
     this.responseCount = 0,
   });
 
@@ -58,34 +55,6 @@ class SurveyModel {
         .whereType<Map<String, dynamic>>()
         .map((e) => ProvinceTarget.fromJson(e))
         .toList();
-
-    bool cameraEnabled = true;
-    final settingsMap = json['setting'] ?? json['survey_settings'];
-    
-    // DEBUG: print camera setting info
-    if (kDebugMode) {
-      final keys = (settingsMap is Map) ? settingsMap.keys.toList() : 'not a map';
-      print('SurveyModel DEBUG [${json['title']}]: settingsMap type = ${settingsMap.runtimeType}, keys = $keys');
-      if (settingsMap is Map) {
-        print('SurveyModel DEBUG [${json['title']}]: is_camera_enabled raw = ${settingsMap['is_camera_enabled']}');
-      }
-    }
-
-    if (settingsMap != null && settingsMap is Map<String, dynamic>) {
-      if (settingsMap.containsKey('is_camera_enabled')) {
-        cameraEnabled = settingsMap['is_camera_enabled'] == 1 || 
-                        settingsMap['is_camera_enabled'] == true || 
-                        settingsMap['is_camera_enabled'] == '1';
-      }
-    } else if (json.containsKey('is_camera_enabled')) {
-      cameraEnabled = json['is_camera_enabled'] == 1 || 
-                      json['is_camera_enabled'] == true || 
-                      json['is_camera_enabled'] == '1';
-    }
-
-    if (kDebugMode) {
-      print('SurveyModel DEBUG [${json['title']}]: cameraEnabled final = $cameraEnabled');
-    }
 
     return SurveyModel(
       id: json['id'],
@@ -108,7 +77,6 @@ class SurveyModel {
       updatedAt: json['updated_at'] != null
           ? DateTime.tryParse(json['updated_at'].toString())
           : null,
-      isCameraEnabled: cameraEnabled,
       responseCount: json['response_count'] ?? json['responses_count'] ?? 0,
     );
   }
@@ -138,12 +106,6 @@ class SurveyModel {
       : '-';
 
   // helper: status open
-  bool get isOpen {
-    final s = status.toUpperCase();
-    return s == 'DIBUKA' || 
-           s == 'OPEN' || 
-           s == 'OPENED' || 
-           s == '1' || 
-           s == 'TRUE';
-  }
+  bool get isOpen =>
+      status == 'DIBUKA' || status == 'OPEN' || status == '1';
 }

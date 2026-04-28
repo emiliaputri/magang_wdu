@@ -92,7 +92,7 @@ class MonitoringProvider extends ChangeNotifier {
     responses = _rawResponses.where((r) {
       if (startDate == null || endDate == null) return true;
       final dateStr =
-          r['updated_at']?.toString() ?? r['created_at']?.toString() ?? '';
+          r['created_at']?.toString() ?? r['updated_at']?.toString() ?? '';
       final dt = DateTime.tryParse(dateStr);
       if (dt == null) return false;
       // Gunakan >= dan <= (inklusif kedua sisi)
@@ -104,19 +104,19 @@ class MonitoringProvider extends ChangeNotifier {
     );
     for (var i = 0; i < responses.length && i < 3; i++) {
       debugPrint(
-        '  Response[$i]: ${responses[i]['updated_at'] ?? responses[i]['created_at']}',
+        '  Response[$i]: ${responses[i]['created_at'] ?? responses[i]['updated_at']}',
       );
     }
 
     responses.sort((a, b) {
       final dateA =
           DateTime.tryParse(
-            a['updated_at']?.toString() ?? a['created_at']?.toString() ?? '',
+            a['created_at']?.toString() ?? a['updated_at']?.toString() ?? '',
           ) ??
           DateTime(1970);
       final dateB =
           DateTime.tryParse(
-            b['updated_at']?.toString() ?? b['created_at']?.toString() ?? '',
+            b['created_at']?.toString() ?? b['updated_at']?.toString() ?? '',
           ) ??
           DateTime(1970);
 
@@ -150,11 +150,6 @@ class MonitoringProvider extends ChangeNotifier {
   // ── GETTERS ───────────────────────────────────────────────
   String get resolvedName =>
       _resolvedName.isNotEmpty ? _resolvedName : surveyName;
-
-  int get pendingCount => responses.where((r) => _getModerationStatus(r) == 'PENDING').length;
-  int get revisionCount => responses.where((r) => _getModerationStatus(r) == 'REVISION').length;
-  int get approvedCount => responses.where((r) => _getModerationStatus(r) == 'APPROVE').length;
-  int get declinedCount => responses.where((r) => _getModerationStatus(r) == 'DECLINE').length;
 
   double get progressValue {
     if (targetRespon <= 0) return 0;
@@ -220,15 +215,8 @@ class MonitoringProvider extends ChangeNotifier {
         _resolvedName = surveyData['title'] ?? surveyName;
         targetRespon = surveyData['target_response'] ?? 0;
 
-        final statusRaw = surveyData['status'];
-        final statusStr = (statusRaw ?? '').toString().toUpperCase();
-        isOpen = statusRaw == 1 || 
-                 statusRaw == '1' || 
-                 statusRaw == true || 
-                 statusStr == 'DIBUKA' || 
-                 statusStr == 'OPEN' || 
-                 statusStr == 'OPENED' || 
-                 statusStr == 'TRUE';
+        final status = surveyData['status'];
+        isOpen = status == 1 || status == '1' || status == 'DIBUKA';
 
         // province_targets: List langsung atau String JSON
         final rawTargets = surveyData['province_targets'];
@@ -346,47 +334,5 @@ class MonitoringProvider extends ChangeNotifier {
       debugPrint('Error delete response: $e');
       return false;
     }
-  }
-
-  String _getModerationStatus(Map<String, dynamic> r) {
-    final dynamic s =
-        r['supervision_status'] ??
-        r['moderation_status'] ??
-        r['status_review'] ??
-        r['review_status'] ??
-        r['status_moderasi'] ??
-        r['status'];
-
-    if (s == null) return 'PENDING';
-
-    final str = s.toString().toLowerCase();
-
-    if (str == 'pending' || str.isEmpty) return 'PENDING';
-    if (str == 'revision_needed' || str == 'revision') return 'REVISION';
-    if (str == 'approve' || str == 'approved') return 'APPROVE';
-    if (str == 'decline' || str == 'declined') return 'DECLINE';
-
-    if (s is int) {
-      switch (s) {
-        case 0:
-          return 'PENDING';
-        case 1:
-          return 'REVISION';
-        case 2:
-          return 'APPROVE';
-        case 3:
-          return 'DECLINE';
-        default:
-          return 'PENDING';
-      }
-    }
-
-    if (s is bool) {
-      if (r['is_approved'] == true) return 'APPROVE';
-      if (r['is_revision'] == true) return 'REVISION';
-      return (s == true) ? 'PENDING' : 'DRAFT';
-    }
-
-    return 'PENDING';
   }
 }

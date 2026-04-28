@@ -30,10 +30,10 @@ class Client {
   });
 
   factory Client.fromJson(Map<String, dynamic> json) {
-    // Prioritaskan image_url karena biasanya sudah full URL dari backend
+    // Mencoba berbagai kemungkinan key untuk gambar klien
     String? rawImage =
-        json['image_url'] ??
         json['image'] ??
+        json['image_url'] ??
         json['client_image'] ??
         json['client_logo'] ??
         json['logo'];
@@ -42,13 +42,11 @@ class Client {
       '[ClientModel] client_name: ${json['client_name']} - rawImage: $rawImage',
     );
 
-    final finalUrl = _buildImageUrl(rawImage);
-
     return Client(
       id: json['id'],
       clientName: json['client_name'] ?? '',
-      image: finalUrl,
-      imageUrl: finalUrl,
+      image: _buildImageUrl(rawImage),
+      imageUrl: _buildImageUrl(rawImage),
       alamat: json['alamat'],
       phone: json['phone'],
       slug: json['slug'],
@@ -112,32 +110,22 @@ class Client {
   static String? _buildImageUrl(String? url) {
     if (url == null || url.isEmpty) return null;
 
-    // Jika sudah full URL, cek apakah perlu di-encode (hanya bagian path)
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      // Pastikan spasi di-encode jadi %20 agar tidak error di Image.network/CachedNetworkImage
-      return url.contains(' ') ? Uri.encodeFull(url) : url;
-    }
+    // Jika sudah full URL, langsung kembalikan
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
 
     // Ambil base domain (tanpa /api atau /storage)
     final root = Endpoints.baseUrl.split('/api').first;
 
     // Normalisasi url: buang leading slash
-    String path = url.startsWith('/') ? url.substring(1) : url;
+    final path = url.startsWith('/') ? url.substring(1) : url;
 
-    // Tentukan folder dasar
-    String finalPath;
+    // Jika mengandung 'img/client/', tempel langsung ke root
     if (path.contains('img/client/')) {
-      finalPath = path;
-    } else if (path.contains('storage/')) {
-      finalPath = path;
-    } else {
-      finalPath = 'img/client/$path';
+      return '$root/$path';
     }
 
-    // Encode path untuk menangani spasi atau karakter spesial di nama file
-    final encodedPath = finalPath.split('/').map((s) => Uri.encodeComponent(s)).join('/');
-    
-    return '$root/$encodedPath';
+    // Default ke img/client/ sesuai link yang diberikan user
+    return '$root/img/client/$path';
   }
 
   @override

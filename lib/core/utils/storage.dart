@@ -187,12 +187,14 @@ class StorageHelper {
   static Future<void> saveDraftSurvey({
     required String surveySlug,
     required Map<String, dynamic> answers,
+    required Map<String, dynamic> biodata,
     required int currentPageIndex,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final key = '$_keyDraftSurveyPrefix$surveySlug';
     final data = {
       'answers': answers,
+      'biodata': biodata,
       'currentPageIndex': currentPageIndex,
       'updatedAt': DateTime.now().toIso8601String(),
     };
@@ -238,11 +240,36 @@ class StorageHelper {
     }
   }
 
+  static Future<void> saveDraftBiodata({
+    required String surveySlug,
+    required Map<String, dynamic> biodata,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = '$_keyDraftBiodataPrefix$surveySlug';
+    await prefs.setString(key, jsonEncode(biodata));
+  }
+
+  static Future<Map<String, dynamic>?> getDraftBiodata(
+    String surveySlug,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = '$_keyDraftBiodataPrefix$surveySlug';
+    final jsonStr = prefs.getString(key);
+    if (jsonStr == null) return null;
+    try {
+      return jsonDecode(jsonStr) as Map<String, dynamic>;
+    } catch (_) {
+      return null;
+    }
+  }
+
   static Future<void> deleteDraftSurvey(String surveySlug) async {
     final prefs = await SharedPreferences.getInstance();
     final key = '$_keyDraftSurveyPrefix$surveySlug';
+    final biodataKey = '$_keyDraftBiodataPrefix$surveySlug';
     final photoKey = '$_keyDraftPhotoPrefix$surveySlug';
     await prefs.remove(key);
+    await prefs.remove(biodataKey);
     await prefs.remove(photoKey);
   }
 

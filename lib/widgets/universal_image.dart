@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'web_image_helper.dart' if (dart.library.html) 'web_image_helper_web.dart';
+import 'dart:ui_web' as ui_web;
+import 'dart:html' as html;
 
 class UniversalImage extends StatelessWidget {
   final String imageUrl;
@@ -29,7 +30,16 @@ class UniversalImage extends StatelessWidget {
       // For Web, use an HTML <img> tag to bypass CanvasKit/Skia CORS restrictions
       final String viewId = 'img-${imageUrl.hashCode}';
       
-      registerWebImage(viewId, imageUrl, _getHtmlObjectFit(fit), borderRadius);
+      // Register the view factory for this specific image
+      ui_web.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
+        final img = html.ImageElement()
+          ..src = imageUrl
+          ..style.width = '100%'
+          ..style.height = '100%'
+          ..style.objectFit = _getHtmlObjectFit(fit)
+          ..style.borderRadius = '${borderRadius}px';
+        return img;
+      });
 
       return ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),

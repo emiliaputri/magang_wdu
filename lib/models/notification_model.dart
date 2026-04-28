@@ -26,17 +26,12 @@ class AppNotification {
   }
 
   factory AppNotification.fromMap(Map<String, dynamic> map) {
-    // Handle Laravel Database Notification format
-    final data = map['data'] is Map ? map['data'] as Map<String, dynamic> : <String, dynamic>{};
-    
     return AppNotification(
-      id: map['id']?.toString() ?? '',
-      title: data['title'] ?? map['title'] ?? 'Notifikasi',
-      message: data['message'] ?? map['message'] ?? '',
-      timestamp: DateTime.parse(
-        map['created_at'] ?? map['timestamp'] ?? DateTime.now().toIso8601String()
-      ),
-      isRead: map['read_at'] != null || (map['isRead'] ?? false),
+      id: map['id'] ?? '',
+      title: map['title'] ?? '',
+      message: map['message'] ?? '',
+      timestamp: DateTime.parse(map['timestamp'] ?? DateTime.now().toIso8601String()),
+      isRead: map['isRead'] ?? false,
     );
   }
 

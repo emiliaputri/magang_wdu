@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../pages/monitor_survey_page.dart';
 import '../../pages/province_target_page.dart';
-import '../../pages/camera_capture_page.dart';
+import '../../pages/biodata_page.dart';
 import '../../models/survey_model.dart';
 
 class ViewSurveyCard extends StatelessWidget {
@@ -55,6 +55,8 @@ class ViewSurveyCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     survey.title,
+                    maxLines: 2, // 🔥 penting
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 11, // 🔥 dari 12 → 11
                       fontWeight: FontWeight.bold,
@@ -104,6 +106,8 @@ class ViewSurveyCard extends StatelessWidget {
             if (survey.desc != null && survey.desc!.isNotEmpty)
               Text(
                 survey.desc!,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 11,
                   color: AppTheme.onSurfaceVariant,
@@ -126,6 +130,8 @@ class ViewSurveyCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       survey.targetLocation,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 10,
                         color: AppTheme.onSurfaceVariant,
@@ -187,33 +193,20 @@ class ViewSurveyCard extends StatelessWidget {
                     label: 'Isi Kuesioner',
                     color: AppTheme.primary,
                     onTap: () {
-                      if (survey.isCameraEnabled) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => CameraCapturePage(
-                              surveySlug: survey.slug,
-                              clientSlug: clientSlug,
-                              projectSlug: projectSlug,
-                              surveyTitle: survey.title,
-                            ),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BiodataPage(
+                            surveySlug: survey.slug,
+                            clientSlug: clientSlug,
+                            projectSlug: projectSlug,
                           ),
-                        );
-                      } else {
-                        Navigator.pushNamed(
-                          context,
-                          '/submission',
-                          arguments: {
-                            'surveySlug': survey.slug,
-                            'clientSlug': clientSlug,
-                            'projectSlug': projectSlug,
-                            'surveyTitle': survey.title,
-                          },
-                        );
-                      }
+                        ),
+                      );
                     },
                   ),
-                ), // 🔥 dari 24 → 8
+                ),
+                const SizedBox(width: 8), // 🔥 dari 24 → 8
                 Expanded(
                   child: _ActionBtn(
                     label: 'Monitor',
