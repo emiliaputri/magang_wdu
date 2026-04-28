@@ -337,27 +337,43 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
   // ── ANSWER INPUT ──────────────────────────────────────────
 
   Widget _buildAnswerInput(SurveyQuestionData q) {
-    if (q.typeString == 'info') return const SizedBox.shrink();
-    switch (q.typeString) {
-      case 'radio':
+    if (q.questionTypeId == 5) return const SizedBox.shrink(); // Type 5 is Info/Instruction
+
+    switch (q.questionTypeId) {
+      case 2: // Radio
         return _buildRadio(q);
-      case 'checkbox':
+      case 3: // Checkbox
         return _buildCheckbox(q);
-      case 'dropdown':
+      case 7: // Dropdown
         return _buildDropdown(q);
-      case 'text':
-      case 'number':
-      case 'paragraph':
+      case 1: // Text
+      case 4: // Number
+      case 8: // Paragraph
+      case 6: // Rating/Scale
         return _buildTextField(q);
-      case 'matrix':
+      case 9: // Matrix
         return _buildMatrix(q);
-      case 'document':
+      case 10: // Attachment/File
         return _buildDocument(q);
+      case 11: // Location Dropdown
+        return _buildLocationDropdown(q);
       default:
-        debugPrint(
-          '[CekEditMonitor] Unknown typeString: ${q.typeString}, questionTypeId: ${q.questionTypeId}',
-        );
-        return const SizedBox();
+        // Fallback berdasarkan typeString jika ID tidak dikenal
+        switch (q.typeString) {
+          case 'radio': return _buildRadio(q);
+          case 'checkbox': return _buildCheckbox(q);
+          case 'dropdown': return _buildDropdown(q);
+          case 'text':
+          case 'number':
+          case 'paragraph': return _buildTextField(q);
+          case 'matrix': return _buildMatrix(q);
+          case 'document': return _buildDocument(q);
+          default:
+            return Text(
+              "Tipe pertanyaan (${q.questionTypeId}) belum didukung untuk pengeditan.",
+              style: const TextStyle(fontSize: 11, color: Colors.grey, fontStyle: FontStyle.italic),
+            );
+        }
     }
   }
 
@@ -539,10 +555,10 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
   Widget _buildTextField(SurveyQuestionData q) {
     return TextFormField(
       initialValue: answers[q.id]?.toString() ?? '',
-      keyboardType: q.typeString == 'number'
+      keyboardType: (q.questionTypeId == 4 || q.questionTypeId == 6)
           ? TextInputType.number
           : TextInputType.multiline,
-      maxLines: q.typeString == 'paragraph' ? 4 : 1,
+      maxLines: (q.questionTypeId == 8) ? 4 : 1,
       onChanged: (val) => answers[q.id] = val,
       decoration: InputDecoration(
         filled: true,
@@ -761,6 +777,49 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
       }
     }
     return AppTheme.monGreenMid;
+  }
+
+  // ── LOCATION DROPDOWN INPUT (TYPE 11) ─────────────────────
+  Widget _buildLocationDropdown(SurveyQuestionData q) {
+    final currentVal = answers[q.id]?.toString() ?? '';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF0FDF4),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFFDCFCE7)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.location_on, size: 18, color: AppTheme.monGreenMid),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  currentVal.isNotEmpty ? currentVal : "Lokasi belum diatur",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: currentVal.isNotEmpty ? AppTheme.monGreenDark : Colors.grey,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          "* Lokasi ini diambil dari isian saat submit. Untuk saat ini pengeditan lokasi hanya bisa dilakukan melalui teks.",
+          style: TextStyle(fontSize: 10, color: Colors.grey, fontStyle: FontStyle.italic),
+        ),
+        const SizedBox(height: 8),
+        _buildTextField(q), // Berikan opsi edit via text field sebagai fallback
+      ],
+    );
   }
 
   // ── DOCUMENT/UPLOAD INPUT ────────────────────────────────

@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../core/theme/app_theme.dart';
+import '../core/constants/endpoints.dart';
 import '../service/survey_service.dart';
 import '../models/survey_response_detail_model.dart';
 
@@ -341,7 +342,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                     ),
                     Expanded(
                       flex: 1,
-                      child: _buildRightGeotaggingColumn(location, biodata),
+                      child: _buildRightGeotaggingColumn(responses, location, biodata),
                     ),
                   ],
                 );
@@ -360,7 +361,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                       thickness: 1,
                       color: Color(0xFFF0F0F0),
                     ),
-                    _buildRightGeotaggingColumn(location, biodata),
+                    _buildRightGeotaggingColumn(responses, location, biodata),
                   ],
                 );
               }
@@ -378,8 +379,9 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
     dynamic finish,
     dynamic duration,
   ) {
-    final name = userData?['name'] ?? _detail?.responses?['email'] ?? 'Guest';
-    final province = _getProvinsi(biodata);
+    final userObj = userData?['user'] as Map<String, dynamic>? ?? userData;
+    final name = userObj?['name'] ?? userData?['email'] ?? _detail?.responses?['email'] ?? 'Guest';
+    final province = _getProvinsi(biodata, userData);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -423,9 +425,11 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      "Instansi tidak tersedia",
-                      style: TextStyle(
+                    Text(
+                      userObj?['usertype'] != null 
+                          ? "Role: ${userObj!['usertype']}" 
+                          : "Instansi tidak tersedia",
+                      style: const TextStyle(
                         fontSize: 12,
                         color: AppTheme.monTextLight,
                       ),
@@ -658,16 +662,17 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
   }
 
   Widget _buildRightGeotaggingColumn(
+    Map<String, dynamic>? responses,
     Map<String, dynamic>? location,
     Map<String, dynamic>? biodata,
   ) {
     final ip = location?['ip']?.toString() ?? '-';
     final wilayah = _getWilayah(location);
 
-    // Prioritaskan koordinat dari BIODATA (Real GPS dari perangkat)
+    // Prioritaskan koordinat dari RESPONSES atau BIODATA (Real GPS dari perangkat)
     // Jika tidak ada, baru fallback ke data LOCATION (seringkali berbasis IP)
-    final latRaw = biodata?['latitude'] ?? location?['latitude'];
-    final lngRaw = biodata?['longitude'] ?? location?['longitude'];
+    final latRaw = responses?['latitude'] ?? biodata?['latitude'] ?? location?['latitude'];
+    final lngRaw = responses?['longitude'] ?? biodata?['longitude'] ?? location?['longitude'];
 
     final lat = latRaw?.toString() ?? '-';
     final lng = lngRaw?.toString() ?? '-';
@@ -1061,12 +1066,20 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
     return 'Unknown';
   }
 
-  String _getProvinsi(Map<String, dynamic>? biodata) {
-    if (biodata == null) return '-';
-    final id = biodata['province_id'];
-    final name = biodata['province_name'];
-    if (name != null && name.toString().isNotEmpty) return name.toString();
-    if (id != null) return 'Prov. $id';
+  String _getProvinsi(Map<String, dynamic>? biodata, [Map<String, dynamic>? responses]) {
+    if (biodata == null && responses == null) return '-';
+    
+    // Cek di biodata dulu
+    final bName = biodata?['province_name'];
+    if (bName != null && bName.toString().isNotEmpty) return bName.toString();
+    
+    // Cek di responses (berdasarkan JSON baru)
+    final rProvId = responses?['response_province_id'];
+    if (rProvId != null) return 'Provinsi ID: $rProvId';
+
+    final bId = biodata?['province_id'];
+    if (bId != null) return 'Prov. $bId';
+    
     return '-';
   }
 
@@ -1262,31 +1275,56 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
     }
 
     // Document/File question (type 10)
-    if (q.typeString == 'document') {
+    if (q.questionTypeId == 10) {
       if (answer.isNotEmpty && answer != "-" && answer != "Unknown") {
         return Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppTheme.monBgColor,
+            color: const Color(0xFFF3F4F6),
             borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFFE5E7EB)),
           ),
           child: Row(
             children: [
               const Icon(
-                Icons.insert_drive_file,
-                size: 16,
-                color: AppTheme.monGreenMid,
+                Icons.insert_drive_file_outlined,
+                size: 20,
+                color: Color(0xFF4B5563),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  answer,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppTheme.monGreenDark,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      answer,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF1F2937),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Text(
+                      "Klik untuk membuka file",
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.open_in_new, size: 18),
+                onPressed: () async {
+                  final url = "${Endpoints.storageUrl}/documents/$answer";
+                  final uri = Uri.parse(url);
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
+                },
               ),
             ],
           ),
@@ -1308,6 +1346,34 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
     // Dropdown question
     if (q.typeString == 'dropdown' && q.choices.isNotEmpty) {
       return _buildRadioAnswer(q, answer);
+    }
+
+    // Location Dropdown (type 11)
+    if (q.questionTypeId == 11) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF0FDF4), // Light green
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFFDCFCE7)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.location_on, size: 16, color: AppTheme.monGreenMid),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                answer,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.monGreenDark,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     // Text, number, paragraph - show as plain text

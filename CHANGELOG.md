@@ -5,6 +5,21 @@ All notable changes to this Flutter project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
+
+## [1.4.5] - 2026-04-29 *By Fauziah
+### Fixed
+- Map Coordinate Extraction: Resolved an issue where survey maps failed to display by updating the logic to correctly source Latitude and Longitude from the responses object instead of relying solely on IP-based location data.
+- Compilation Error: Fixed an "Undefined Getter 'Endpoints'" error in lihat_monitor_page.dart by adding missing internal constant imports.
+- Data Integrity: Corrected respondent metadata mapping (Name, Role, and Province) to align with the nested user object structure provided by the latest API response.
+
+### Improve
+- Backend Synchronization: Synchronized all question types (Types 1-11) across LihatMonitorPage and CekEditMonitorPage to match the Laravel AnswerController logic.
+New Question Type Support:
+Added dedicated UI handling for Type 11 (Location Dropdown) to display full location strings (Province - City - District).
+Enhanced Type 10 (Attachment) handling with clickable links to download or view uploaded documents directly from the server.
+Dynamic Validation: Improved input field behavior in the monitoring editor, including automatic numeric keyboards for rating/scale types and multi-line support for paragraph types. 
+
+
 ## [1.4.4] - 2026-04-24 *By Fadel
 ### Changed
 - **Direct Survey Flow**: Completely removed the biodata form requirement. Respondents now go directly to the questionnaire.
