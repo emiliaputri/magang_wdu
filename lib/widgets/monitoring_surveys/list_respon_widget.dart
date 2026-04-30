@@ -15,14 +15,16 @@ class ListResponWidget extends StatelessWidget {
     String surveySlug,
     String clientSlug,
     String projectSlug,
-  )? onDeleteResponse;
+  )?
+  onDeleteResponse;
   final void Function(
     int responseId,
     String surveySlug,
     String clientSlug,
     String projectSlug,
     Map<String, dynamic> responseData,
-  )? onEditResponse;
+  )?
+  onEditResponse;
 
   const ListResponWidget({
     super.key,
@@ -56,10 +58,7 @@ class ListResponWidget extends StatelessWidget {
             child: Center(
               child: Text(
                 'Belum ada data respon',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.monTextMid,
-                ),
+                style: TextStyle(fontSize: 12, color: AppTheme.monTextMid),
               ),
             ),
           )
@@ -93,14 +92,16 @@ class _CardWidget extends StatelessWidget {
     String surveySlug,
     String clientSlug,
     String projectSlug,
-  )? onDeleteResponse;
+  )?
+  onDeleteResponse;
   final void Function(
     int responseId,
     String surveySlug,
     String clientSlug,
     String projectSlug,
     Map<String, dynamic> responseData,
-  )? onEditResponse;
+  )?
+  onEditResponse;
 
   const _CardWidget({
     required this.response,
@@ -123,11 +124,15 @@ class _CardWidget extends StatelessWidget {
     final provinsi = _provinsi(biodata);
     final role = _role(user);
 
-    final responseId = int.tryParse((response['id'] ?? response['response_id'] ?? 0).toString()) ?? 0;
+    final responseId =
+        int.tryParse(
+          (response['id'] ?? response['response_id'] ?? 0).toString(),
+        ) ??
+        0;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -193,7 +198,11 @@ class _CardWidget extends StatelessWidget {
                     children: [
                       if (onEditResponse != null)
                         IconButton(
-                          icon: const Icon(Icons.edit_outlined, size: 18, color: AppTheme.ijoGelap),
+                          icon: const Icon(
+                            Icons.edit_outlined,
+                            size: 18,
+                            color: Colors.teal,
+                          ),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                           onPressed: () => onEditResponse!(
@@ -204,10 +213,15 @@ class _CardWidget extends StatelessWidget {
                             response,
                           ),
                         ),
-                      if (onEditResponse != null && onDeleteResponse != null) const SizedBox(width: 8),
+                      if (onEditResponse != null && onDeleteResponse != null)
+                        const SizedBox(width: 8),
                       if (onDeleteResponse != null)
                         IconButton(
-                          icon: const Icon(Icons.delete_outline, size: 18, color: AppTheme.error),
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            size: 18,
+                            color: AppTheme.error,
+                          ),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                           onPressed: () {
@@ -215,15 +229,28 @@ class _CardWidget extends StatelessWidget {
                               context: context,
                               builder: (ctx) => AlertDialog(
                                 title: const Text('Hapus Data'),
-                                content: const Text('Apakah Anda yakin ingin menghapus data ini?'),
+                                content: const Text(
+                                  'Apakah Anda yakin ingin menghapus data ini?',
+                                ),
                                 actions: [
-                                  TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(ctx),
+                                    child: const Text('Batal'),
+                                  ),
                                   TextButton(
                                     onPressed: () {
                                       Navigator.pop(ctx);
-                                      onDeleteResponse!(responseId, provider.surveySlug, clientSlug, projectSlug);
+                                      onDeleteResponse!(
+                                        responseId,
+                                        provider.surveySlug,
+                                        clientSlug,
+                                        projectSlug,
+                                      );
                                     },
-                                    child: const Text('Hapus', style: TextStyle(color: Colors.red)),
+                                    child: const Text(
+                                      'Hapus',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -236,14 +263,18 @@ class _CardWidget extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           // Divider Replacement (border-y)
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
               border: Border(
-                top: BorderSide(color: AppTheme.monBorderColor.withOpacity(0.5)),
-                bottom: BorderSide(color: AppTheme.monBorderColor.withOpacity(0.5)),
+                top: BorderSide(
+                  color: AppTheme.monBorderColor.withOpacity(0.5),
+                ),
+                bottom: BorderSide(
+                  color: AppTheme.monBorderColor.withOpacity(0.5),
+                ),
               ),
             ),
             child: Row(
@@ -254,17 +285,30 @@ class _CardWidget extends StatelessWidget {
                     children: [
                       const Text(
                         'PROVINCE',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppTheme.monTextMid, letterSpacing: 1.2),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.monTextMid,
+                          letterSpacing: 1.2,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.location_on, size: 18, color: AppTheme.monGreenMid),
+                          const Icon(
+                            Icons.location_on,
+                            size: 18,
+                            color: Colors.redAccent,
+                          ),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               provinsi,
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.monTextDark),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppTheme.monTextDark,
+                              ),
                             ),
                           ),
                         ],
@@ -278,17 +322,30 @@ class _CardWidget extends StatelessWidget {
                     children: [
                       const Text(
                         'ROLE',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppTheme.monTextMid, letterSpacing: 1.2),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.monTextMid,
+                          letterSpacing: 1.2,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.person, size: 18, color: AppTheme.monGreenMid),
+                          const Icon(
+                            Icons.person,
+                            size: 18,
+                            color: Colors.blueAccent,
+                          ),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               role,
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.monTextDark),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppTheme.monTextDark,
+                              ),
                             ),
                           ),
                         ],
@@ -299,7 +356,7 @@ class _CardWidget extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           // Full width button
           SizedBox(
             width: double.infinity,
@@ -398,8 +455,19 @@ class _CardWidget extends StatelessWidget {
     try {
       final dt = DateTime.parse(raw).toLocal();
       final m = [
-        '', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-        'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+        '',
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'Mei',
+        'Jun',
+        'Jul',
+        'Agu',
+        'Sep',
+        'Okt',
+        'Nov',
+        'Des',
       ];
       return '${dt.day.toString().padLeft(2, '0')} ${m[dt.month]} ${dt.year} • '
           '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')} WIB';
@@ -484,10 +552,7 @@ class _StatusBadge extends StatelessWidget {
           Container(
             width: 6,
             height: 6,
-            decoration: BoxDecoration(
-              color: dotColor,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
           ),
           const SizedBox(width: 6),
           Text(
@@ -533,7 +598,11 @@ class _Pagination extends StatelessWidget {
     mainAxisSize: MainAxisSize.min,
     children: [
       _PBtn(
-        child: const Icon(Icons.chevron_left, size: 20, color: AppTheme.monTextMid),
+        child: const Icon(
+          Icons.chevron_left,
+          size: 20,
+          color: AppTheme.monTextMid,
+        ),
         onTap: currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
       ),
       const SizedBox(width: 8),
@@ -541,7 +610,10 @@ class _Pagination extends StatelessWidget {
         if (p == -1) {
           return const Padding(
             padding: EdgeInsets.symmetric(horizontal: 4),
-            child: Text('...', style: TextStyle(fontSize: 12, color: AppTheme.monTextMid)),
+            child: Text(
+              '...',
+              style: TextStyle(fontSize: 12, color: AppTheme.monTextMid),
+            ),
           );
         }
         final active = p == currentPage;
@@ -563,8 +635,14 @@ class _Pagination extends StatelessWidget {
       }),
       const SizedBox(width: 8),
       _PBtn(
-        child: const Icon(Icons.chevron_right, size: 20, color: AppTheme.monTextMid),
-        onTap: currentPage < totalPages ? () => onPageChanged(currentPage + 1) : null,
+        child: const Icon(
+          Icons.chevron_right,
+          size: 20,
+          color: AppTheme.monTextMid,
+        ),
+        onTap: currentPage < totalPages
+            ? () => onPageChanged(currentPage + 1)
+            : null,
       ),
     ],
   );
@@ -586,7 +664,15 @@ class _PBtn extends StatelessWidget {
       decoration: BoxDecoration(
         color: isActive ? AppTheme.ijoGelap : Colors.white,
         shape: BoxShape.circle,
-        boxShadow: isActive ? [BoxShadow(color: AppTheme.ijoGelap.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))] : null,
+        boxShadow: isActive
+            ? [
+                BoxShadow(
+                  color: AppTheme.ijoGelap.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : null,
       ),
       child: Center(child: child),
     ),

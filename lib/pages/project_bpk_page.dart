@@ -194,10 +194,11 @@ class _ClientCard extends StatelessWidget {
     final lower = name.toLowerCase();
     if (lower.contains('transjakarta') || lower.contains('trans jakarta')) {
       return Image.asset('assets/images/logo_trans.jpeg', fit: BoxFit.cover);
-    } else if (lower.contains('bpk') || lower.contains('badan pemeriksa keuangan')) {
+    } else if (lower.contains('bpk') ||
+        lower.contains('badan pemeriksa keuangan')) {
       return Image.asset('assets/images/logo_bpk.png', fit: BoxFit.cover);
     }
-    
+
     // Premium Initials Fallback
     final initials = _getInitials(name);
     return Container(
@@ -266,7 +267,8 @@ class _ClientCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    errorWidget: (context, url, error) => _buildFallback(client.clientName),
+                    errorWidget: (context, url, error) =>
+                        _buildFallback(client.clientName),
                   )
                 : _buildFallback(client.clientName),
           ),
