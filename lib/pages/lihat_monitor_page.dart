@@ -342,7 +342,11 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                     ),
                     Expanded(
                       flex: 1,
-                      child: _buildRightGeotaggingColumn(responses, location, biodata),
+                      child: _buildRightGeotaggingColumn(
+                        responses,
+                        location,
+                        biodata,
+                      ),
                     ),
                   ],
                 );
@@ -380,7 +384,11 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
     dynamic duration,
   ) {
     final userObj = userData?['user'] as Map<String, dynamic>? ?? userData;
-    final name = userObj?['name'] ?? userData?['email'] ?? _detail?.responses?['email'] ?? 'Guest';
+    final name =
+        userObj?['name'] ??
+        userData?['email'] ??
+        _detail?.responses?['email'] ??
+        'Guest';
     final province = _getProvinsi(biodata, userData);
 
     return Column(
@@ -426,8 +434,8 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      userObj?['usertype'] != null 
-                          ? "Role: ${userObj!['usertype']}" 
+                      userObj?['usertype'] != null
+                          ? "Role: ${userObj!['usertype']}"
                           : "Instansi tidak tersedia",
                       style: const TextStyle(
                         fontSize: 12,
@@ -671,8 +679,12 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
 
     // Prioritaskan koordinat dari RESPONSES atau BIODATA (Real GPS dari perangkat)
     // Jika tidak ada, baru fallback ke data LOCATION (seringkali berbasis IP)
-    final latRaw = responses?['latitude'] ?? biodata?['latitude'] ?? location?['latitude'];
-    final lngRaw = responses?['longitude'] ?? biodata?['longitude'] ?? location?['longitude'];
+    final latRaw =
+        responses?['latitude'] ?? biodata?['latitude'] ?? location?['latitude'];
+    final lngRaw =
+        responses?['longitude'] ??
+        biodata?['longitude'] ??
+        location?['longitude'];
 
     final lat = latRaw?.toString() ?? '-';
     final lng = lngRaw?.toString() ?? '-';
@@ -1066,20 +1078,23 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
     return 'Unknown';
   }
 
-  String _getProvinsi(Map<String, dynamic>? biodata, [Map<String, dynamic>? responses]) {
+  String _getProvinsi(
+    Map<String, dynamic>? biodata, [
+    Map<String, dynamic>? responses,
+  ]) {
     if (biodata == null && responses == null) return '-';
-    
+
     // Cek di biodata dulu
     final bName = biodata?['province_name'];
     if (bName != null && bName.toString().isNotEmpty) return bName.toString();
-    
+
     // Cek di responses (berdasarkan JSON baru)
     final rProvId = responses?['response_province_id'];
     if (rProvId != null) return 'Provinsi ID: $rProvId';
 
     final bId = biodata?['province_id'];
     if (bId != null) return 'Prov. $bId';
-    
+
     return '-';
   }
 
@@ -1308,10 +1323,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                     ),
                     const Text(
                       "Klik untuk membuka file",
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Color(0xFF6B7280),
-                      ),
+                      style: TextStyle(fontSize: 10, color: Color(0xFF6B7280)),
                     ),
                   ],
                 ),
@@ -1359,7 +1371,11 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
         ),
         child: Row(
           children: [
-            const Icon(Icons.location_on, size: 16, color: AppTheme.monGreenMid),
+            const Icon(
+              Icons.location_on,
+              size: 16,
+              color: AppTheme.monGreenMid,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(

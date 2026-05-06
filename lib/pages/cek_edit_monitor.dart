@@ -82,14 +82,6 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
       if (data != null) {
         surveyData = data;
 
-        debugPrint('DEBUG _loadData - responseId: ${data.responseId}');
-        debugPrint('DEBUG _loadData - answers count: ${data.answers.length}');
-        for (var i = 0; i < data.answers.length; i++) {
-          debugPrint(
-            'DEBUG Answer[$i]: QID=${data.answers[i].questionId}, Ans=${data.answers[i].answer}',
-          );
-        }
-
         final parsed = _editService.parseExistingAnswers(
           answers: data.answers,
           pages: data.pages,
@@ -97,11 +89,9 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
         );
         answers = Map<int, dynamic>.from(parsed);
         originalAnswers = Map<int, dynamic>.from(parsed);
-
-        debugPrint('DEBUG _loadData - parsed answers: $parsed');
       }
     } catch (e) {
-      debugPrint("Error loading monitor data: $e");
+      debugPrint("[CekEditMonitorPage] Error loading monitor data: $e");
     } finally {
       setState(() => isLoading = false);
     }
@@ -337,43 +327,33 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
   // ── ANSWER INPUT ──────────────────────────────────────────
 
   Widget _buildAnswerInput(SurveyQuestionData q) {
-    if (q.questionTypeId == 5) return const SizedBox.shrink(); // Type 5 is Info/Instruction
-
-    switch (q.questionTypeId) {
-      case 2: // Radio
+    if (q.typeString == 'info') return const SizedBox.shrink();
+    switch (q.typeString) {
+      case 'radio':
         return _buildRadio(q);
-      case 3: // Checkbox
+      case 'checkbox':
         return _buildCheckbox(q);
-      case 7: // Dropdown
+      case 'dropdown':
         return _buildDropdown(q);
-      case 1: // Text
-      case 4: // Number
-      case 8: // Paragraph
-      case 6: // Rating/Scale
+      case 'text':
+      case 'number':
+      case 'paragraph':
         return _buildTextField(q);
-      case 9: // Matrix
+      case 'matrix':
         return _buildMatrix(q);
-      case 10: // Attachment/File
+      case 'document':
         return _buildDocument(q);
-      case 11: // Location Dropdown
+      case 'location':
         return _buildLocationDropdown(q);
       default:
-        // Fallback berdasarkan typeString jika ID tidak dikenal
-        switch (q.typeString) {
-          case 'radio': return _buildRadio(q);
-          case 'checkbox': return _buildCheckbox(q);
-          case 'dropdown': return _buildDropdown(q);
-          case 'text':
-          case 'number':
-          case 'paragraph': return _buildTextField(q);
-          case 'matrix': return _buildMatrix(q);
-          case 'document': return _buildDocument(q);
-          default:
-            return Text(
-              "Tipe pertanyaan (${q.questionTypeId}) belum didukung untuk pengeditan.",
-              style: const TextStyle(fontSize: 11, color: Colors.grey, fontStyle: FontStyle.italic),
-            );
-        }
+        return Text(
+          "Tipe pertanyaan (${q.questionTypeId}) belum didukung untuk pengeditan.",
+          style: const TextStyle(
+            fontSize: 11,
+            color: Colors.grey,
+            fontStyle: FontStyle.italic,
+          ),
+        );
     }
   }
 
@@ -555,10 +535,10 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
   Widget _buildTextField(SurveyQuestionData q) {
     return TextFormField(
       initialValue: answers[q.id]?.toString() ?? '',
-      keyboardType: (q.questionTypeId == 4 || q.questionTypeId == 6)
+      keyboardType: q.typeString == 'number'
           ? TextInputType.number
           : TextInputType.multiline,
-      maxLines: (q.questionTypeId == 8) ? 4 : 1,
+      maxLines: q.typeString == 'paragraph' ? 4 : 1,
       onChanged: (val) => answers[q.id] = val,
       decoration: InputDecoration(
         filled: true,
@@ -796,7 +776,11 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
           ),
           child: Row(
             children: [
-              const Icon(Icons.location_on, size: 18, color: AppTheme.monGreenMid),
+              const Icon(
+                Icons.location_on,
+                size: 18,
+                color: AppTheme.monGreenMid,
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -804,7 +788,9 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: currentVal.isNotEmpty ? AppTheme.monGreenDark : Colors.grey,
+                    color: currentVal.isNotEmpty
+                        ? AppTheme.monGreenDark
+                        : Colors.grey,
                   ),
                 ),
               ),
@@ -814,7 +800,11 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
         const SizedBox(height: 8),
         const Text(
           "* Lokasi ini diambil dari isian saat submit. Untuk saat ini pengeditan lokasi hanya bisa dilakukan melalui teks.",
-          style: TextStyle(fontSize: 10, color: Colors.grey, fontStyle: FontStyle.italic),
+          style: TextStyle(
+            fontSize: 10,
+            color: Colors.grey,
+            fontStyle: FontStyle.italic,
+          ),
         ),
         const SizedBox(height: 8),
         _buildTextField(q), // Berikan opsi edit via text field sebagai fallback
@@ -911,7 +901,7 @@ class _CekEditMonitorPageState extends State<CekEditMonitorPage>
         _showSnackbar("Gagal menyimpan jawaban", isSuccess: false);
       }
     } catch (e) {
-      debugPrint("Error submit: $e");
+      debugPrint("[CekEditMonitorPage] Error submit: $e");
       if (mounted) _showSnackbar("Terjadi kesalahan: $e", isSuccess: false);
     } finally {
       setState(() => isSaving = false);
