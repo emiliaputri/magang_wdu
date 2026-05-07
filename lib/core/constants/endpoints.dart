@@ -113,4 +113,10 @@ class Endpoints {
     String projectSlug,
     String slug,
   ) => '/clients/$clientSlug/projects/$projectSlug/surveys/$slug/submission';
+
+  // ── NOTIFICATIONS ──────────────────────────────────────────
+  static const String notifications = '/notifications';
+  static String markNotificationAsRead(String id) => '/notifications/$id/read';
+  static const String markAllNotificationsAsRead = '/notifications/read-all';
+  static String deleteNotification(String id) => '/notifications/$id';
 }

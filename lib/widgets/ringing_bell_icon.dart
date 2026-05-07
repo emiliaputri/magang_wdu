@@ -23,6 +23,11 @@ class _RingingBellIconState extends State<RingingBellIcon>
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
+
+    // Fetch notifications on start
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotificationProvider>().fetchNotifications();
+    });
   }
 
   @override
