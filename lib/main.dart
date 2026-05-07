@@ -15,6 +15,7 @@ import 'pages/detail_responden_transjakarta_page.dart';
 import 'pages/submission_page.dart';
 import 'pages/biodata_page.dart';
 import 'pages/camera_capture_page.dart';
+import 'pages/splash_page.dart';
 import 'providers/auth_provider.dart';
 import 'providers/survey_provider.dart';
 import 'providers/notification_provider.dart';
@@ -106,8 +107,12 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: AppTheme.themeData,
             navigatorObservers: [AppRouteObserver()],
-            initialRoute: isLoggedIn ? initialRoute : null,
-            home: _getHome(),
+            initialRoute: null,
+            home: SplashPage(
+              isLoggedIn: isLoggedIn,
+              initialRoute: initialRoute,
+              initialArgs: initialArgs,
+            ),
             builder: (context, child) {
               return MediaQuery(
                 data: MediaQuery.of(context).copyWith(
@@ -298,10 +303,5 @@ class MyApp extends StatelessWidget {
     },
       ),
     );
-  }
-
-  Widget _getHome() {
-    if (!isLoggedIn) return const LoginPage();
-    return const DashboardPage();
   }
 }

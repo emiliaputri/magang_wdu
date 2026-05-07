@@ -851,7 +851,12 @@ class _SubmissionPageState extends State<SubmissionPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () async {
+              await _clearDraft();
+              if (context.mounted) {
+                Navigator.pop(context, true);
+              }
+            },
             child: const Text(
               'Keluar Tanpa Simpan',
               style: TextStyle(color: Colors.red),
