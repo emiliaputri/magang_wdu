@@ -104,42 +104,55 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.monBgColor,
-      body: Column(
-        children: [
-          _buildHeader(context),
-          Expanded(
-            child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(
-                      color: AppTheme.monGreenMid,
-                    ),
-                  )
-                : _errorMessage != null
-                ? _buildErrorUI()
-                : FadeTransition(
-                    opacity: _fadeAnim,
-                    child: SlideTransition(
-                      position: _slideAnim,
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 24,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildRespondentInfo(),
-                            const SizedBox(height: 24),
-                            ..._buildQuestionsList(),
-                            const SizedBox(height: 100),
-                          ],
+      backgroundColor: AppTheme.monSurface,
+      body: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.monSurface,
+          gradient: RadialGradient(
+            center: const Alignment(-1, -1),
+            radius: 1.5,
+            colors: [
+              AppTheme.monPrimary.withValues(alpha: 0.05),
+              Colors.transparent,
+            ],
+          ),
+        ),
+        child: Column(
+          children: [
+            _buildHeader(context),
+            Expanded(
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.monGreenMid,
+                      ),
+                    )
+                  : _errorMessage != null
+                  ? _buildErrorUI()
+                  : FadeTransition(
+                      opacity: _fadeAnim,
+                      child: SlideTransition(
+                        position: _slideAnim,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 24,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildRespondentInfo(),
+                              const SizedBox(height: 24),
+                              ..._buildQuestionsList(),
+                              const SizedBox(height: 100),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -147,100 +160,109 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
   Widget _buildHeader(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppTheme.monGreenDark, AppTheme.monGreenMid],
+          colors: [
+            AppTheme.ijoTerang,
+            AppTheme.ijoGelap,
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-      ),
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 16,
-        left: 20,
-        right: 20,
-        bottom: 24,
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                ),
-              ),
-              const Text(
-                'Monitor Detail',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1,
-                ),
-              ),
-              const SizedBox(width: 34),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.bar_chart_rounded,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 16),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Detail Responden Survey",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      "Analisis data responden terdaftar, campaign, dan guest",
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white.withValues(alpha: 0.15),
+                      padding: const EdgeInsets.all(8),
+                      minimumSize: const Size(40, 40),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const Expanded(
+                    child: Center(
+                      child: Text(
+                        'Monitor Detail',
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 40), // Balance spacer
+                ],
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.bar_chart_rounded,
+                      color: Colors.white,
+                      size: 32,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Detail Responden Survey',
+                          style: TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Analisis data responden terdaftar, campaign, dan guest',
+                          style: TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 12,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -250,11 +272,7 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.error_outline,
-            color: AppTheme.monGreenMid,
-            size: 48,
-          ),
+          const Icon(Icons.error_outline, color: AppTheme.monPrimary, size: 48),
           const SizedBox(height: 16),
           Text(_errorMessage ?? "Terjadi kesalahan"),
           const SizedBox(height: 16),
@@ -266,150 +284,77 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
 
   Widget _buildRespondentInfo() {
     final responses = _detail?.responses;
-    final location = _detail?.location;
     final userData = responses?['user'] as Map<String, dynamic>?;
-    final biodata = _detail?.biodata;
-
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppTheme.monBgColor,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.assignment_outlined,
-                    color: Color(0xFF4F46E5), // Indigo blue
-                    size: 18,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  "INFORMASI DASAR & LOKASI",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 11,
-                    color: AppTheme.monTextMid,
-                    letterSpacing: 0.8,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F0F0)),
-
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isWide = constraints.maxWidth > 700;
-
-              if (isWide) {
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: _buildLeftInfoColumn(
-                        userData,
-                        biodata,
-                        _timelineStart,
-                        _timelineFinish,
-                        _timelineDuration,
-                      ),
-                    ),
-                    Container(
-                      width: 1,
-                      height: 400,
-                      color: const Color(0xFFF0F0F0),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: _buildRightGeotaggingColumn(responses, location, biodata),
-                    ),
-                  ],
-                );
-              } else {
-                return Column(
-                  children: [
-                    _buildLeftInfoColumn(
-                      userData,
-                      biodata,
-                      _timelineStart,
-                      _timelineFinish,
-                      _timelineDuration,
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Color(0xFFF0F0F0),
-                    ),
-                    _buildRightGeotaggingColumn(responses, location, biodata),
-                  ],
-                );
-              }
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLeftInfoColumn(
-    Map<String, dynamic>? userData,
-    Map<String, dynamic>? biodata,
-    dynamic start,
-    dynamic finish,
-    dynamic duration,
-  ) {
     final userObj = userData?['user'] as Map<String, dynamic>? ?? userData;
-    final name = userObj?['name'] ?? userData?['email'] ?? _detail?.responses?['email'] ?? 'Guest';
-    final province = _getProvinsi(biodata, userData);
+    final name =
+        userObj?['name'] ??
+        userData?['email'] ??
+        _detail?.responses?['email'] ??
+        'Guest';
+    final userType = userObj?['usertype'] ?? 'USER';
+    final responseIdStr = "ID: #SRV-${widget.responseId}";
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(24),
+        // Respondent Profile Section
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 54,
-                height: 54,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF9333EA), // Purple
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Center(
-                  child: Text(
-                    name.toString().isNotEmpty
-                        ? name.toString()[0].toUpperCase()
-                        : 'G',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: _getAvatarGradient(name),
+                    ),
+                    child: Center(
+                      child: Text(
+                        name[0].toUpperCase(),
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  Positioned(
+                    bottom: -2,
+                    right: -2,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: const BoxDecoration(
+                        color: AppTheme.monPrimary,
+                        shape: BoxShape.circle,
+                        border: Border.fromBorderSide(
+                          BorderSide(color: Colors.white, width: 2),
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.verified,
+                        size: 10,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -419,50 +364,52 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                     Text(
                       name,
                       style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.monTextDark,
+                        fontFamily: 'Manrope',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.monOnSurface,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      userObj?['usertype'] != null 
-                          ? "Role: ${userObj!['usertype']}" 
-                          : "Instansi tidak tersedia",
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.monTextLight,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEEF2FF), // Soft Indigo
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.public,
-                            size: 14,
-                            color: Color(0xFF4F46E5), // Indigo
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
                           ),
-                          const SizedBox(width: 6),
-                          Text(
-                            province == '-' ? "Tidak ada provinsi" : province,
+                          decoration: BoxDecoration(
+                            color: AppTheme.monSecondaryContainer.withValues(
+                              alpha: 0.1,
+                            ),
+                            borderRadius: BorderRadius.circular(99),
+                          ),
+                          child: Text(
+                            userType.toString().toUpperCase(),
                             style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF4F46E5), // Indigo
+                              fontFamily: 'Manrope',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                              color: AppTheme.monSecondaryContainer,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          '•',
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          responseIdStr,
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -470,134 +417,389 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
             ],
           ),
         ),
-
-        const Divider(height: 1, thickness: 1, color: Color(0xFFF8F8F8)),
-
-        Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "ALAMAT",
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.monTextLight,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: const Color(0xFFEEEEEE)),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.home_outlined,
-                      size: 20,
-                      color: AppTheme.monTextMid,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  const Expanded(
-                    child: Text(
-                      "Alamat tidak tersedia",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.monTextDark,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-
-        _buildTimelineFooter(
-          _timelineStart,
-          _timelineFinish,
-          _timelineDuration,
-        ),
+        const SizedBox(height: 16),
+        // Bento Grid Content
+        _buildBentoGrid(),
       ],
     );
   }
 
-  Widget _buildTimelineItem(
-    String label,
-    String value,
-    Color color, {
-    IconData? icon,
-  }) {
+  Widget _buildBentoGrid() {
+    final responses = _detail?.responses;
+    final location = _detail?.location;
+    final biodata = _detail?.biodata;
+    final ip = location?['ip']?.toString() ?? '-';
+    final provider = location?['provider']?.toString() ?? 'Telkomsel';
+    final city = _getWilayah(location);
+
+    final latRaw =
+        responses?['latitude'] ?? biodata?['latitude'] ?? location?['latitude'];
+    final lngRaw =
+        responses?['longitude'] ??
+        biodata?['longitude'] ??
+        location?['longitude'];
+    final lat = latRaw?.toString() ?? '-';
+    final lng = lngRaw?.toString() ?? '-';
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-            color: AppTheme.monTextLight,
-            letterSpacing: 0.5,
+        // Timing Card (Full Width)
+        _buildTimingCard(),
+        const SizedBox(height: 16),
+        // IP Address Card (Full Width now)
+        _buildIPCard(ip, provider),
+        const SizedBox(height: 16),
+        // Location Card
+        _buildLocationCard(city, lat, lng),
+      ],
+    );
+  }
+
+  Widget _buildTimingCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppTheme.monSecondary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.schedule_rounded,
+                  size: 20,
+                  color: AppTheme.monSecondary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'SURVEY TIMING',
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _buildTimingItem('START', _timelineStart.split('\n').last),
+              const SizedBox(width: 8),
+              _buildTimingItem('FINISH', _timelineFinish.split('\n').last),
+              const SizedBox(width: 8),
+              _buildTimingItem('DURATION', _timelineDuration, isDuration: true),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimingItem(
+    String label,
+    String value, {
+    bool isDuration = false,
+  }) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isDuration
+              ? AppTheme.monSecondaryFixed.withValues(alpha: 0.3)
+              : AppTheme.monSurface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isDuration
+                ? AppTheme.monSecondaryFixed
+                : Colors.grey.withValues(alpha: 0.05),
           ),
         ),
-        const SizedBox(height: 8),
-        Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (icon != null)
-              Icon(icon, size: 14, color: color)
-            else
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-              ),
-            const SizedBox(width: 8),
             Text(
-              value.toString(),
+              label,
               style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: color.withOpacity(0.9),
+                fontFamily: 'Manrope',
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: isDuration ? AppTheme.monSecondary : Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: isDuration
+                    ? AppTheme.monSecondary
+                    : AppTheme.monOnSurface,
               ),
             ),
           ],
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildTimelineFooter(String start, String finish, String durasi) {
+  Widget _buildIPCard(String ip, String provider) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      decoration: const BoxDecoration(
-        color: Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24)),
+      height: 120,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTimelineItem(
-            "MULAI",
-            start,
-            const Color(0xFF10B981),
-          ), // Emerald
-          _buildTimelineItem(
-            "SELESAI",
-            finish,
-            const Color(0xFF3B82F6),
-          ), // Azure Blue
-          _buildTimelineItem(
-            "DURASI",
-            durasi,
-            const Color(0xFFF59E0B), // Amber
-            icon: Icons.access_time_rounded,
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.lan_rounded,
+                  size: 20,
+                  color: Colors.amber,
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'IP ADDRESS',
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            ip,
+            style: const TextStyle(
+              fontFamily: 'monospace',
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.monOnSurface,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Provider: $provider',
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 10,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLocationCard(String city, String lat, String lng) {
+    final biodata = _detail?.biodata;
+    final responses = _detail?.responses;
+    final address =
+        biodata?['address'] ??
+        responses?['address'] ??
+        biodata?['alamat'] ??
+        responses?['alamat'] ??
+        'Alamat tidak tersedia';
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppTheme.monPrimary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.location_on_rounded,
+                        size: 20,
+                        color: AppTheme.monPrimary,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'KOTA / WILAYAH',
+                      style: TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  city,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.monPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, thickness: 1, color: Color(0xFFF8F8F8)),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.map_rounded,
+                      color: AppTheme.monPrimary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'ALAMAT LENGKAP',
+                            style: TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            address,
+                            style: const TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 13,
+                              color: AppTheme.monOnSurface,
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Stack(
+                  children: [
+                    _buildEnhancedMapPreview(lat, lng),
+                    Positioned(
+                      bottom: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(
+                              Icons.my_location_rounded,
+                              size: 14,
+                              color: AppTheme.monPrimary,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              'GEOTAGGED',
+                              style: TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.monOnSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    _buildCoordItem('LATITUDE', lat),
+                    const SizedBox(width: 16),
+                    _buildCoordItem('LONGITUDE', lng),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCoordItem(String label, String value) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.monOnSurface,
+            ),
           ),
         ],
       ),
@@ -661,395 +863,6 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
     _timelineDuration = calcDuration(startRaw, finishRaw);
   }
 
-  Widget _buildRightGeotaggingColumn(
-    Map<String, dynamic>? responses,
-    Map<String, dynamic>? location,
-    Map<String, dynamic>? biodata,
-  ) {
-    final ip = location?['ip']?.toString() ?? '-';
-    final wilayah = _getWilayah(location);
-
-    // Prioritaskan koordinat dari RESPONSES atau BIODATA (Real GPS dari perangkat)
-    // Jika tidak ada, baru fallback ke data LOCATION (seringkali berbasis IP)
-    final latRaw = responses?['latitude'] ?? biodata?['latitude'] ?? location?['latitude'];
-    final lngRaw = responses?['longitude'] ?? biodata?['longitude'] ?? location?['longitude'];
-
-    final lat = latRaw?.toString() ?? '-';
-    final lng = lngRaw?.toString() ?? '-';
-
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Row(
-                children: [
-                  Icon(
-                    Icons.location_on_outlined,
-                    color: AppTheme.monGreenMid,
-                    size: 20,
-                  ),
-                  SizedBox(width: 12),
-                  Text(
-                    "Geotagging",
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.monTextDark,
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFFBEB), // Soft Yellow
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: const Color(0xFFFDE68A), // Light Amber
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF59E0B), // Amber
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    const Text(
-                      "GPS Aktif",
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFFB45309), // Dark Amber
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isVeryWide = constraints.maxWidth > 350;
-              if (isVeryWide) {
-                return Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildGeoItem(
-                            "IP ADDRESS",
-                            ip,
-                            Icons.language_rounded,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _buildGeoItem(
-                            "KOTA / WILAYAH",
-                            wilayah,
-                            Icons.location_city_rounded,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    _buildCoordinateRow(lat, lng),
-                  ],
-                );
-              } else {
-                return Column(
-                  children: [
-                    _buildGeoItem("IP ADDRESS", ip, Icons.language_rounded),
-                    const SizedBox(height: 16),
-                    _buildGeoItem(
-                      "KOTA / WILAYAH",
-                      wilayah,
-                      Icons.location_city_rounded,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildCoordinateRow(lat, lng),
-                  ],
-                );
-              }
-            },
-          ),
-
-          const SizedBox(height: 24),
-          _buildEnhancedMapPreview(lat, lng),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGeoItem(String label, String value, IconData icon) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-            color: AppTheme.monTextLight,
-            letterSpacing: 0.5,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F6F7),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Icon(icon, size: 14, color: AppTheme.monTextLight),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.monTextDark,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCoordinateRow(String lat, String lng) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "KOORDINAT",
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-            color: AppTheme.monTextLight,
-            letterSpacing: 0.5,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5F6F7),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.map_outlined,
-                size: 16,
-                color: AppTheme.monTextLight,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  "$lat, $lng",
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.monTextDark,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () async {
-                    final url = 'https://www.google.com/maps?q=$lat,$lng';
-                    final uri = Uri.parse(url);
-                    if (await canLaunchUrl(uri)) {
-                      await launchUrl(
-                        uri,
-                        mode: LaunchMode.externalApplication,
-                      );
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(6),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppTheme.monGreenMid.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AppTheme.monGreenMid.withOpacity(0.3),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.open_in_new_rounded,
-                          size: 12,
-                          color: AppTheme.monGreenMid,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          "Maps",
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.monGreenMid,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEnhancedMapPreview(String latStr, String lngStr) {
-    final lat = double.tryParse(latStr);
-    final lng = double.tryParse(lngStr);
-
-    if (lat == null || lng == null) {
-      return Container(
-        height: 180,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF5F6F7),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFEEEEEE)),
-        ),
-        child: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.location_off_outlined,
-                color: AppTheme.monTextLight,
-                size: 32,
-              ),
-              SizedBox(height: 12),
-              Text(
-                "Peta tidak tersedia",
-                style: TextStyle(color: AppTheme.monTextLight, fontSize: 12),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        height: 240,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFEEEEEE)),
-        ),
-        child: Stack(
-          children: [
-            FlutterMap(
-              mapController: _mapController,
-              options: MapOptions(
-                initialCenter: LatLng(lat, lng),
-                initialZoom: 16,
-                interactionOptions: const InteractionOptions(
-                  flags: InteractiveFlag.all,
-                ),
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.flutter_application_wdu',
-                ),
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: LatLng(lat, lng),
-                      width: 40,
-                      height: 40,
-                      child: const Icon(
-                        Icons.location_on,
-                        color: Colors.red,
-                        size: 40,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            // Zoom Controls
-            Positioned(
-              right: 12,
-              bottom: 12,
-              child: Column(
-                children: [
-                  _buildZoomButton(Icons.add, () {
-                    final newZoom = _mapController.camera.zoom + 1;
-                    _mapController.move(_mapController.camera.center, newZoom);
-                  }),
-                  const SizedBox(height: 8),
-                  _buildZoomButton(Icons.remove, () {
-                    final newZoom = _mapController.camera.zoom - 1;
-                    _mapController.move(_mapController.camera.center, newZoom);
-                  }),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildZoomButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Icon(icon, size: 20, color: AppTheme.monTextDark),
-      ),
-    );
-  }
-
   String _getWilayah(Map<String, dynamic>? location) {
     if (location == null) return '-';
     final city = location['city'];
@@ -1066,64 +879,57 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
     return 'Unknown';
   }
 
-  String _getProvinsi(Map<String, dynamic>? biodata, [Map<String, dynamic>? responses]) {
+  String _getProvinsi(
+    Map<String, dynamic>? biodata, [
+    Map<String, dynamic>? responses,
+  ]) {
     if (biodata == null && responses == null) return '-';
-    
-    // Cek di biodata dulu
     final bName = biodata?['province_name'];
     if (bName != null && bName.toString().isNotEmpty) return bName.toString();
-    
-    // Cek di responses (berdasarkan JSON baru)
     final rProvId = responses?['response_province_id'];
     if (rProvId != null) return 'Provinsi ID: $rProvId';
-
     final bId = biodata?['province_id'];
     if (bId != null) return 'Prov. $bId';
-    
     return '-';
   }
 
   List<Widget> _buildQuestionsList() {
     if (_detail == null) return [];
-
-    debugPrint(
-      'DEBUG _buildQuestionsList: pages count = ${_detail!.pages.length}',
-    );
-    for (var p in _detail!.pages) {
-      debugPrint(
-        'DEBUG: Page ${p.pageName} has ${p.questions.length} questions',
-      );
-    }
-
     final currentResponseId = widget.responseId;
-
     List<Widget> list = [];
 
     for (var page in _detail!.pages) {
       list.add(
         Padding(
-          padding: const EdgeInsets.only(bottom: 12, top: 8),
-          child: Text(
-            page.pageName.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              color: AppTheme.monGreenMid,
-              letterSpacing: 1.2,
-            ),
+          padding: const EdgeInsets.only(bottom: 16, top: 24),
+          child: Row(
+            children: [
+              Container(
+                width: 4,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: AppTheme.monPrimary,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                page.pageName.toUpperCase(),
+                style: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.monPrimary,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ],
           ),
         ),
       );
 
       for (var q in page.questions) {
-        debugPrint(
-          'DEBUG: Question ${q.id} has ${q.embeddedAnswers.length} embedded answers',
-        );
-
-        // Get raw answer for this specific responseId
         String rawAnswer = "-";
-
-        // Check embedded answers and filter by responseId
         if (q.embeddedAnswers.isNotEmpty) {
           final matchingAnswer = q.embeddedAnswers.firstWhere(
             (a) => a['response_id'] == currentResponseId,
@@ -1133,27 +939,11 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
             rawAnswer = matchingAnswer['answer']?.toString() ?? "-";
           }
         }
-
         list.add(_buildQuestionCard(q, rawAnswer));
-        list.add(const SizedBox(height: 12));
+        list.add(const SizedBox(height: 16));
       }
     }
-
     return list;
-  }
-
-  // Hapus _formatAnswer karena sekarang _buildAnswerDisplay yang handle
-
-  dynamic _parseJson(String jsonStr) {
-    try {
-      return jsonStr.isEmpty
-          ? {}
-          : jsonStr.startsWith('[')
-          ? jsonDecode(jsonStr) as List
-          : jsonDecode(jsonStr) as Map<String, dynamic>;
-    } catch (e) {
-      return {};
-    }
   }
 
   Widget _buildQuestionCard(SurveyQuestionData q, String answer) {
@@ -1162,27 +952,28 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.withOpacity(0.15)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  q.plainText,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                    color: Color(0xFF202124),
-                    height: 1.4,
-                  ),
-                ),
-              ),
-            ],
+          Text(
+            q.plainText,
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              color: AppTheme.monOnSurface,
+              height: 1.5,
+            ),
           ),
           const SizedBox(height: 16),
           _buildAnswerDisplay(q, answer),
@@ -1194,102 +985,31 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
   Widget _buildAnswerDisplay(SurveyQuestionData q, String answer) {
     if (q.typeString == 'info') return const SizedBox.shrink();
 
-    // Matrix question
     if (q.typeString == 'matrix') {
-      debugPrint(
-        'DEBUG Matrix Q${q.id}: matrixRows=${q.matrixRows.length}, matrixColumns=${q.matrixColumns.length}, embeddedAnswers=${q.embeddedAnswers.length}',
-      );
-
-      // Fallback: jika matrixRows/columns kosong, coba buat dari answer JSON
-      final hasOriginalRows = q.matrixRows.isNotEmpty;
-
-      if (!hasOriginalRows &&
-          answer.isNotEmpty &&
-          answer != '-' &&
-          answer != 'Unknown') {
-        final rowIndices = <int>{};
-        final colIndices = <int>{};
-        try {
-          final parsed = jsonDecode(answer);
-          if (parsed is Map) {
-            for (final entry in parsed.entries) {
-              final rowIdx = int.tryParse(entry.key);
-              final colIdx = int.tryParse(entry.value.toString());
-              if (rowIdx != null) rowIndices.add(rowIdx);
-              if (colIdx != null) colIndices.add(colIdx);
-            }
-          }
-        } catch (_) {}
-        if (rowIndices.isNotEmpty || colIndices.isNotEmpty) {
-          final sortedRowIdx = rowIndices.toList()..sort();
-          final sortedColIdx = colIndices.toList()..sort();
-          final tempRows = sortedRowIdx
-              .map((i) => MatrixRowData(label: 'Row ${i + 1}'))
-              .toList();
-          final tempCols = sortedColIdx
-              .map((i) => MatrixColumnData(label: 'Option ${i + 1}'))
-              .toList();
-          debugPrint(
-            'DEBUG Matrix Q${q.id} fallback: generated ${tempRows.length} rows, ${tempCols.length} cols from answer JSON',
-          );
-          return _buildMatrixAnswer(q, answer, tempRows, tempCols);
-        }
-      }
-
-      // Jika matrix memiliki data, tampilkan sebagai DataTable (dengan fallback labels)
       if (q.matrixRows.isNotEmpty && q.matrixColumns.isNotEmpty) {
         return _buildMatrixAnswer(q, answer);
       }
-
-      // Fallback: tampilkan jawaban sebagai text jika tidak ada data matrix
       if (answer.isNotEmpty && answer != "-" && answer != "Unknown") {
-        return Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppTheme.monBgColor,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.check_circle,
-                size: 16,
-                color: AppTheme.monGreenMid,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  answer,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
+        return _buildAnswerContainer(answer);
       }
-
       return _buildEmptyAnswer();
     }
 
-    // Document/File question (type 10)
     if (q.questionTypeId == 10) {
       if (answer.isNotEmpty && answer != "-" && answer != "Unknown") {
         return Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFFF3F4F6),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
+            color: AppTheme.monSurface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.05)),
           ),
           child: Row(
             children: [
               const Icon(
-                Icons.insert_drive_file_outlined,
-                size: 20,
-                color: Color(0xFF4B5563),
+                Icons.insert_drive_file_rounded,
+                size: 24,
+                color: AppTheme.monPrimary,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1299,9 +1019,10 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                     Text(
                       answer,
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontFamily: 'Manrope',
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1F2937),
+                        color: AppTheme.monOnSurface,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -1309,15 +1030,20 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
                     const Text(
                       "Klik untuk membuka file",
                       style: TextStyle(
-                        fontSize: 10,
-                        color: Color(0xFF6B7280),
+                        fontFamily: 'Manrope',
+                        fontSize: 11,
+                        color: Colors.grey,
                       ),
                     ),
                   ],
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.open_in_new, size: 18),
+                icon: const Icon(
+                  Icons.open_in_new_rounded,
+                  size: 20,
+                  color: AppTheme.monPrimary,
+                ),
                 onPressed: () async {
                   final url = "${Endpoints.storageUrl}/documents/$answer";
                   final uri = Uri.parse(url);
@@ -1333,41 +1059,36 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
       return _buildEmptyAnswer();
     }
 
-    // Checkbox question
-    if (q.typeString == 'checkbox' && q.choices.isNotEmpty) {
+    if (q.typeString == 'checkbox' && q.choices.isNotEmpty)
       return _buildCheckboxAnswer(q, answer);
-    }
-
-    // Radio question
-    if (q.typeString == 'radio' && q.choices.isNotEmpty) {
+    if ((q.typeString == 'radio' || q.typeString == 'dropdown') &&
+        q.choices.isNotEmpty)
       return _buildRadioAnswer(q, answer);
-    }
 
-    // Dropdown question
-    if (q.typeString == 'dropdown' && q.choices.isNotEmpty) {
-      return _buildRadioAnswer(q, answer);
-    }
-
-    // Location Dropdown (type 11)
     if (q.questionTypeId == 11) {
       return Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFFF0FDF4), // Light green
+          color: AppTheme.monPrimary.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFFDCFCE7)),
+          border: Border.all(color: AppTheme.monPrimary.withValues(alpha: 0.1)),
         ),
         child: Row(
           children: [
-            const Icon(Icons.location_on, size: 16, color: AppTheme.monGreenMid),
+            const Icon(
+              Icons.location_on_rounded,
+              size: 16,
+              color: AppTheme.monPrimary,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 answer,
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontFamily: 'Manrope',
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.monGreenDark,
+                  color: AppTheme.monPrimary,
                 ),
               ),
             ),
@@ -1376,548 +1097,314 @@ class _LihatMonitorPageState extends State<LihatMonitorPage>
       );
     }
 
-    // Text, number, paragraph - show as plain text
-    if (answer.isEmpty || answer == "-" || answer == "Unknown") {
+    if (answer.isEmpty || answer == "-" || answer == "Unknown")
       return _buildEmptyAnswer();
-    }
+    return _buildAnswerContainer(answer);
+  }
 
+  Widget _buildAnswerContainer(String text) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.monBgColor,
-        borderRadius: BorderRadius.circular(8),
+        color: AppTheme.monSurface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.05)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.reply, size: 14, color: AppTheme.monGreenMid),
+          const Icon(Icons.reply_rounded, size: 16, color: AppTheme.monPrimary),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              answer,
+              text,
               style: const TextStyle(
-                fontSize: 12,
+                fontFamily: 'Manrope',
+                fontSize: 13,
                 fontWeight: FontWeight.w500,
-                color: AppTheme.monGreenDark,
+                color: AppTheme.monOnSurface,
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMatrixAnswer(
-    SurveyQuestionData q,
-    String answer, [
-    List<MatrixRowData>? overrideRows,
-    List<MatrixColumnData>? overrideCols,
-  ]) {
-    final hasAnswer = answer.isNotEmpty && answer != "-" && answer != "Unknown";
-
-    // Use override rows/cols if provided, otherwise use question data
-    final sourceRows = overrideRows ?? q.matrixRows;
-    final sourceCols = overrideCols ?? q.matrixColumns;
-
-    // Jika tidak ada struktur rows/cols sama sekali, tampilkan sebagai text
-    if (sourceRows.isEmpty && sourceCols.isEmpty) {
-      if (hasAnswer) {
-        return Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppTheme.monBgColor,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(answer, style: const TextStyle(fontSize: 12)),
-        );
-      }
-      return _buildEmptyAnswer();
-    }
-
-    // Parse answer JSON
-    Map<String, dynamic>? parsed;
-    if (hasAnswer) {
-      try {
-        final rawParsed = _parseJson(answer);
-        if (rawParsed is Map) {
-          parsed = Map<String, dynamic>.from(rawParsed);
-        }
-      } catch (e) {
-        parsed = null;
-      }
-    }
-
-    // Generate fallback labels if labels are empty
-    final rowLabels = sourceRows.isNotEmpty
-        ? sourceRows
-              .map(
-                (row) => row.label.isNotEmpty
-                    ? row.label
-                    : 'Row ${sourceRows.indexOf(row) + 1}',
-              )
-              .toList()
-        : <String>[];
-    final colLabels = sourceCols.isNotEmpty
-        ? sourceCols
-              .map(
-                (col) => col.label.isNotEmpty
-                    ? col.label
-                    : 'Option ${sourceCols.indexOf(col) + 1}',
-              )
-              .toList()
-        : <String>[];
-
-    // Jika parsed kosong tapi ada answer, tetap tampilkan table (tanpa centang)
-    return _buildMatrixTable(
-      q,
-      answer,
-      rowLabels,
-      colLabels,
-      parsed ?? {},
-      hasAnswer,
-    );
-  }
-
-  Widget _buildMatrixTable(
-    SurveyQuestionData q,
-    String answer,
-    List<String> rowLabels,
-    List<String> colLabels,
-    Map<String, dynamic> parsed,
-    bool hasAnswer,
-  ) {
-    if (rowLabels.isEmpty || colLabels.isEmpty) {
-      if (hasAnswer) {
-        return Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppTheme.monBgColor,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(answer, style: const TextStyle(fontSize: 12)),
-        );
-      }
-      return _buildEmptyAnswer();
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          // Header columns
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(8),
-                topRight: Radius.circular(8),
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 12),
-                    child: Text(
-                      'Pernyataan',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                  ),
-                ),
-                ...colLabels.asMap().entries.map((entry) {
-                  return Expanded(
-                    flex: 1,
-                    child: Center(
-                      child: Text(
-                        entry.value,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-          // Table rows
-          ...rowLabels.asMap().entries.map((rowEntry) {
-            final rowIndex = rowEntry.key;
-            final rowLabel = rowEntry.value;
-            int selectedValue = -1;
-            if (hasAnswer) {
-              final v = parsed[rowIndex.toString()] ?? parsed['row-$rowIndex'];
-              if (v is int) {
-                selectedValue = v;
-              } else if (v is List) {
-                // checkbox type - handled below
-              }
-            }
-
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: rowIndex.isEven ? Colors.white : Colors.grey.shade50,
-                border: Border(top: BorderSide(color: Colors.grey.shade200)),
-              ),
-              child: Row(
-                children: [
-                  // Row label
-                  Expanded(
-                    flex: 3,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 12, right: 8),
-                      child: Text(
-                        rowLabel,
-                        style: const TextStyle(fontSize: 11),
-                      ),
-                    ),
-                  ),
-                  // Radio/Checkbox icons for each column
-                  ...colLabels.asMap().entries.map((colEntry) {
-                    final colIndex = colEntry.key;
-                    bool isSelected = false;
-                    if (hasAnswer) {
-                      if (q.matrixType == 'radio') {
-                        isSelected = selectedValue == colIndex;
-                      } else {
-                        final dynamic v = parsed[rowIndex.toString()];
-                        final List<dynamic> selectedCols = v is List
-                            ? v.cast<dynamic>()
-                            : <dynamic>[];
-                        isSelected = selectedCols.contains(colIndex);
-                      }
-                    }
-
-                    return Expanded(
-                      flex: 1,
-                      child: Center(
-                        child: Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            shape: q.matrixType == 'radio'
-                                ? BoxShape.circle
-                                : BoxShape.rectangle,
-                            borderRadius: q.matrixType == 'radio'
-                                ? null
-                                : BorderRadius.circular(4),
-                            color: isSelected
-                                ? _getMatrixColor(colIndex, colLabels.length)
-                                : Colors.transparent,
-                            border: Border.all(
-                              color: isSelected
-                                  ? _getMatrixColor(colIndex, colLabels.length)
-                                  : Colors.grey.shade400,
-                              width: 2,
-                            ),
-                          ),
-                          child: isSelected
-                              ? const Icon(
-                                  Icons.check,
-                                  size: 14,
-                                  color: Colors.white,
-                                )
-                              : null,
-                        ),
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  Color _getMatrixColor(int index, int totalColumns) {
-    // Jika ada 4 kolom, asumsikan Likert standard
-    if (totalColumns == 4) {
-      switch (index) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-          return AppTheme.monGreenDark;
-        default:
-          return AppTheme.monGreenMid;
-      }
-    }
-    // Jika ada 5 kolom, asumsikan Likert standard + N/A
-    if (totalColumns == 5) {
-      switch (index) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-          return AppTheme.monGreenDark;
-        case 4:
-          return Colors.grey;
-        default:
-          return AppTheme.monGreenMid;
-      }
-    }
-    // Default fallback
-    return AppTheme.monGreenMid;
-  }
-
-  Widget _buildCheckboxAnswer(SurveyQuestionData q, String answer) {
-    if (answer.isEmpty || answer == "-" || answer == "Unknown") {
-      return _buildEmptyAnswer();
-    }
-
-    try {
-      final List<String> selectedIds = [];
-
-      if (answer.startsWith('[')) {
-        final List<dynamic> parsed = _parseJson(answer);
-        for (var item in parsed) {
-          selectedIds.add(item.toString());
-        }
-      } else {
-        selectedIds.add(answer);
-      }
-
-      return Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          children: q.choices
-              .asMap()
-              .map((index, opt) {
-                final optId = opt.id.toString();
-                final isChecked = selectedIds.contains(optId);
-                final isLast = index == q.choices.length - 1;
-
-                return MapEntry(
-                  index,
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isChecked
-                          ? AppTheme.monGreenPale
-                          : Colors.transparent,
-                      border: Border(
-                        bottom: !isLast
-                            ? BorderSide(color: Colors.grey.shade200)
-                            : BorderSide.none,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: isChecked ? AppTheme.ijoGelap : Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(
-                              color: isChecked
-                                  ? AppTheme.ijoGelap
-                                  : Colors.grey.shade400,
-                              width: 2,
-                            ),
-                          ),
-                          child: isChecked
-                              ? const Icon(
-                                  Icons.check,
-                                  size: 14,
-                                  color: Colors.white,
-                                )
-                              : null,
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Text(
-                            opt.value,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isChecked
-                                  ? const Color(0xFF202124)
-                                  : Colors.grey.shade700,
-                              fontWeight: isChecked
-                                  ? FontWeight.w500
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              })
-              .values
-              .toList(),
-        ),
-      );
-    } catch (e) {
-      return _buildTextInputAnswer(answer);
-    }
-  }
-
-  Widget _buildTextInputAnswer(String answer) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.text_fields, size: 16, color: Colors.grey[400]),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              answer.isEmpty ? 'Tidak dijawab' : answer,
-              style: TextStyle(fontSize: 12, color: Colors.grey[700]),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRadioAnswer(SurveyQuestionData q, String answer) {
-    if (answer.isEmpty || answer == "-" || answer == "Unknown") {
-      return _buildEmptyAnswer();
-    }
-
-    String? selectedValue;
-    for (var choice in q.choices) {
-      if (choice.id.toString() == answer) {
-        selectedValue = choice.value;
-        break;
-      }
-    }
-
-    final displayValue = selectedValue ?? answer;
-
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: q.choices
-            .asMap()
-            .map((index, choice) {
-              final isSelected =
-                  choice.value == selectedValue ||
-                  choice.id.toString() == answer;
-              final isLast = index == q.choices.length - 1;
-
-              return MapEntry(
-                index,
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppTheme.monGreenPale
-                        : Colors.transparent,
-                    border: Border(
-                      bottom: !isLast
-                          ? BorderSide(color: Colors.grey.shade200)
-                          : BorderSide.none,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isSelected ? AppTheme.ijoGelap : Colors.white,
-                          border: Border.all(
-                            color: isSelected
-                                ? AppTheme.ijoGelap
-                                : Colors.grey.shade400,
-                            width: 2,
-                          ),
-                        ),
-                        child: isSelected
-                            ? const Icon(
-                                Icons.circle,
-                                size: 10,
-                                color: Colors.white,
-                              )
-                            : null,
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Text(
-                          choice.value,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isSelected
-                                ? const Color(0xFF202124)
-                                : Colors.grey.shade700,
-                            fontWeight: isSelected
-                                ? FontWeight.w500
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            })
-            .values
-            .toList(),
       ),
     );
   }
 
   Widget _buildEmptyAnswer() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.remove_circle_outline, size: 14, color: Colors.grey[400]),
-          const SizedBox(width: 8),
-          Text(
-            'Tidak dijawab',
-            style: TextStyle(
-              fontSize: 12,
-              fontStyle: FontStyle.italic,
-              color: Colors.grey[500],
-            ),
-          ),
-        ],
+    return Text(
+      "Belum ada jawaban",
+      style: TextStyle(
+        fontFamily: 'Manrope',
+        fontSize: 12,
+        fontStyle: FontStyle.italic,
+        color: Colors.grey.withValues(alpha: 0.6),
       ),
     );
   }
 
-  String _getMatrixColumnLabel(int value, List<MatrixColumnData> columns) {
-    if (value >= 0 && value < columns.length) {
-      return columns[value].label;
+  Widget _buildCheckboxAnswer(SurveyQuestionData q, String answer) {
+    List<String> selectedLabels = [];
+    try {
+      final decoded = jsonDecode(answer);
+      if (decoded is List) {
+        for (var id in decoded) {
+          final choice = q.choices.firstWhere(
+            (c) => c.id.toString() == id.toString(),
+            orElse: () =>
+                QuestionChoiceData(id: 0, value: '', questionId: 0, order: 0),
+          );
+          if (choice.value.isNotEmpty) selectedLabels.add(choice.value);
+        }
+      }
+    } catch (_) {
+      if (answer.isNotEmpty && answer != "-" && answer != "Unknown")
+        selectedLabels.add(answer);
     }
-    return 'N/A';
+
+    if (selectedLabels.isEmpty) return _buildEmptyAnswer();
+
+    return Column(
+      children: selectedLabels
+          .map(
+            (label) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.check_box_rounded,
+                    size: 18,
+                    color: AppTheme.monPrimary,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _buildRadioAnswer(SurveyQuestionData q, String answer) {
+    String label = answer;
+    try {
+      final choice = q.choices.firstWhere(
+        (c) => c.id.toString() == answer,
+        orElse: () =>
+            QuestionChoiceData(id: 0, value: '', questionId: 0, order: 0),
+      );
+      if (choice.value.isNotEmpty) label = choice.value;
+    } catch (_) {}
+
+    return Row(
+      children: [
+        const Icon(
+          Icons.radio_button_checked_rounded,
+          size: 18,
+          color: AppTheme.monPrimary,
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(fontFamily: 'Manrope', fontSize: 13),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMatrixAnswer(SurveyQuestionData q, String answer) {
+    Map<String, dynamic> parsed = {};
+    try {
+      parsed = jsonDecode(answer) as Map<String, dynamic>;
+    } catch (_) {}
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            headingRowColor: WidgetStateProperty.all(AppTheme.monSurface),
+            columns: [
+              const DataColumn(
+                label: Text(
+                  'Pernyataan',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              ...q.matrixColumns.map(
+                (col) => DataColumn(
+                  label: Text(
+                    col.label,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+            rows: q.matrixRows.asMap().entries.map((rowEntry) {
+              final rowIndex = rowEntry.key;
+              final row = rowEntry.value;
+              return DataRow(
+                cells: [
+                  DataCell(Text(row.label)),
+                  ...q.matrixColumns.asMap().entries.map((colEntry) {
+                    final colIndex = colEntry.key;
+                    bool isSelected = false;
+                    final val = parsed[rowIndex.toString()];
+                    if (q.matrixType == 'radio') {
+                      isSelected = val?.toString() == colIndex.toString();
+                    } else if (val is List) {
+                      isSelected = val.any(
+                        (v) => v.toString() == colIndex.toString(),
+                      );
+                    }
+                    return DataCell(
+                      Center(
+                        child: Icon(
+                          isSelected
+                              ? Icons.check_circle_rounded
+                              : Icons.circle_outlined,
+                          color: isSelected
+                              ? AppTheme.monPrimary
+                              : Colors.grey.withValues(alpha: 0.3),
+                          size: 20,
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEnhancedMapPreview(String latStr, String lngStr) {
+    final lat = double.tryParse(latStr);
+    final lng = double.tryParse(lngStr);
+    if (lat == null || lng == null) return _buildEmptyMap();
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        height: 200,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+        ),
+        child: FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(initialCenter: LatLng(lat, lng), initialZoom: 15),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.example.app',
+            ),
+            MarkerLayer(
+              markers: [
+                Marker(
+                  point: LatLng(lat, lng),
+                  width: 40,
+                  height: 40,
+                  child: const Icon(
+                    Icons.location_on_rounded,
+                    color: Colors.red,
+                    size: 40,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyMap() {
+    return Container(
+      height: 180,
+      decoration: BoxDecoration(
+        color: AppTheme.monSurface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+      ),
+      child: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.location_off_rounded, color: Colors.grey, size: 32),
+            SizedBox(height: 8),
+            Text(
+              "Peta tidak tersedia",
+              style: TextStyle(color: Colors.grey, fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  LinearGradient _getAvatarGradient(String name) {
+    final gradients = [
+      const LinearGradient(
+        colors: [Color(0xFF6441A5), Color(0xFF2a0845)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      const LinearGradient(
+        colors: [Color(0xFFf953c6), Color(0xFFb91d73)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      const LinearGradient(
+        colors: [Color(0xFF11998e), Color(0xFF38ef7d)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      const LinearGradient(
+        colors: [Color(0xFFff9966), Color(0xFFff5e62)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      const LinearGradient(
+        colors: [Color(0xFF2193b0), Color(0xFF6dd5ed)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      const LinearGradient(
+        colors: [Color(0xFFFDC830), Color(0xFFF37335)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+    ];
+    final index = name.hashCode.abs() % gradients.length;
+    return gradients[index];
+  }
+
+  dynamic _parseJson(String jsonStr) {
+    try {
+      return jsonStr.isEmpty ? {} : jsonDecode(jsonStr);
+    } catch (_) {
+      return {};
+    }
   }
 }

@@ -87,7 +87,7 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                     leading: IconButton(
                       icon: const Icon(
                         Icons.arrow_back_ios_new_rounded,
-                        color: Color(0xFF15803D),
+                        color: Colors.black87,
                         size: 20,
                       ),
                       onPressed: () => Navigator.pop(context),
@@ -95,7 +95,7 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                     title: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: const [
-                        Icon(Icons.leaderboard, color: Color(0xFF15803D)),
+                        Icon(Icons.leaderboard, color: Colors.blueAccent),
                         SizedBox(width: 8),
                         Text(
                           'SIS',
@@ -104,7 +104,7 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                             letterSpacing: -0.5,
-                            color: Color(0xFF166534),
+                            color: Colors.black87,
                           ),
                         ),
                       ],
@@ -159,7 +159,8 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                                                     horizontal: 10,
                                                   ),
                                               decoration: BoxDecoration(
-                                                color: provider.dateFilter != 'all'
+                                                color:
+                                                    provider.dateFilter != 'all'
                                                     ? const Color(0xFF15803D)
                                                     : Colors.white,
                                                 borderRadius:
@@ -176,23 +177,33 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                                                   Icon(
                                                     Icons.filter_list,
                                                     size: 14,
-                                                    color: provider.dateFilter != 'all'
+                                                    color:
+                                                        provider.dateFilter !=
+                                                            'all'
                                                         ? Colors.white
-                                                        : const Color(0xFF15803D),
+                                                        : const Color(
+                                                            0xFF15803D,
+                                                          ),
                                                   ),
                                                   const SizedBox(width: 4),
                                                   Text(
                                                     provider.dateFilter != 'all'
-                                                        ? _filterLabel(provider.dateFilter)
+                                                        ? _filterLabel(
+                                                            provider.dateFilter,
+                                                          )
                                                         : 'Filter',
                                                     style: TextStyle(
                                                       fontFamily: 'Inter',
                                                       fontSize: 11,
                                                       fontWeight:
                                                           FontWeight.w600,
-                                                      color: provider.dateFilter != 'all'
+                                                      color:
+                                                          provider.dateFilter !=
+                                                              'all'
                                                           ? Colors.white
-                                                          : const Color(0xFF15803D),
+                                                          : const Color(
+                                                              0xFF15803D,
+                                                            ),
                                                     ),
                                                   ),
                                                 ],
@@ -322,33 +333,20 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
   Widget _buildHero(BuildContext context, MonitoringProvider provider) {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF006B1B), Color(0xFF268630)],
+          colors: [
+            AppTheme.ijoTerang,
+            AppTheme.ijoGelap,
+          ],
         ),
       ),
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 72),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          Positioned(
-            top: -100,
-            right: -80,
-            child: Container(
-              width: 256,
-              height: 256,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.1),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -375,11 +373,16 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
               const SizedBox(height: 24),
               Row(
                 children: [
-                  _pillBadge(Icons.groups, '${provider.totalRespon} Respon'),
+                  _pillBadge(
+                    Icons.groups,
+                    '${provider.totalRespon} Respon',
+                    const Color(0xFF64B5F6),
+                  ),
                   const SizedBox(width: 12),
                   _pillBadge(
                     Icons.map,
                     _locationLabel(provider.targetLocation),
+                    const Color(0xFFFFB74D),
                   ),
                 ],
               ),
@@ -390,7 +393,7 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
     );
   }
 
-  Widget _pillBadge(IconData icon, String text) {
+  Widget _pillBadge(IconData icon, String text, Color iconColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -401,7 +404,7 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: Colors.white),
+          Icon(icon, size: 16, color: iconColor),
           const SizedBox(width: 6),
           Text(
             text,
@@ -445,8 +448,19 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
 
   String _fmtShortDate(DateTime dt) {
     final m = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
     ];
     return '${dt.day} ${m[dt.month]} ${dt.year}';
   }
@@ -556,7 +570,9 @@ class _MonitoringSurveyPageState extends State<MonitoringSurveyPage>
                                       ),
                                     ),
                                     // Tampilkan rentang tanggal yang dipilih
-                                    if (isCustom && isSelected && provider.customDateRange != null)
+                                    if (isCustom &&
+                                        isSelected &&
+                                        provider.customDateRange != null)
                                       Padding(
                                         padding: const EdgeInsets.only(top: 4),
                                         child: Text(
