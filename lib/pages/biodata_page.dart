@@ -187,7 +187,12 @@ class _BiodataPageState extends State<BiodataPage> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               TextButton(
-                onPressed: () => Navigator.pop(context, true),
+                onPressed: () async {
+                  await StorageHelper.deleteDraftSurvey(widget.surveySlug);
+                  if (context.mounted) {
+                    Navigator.pop(context, true);
+                  }
+                },
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.red,
                   minimumSize: const Size(0, 32),

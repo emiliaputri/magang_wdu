@@ -336,6 +336,8 @@ class SurveyQuestionData {
         return 'matrix';
       case 10:
         return 'document';
+      case 11:
+        return 'location';
       default:
         return 'text';
     }

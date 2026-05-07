@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/storage.dart';
-import '../../models/submission_model.dart';
 import '../../service/submission_service.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:geolocator/geolocator.dart';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 class SubmissionPage extends StatefulWidget {
   final String surveySlug;
@@ -18,7 +22,7 @@ class SubmissionPage extends StatefulWidget {
   final Map<String, dynamic>? biodata;
   final String surveyTitle;
 
-  const SubmissionPage({    
+  const SubmissionPage({
     super.key,
     required this.surveySlug,
     required this.clientSlug,
@@ -38,11 +42,26 @@ class _SubmissionPageState extends State<SubmissionPage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   bool _isLoading = true;
+  bool _isSubmitting = false; // Untuk loading overlay saat submit
+  DateTime _startTime = DateTime.now(); // Untuk menghitung lama pengerjaan
   String? _errorMessage;
   SurveySubmissionData? _data;
 
   final _formKey = GlobalKey<FormState>();
   final Map<int, dynamic> _answers = {};
+  final Map<int, Uint8List> _attachmentBytes = {}; // Store bytes for web upload
+  final Map<int, String> _attachmentBlobUrls =
+      {}; // Store blob URLs for web preview
+  final Map<int, int> _pageJumpHistory =
+      {}; // Maps: targetPageIndex -> sourcePageIndex
+  final Map<int, String?> _errors = {}; // Maps: questionId -> error message
+
+  // ── LOCATION DROPDOWN STATE ──
+  final Map<int, List<Map<String, dynamic>>> _citiesData = {};
+  final Map<int, List<Map<String, dynamic>>> _districtsData = {};
+  final Map<int, List<Map<String, dynamic>>> _villagesData = {};
+  final Map<int, bool> _locationLoading = {};
+  List<Map<String, dynamic>>? _wilayahProvinces;
 
   int _currentPageIndex = 0;
   late PageController _pageController;
@@ -54,14 +73,89 @@ class _SubmissionPageState extends State<SubmissionPage> {
   bool _isPlayingVoice = false;
   Duration _voiceDuration = Duration.zero;
 
+  String _normalizeName(String name) {
+    if (name.isEmpty) return '';
+    return name
+        .toLowerCase()
+        .replaceFirst(RegExp(r'^kota '), '')
+        .replaceFirst(RegExp(r'^kabupaten '), '')
+        .replaceFirst(RegExp(r'^kab\. '), '')
+        .trim();
+  }
+
+  Future<void> _fetchCitiesAndRegencies(
+    int questionId,
+    dynamic provinceId,
+  ) async {
+    if (provinceId == null) return;
+
+    // Cari nama provinsi dari list internal kita (_provinces)
+    final province = _provinces.find(
+      (p) => p['id'].toString() == provinceId.toString(),
+    );
+    if (province == null) return;
+
+    setState(() => _locationLoading[questionId] = true);
+    try {
+      // 1. Ambil list provinsi dari emsifa untuk mencocokkan nama dengan ID emsifa
+      if (_wilayahProvinces == null || _wilayahProvinces!.isEmpty) {
+        _wilayahProvinces = await _service.getWilayahProvinces();
+      }
+
+      final normalizedProvince = _normalizeName(province['name']);
+      final wProv = _wilayahProvinces?.find(
+        (p) => _normalizeName(p['name']) == normalizedProvince,
+      );
+
+      if (wProv == null) {
+        debugPrint(
+          "Provinsi tidak ditemukan di API emsifa: $normalizedProvince",
+        );
+        return;
+      }
+
+      // 2. Fetch kota menggunakan ID emsifa (wProv['id'])
+      final cities = await _service.getCitiesAndRegencies(wProv['id']);
+      setState(() {
+        _citiesData[questionId] = cities;
+      });
+    } finally {
+      setState(() => _locationLoading[questionId] = false);
+    }
+  }
+
+  Future<void> _fetchDistricts(int questionId, dynamic cityId) async {
+    if (cityId == null) return;
+
+    setState(() => _locationLoading[questionId] = true);
+    try {
+      final districts = await _service.getWilayahDistricts(cityId);
+      setState(() {
+        _districtsData[questionId] = districts;
+      });
+    } finally {
+      setState(() => _locationLoading[questionId] = false);
+    }
+  }
+
+  Future<void> _fetchVillages(int questionId, dynamic districtId) async {
+    if (districtId == null) return;
+    setState(() => _locationLoading[questionId] = true);
+    try {
+      final villages = await _service.getWilayahVillages(districtId);
+      setState(() {
+        _villagesData[questionId] = villages;
+      });
+    } finally {
+      setState(() => _locationLoading[questionId] = false);
+    }
+  }
+
   List<Map<String, dynamic>> get _provinces {
     // Use API data if available
     if (_data?.provinceTargets != null && _data!.provinceTargets.isNotEmpty) {
       return _data!.provinceTargets
-          .map((p) => {
-                'id': p.provinceId.toString(),
-                'name': p.provinceName,
-              })
+          .map((p) => {'id': p.provinceId.toString(), 'name': p.provinceName})
           .toList();
     }
     return [];
@@ -69,22 +163,133 @@ class _SubmissionPageState extends State<SubmissionPage> {
 
   // ── SKIP LOGIC HELPERS ──
 
+  bool _validateCurrentPage() {
+    final currentPage = _visiblePages[_currentPageIndex];
+    bool hasAnyError = false;
+
+    // Create a temporary map to hold new errors for this page
+    final Map<int, String?> newErrors = {};
+
+    for (var q in currentPage.questions) {
+      if (!_isQuestionVisible(q)) continue;
+
+      if (q.required) {
+        if (q.typeString == 'info') {
+          _errors.remove(q.id);
+          continue;
+        }
+
+        final answer = _answers[q.id];
+        bool isValid = false;
+
+        if (answer != null) {
+          if (answer is String) {
+            isValid = answer.trim().isNotEmpty;
+          } else if (answer is List) {
+            isValid = answer.isNotEmpty;
+          } else if (answer is Map) {
+            if (q.typeString == 'matrix') {
+              if (q.matrixRows.isNotEmpty) {
+                isValid = answer.keys.length == q.matrixRows.length;
+              } else {
+                isValid = true;
+              }
+            } else {
+              isValid = answer.isNotEmpty;
+            }
+          } else {
+            isValid = answer.toString().trim().isNotEmpty;
+          }
+        }
+
+        if (!isValid) {
+          newErrors[q.id] = 'Pertanyaan ini wajib diisi';
+          hasAnyError = true;
+        }
+      }
+    }
+
+    setState(() {
+      // Clear old errors for this page and apply new ones
+      for (var q in currentPage.questions) {
+        _errors.remove(q.id);
+      }
+      _errors.addAll(newErrors);
+    });
+
+    return !hasAnyError;
+  }
+
   bool _isQuestionVisible(SurveyQuestionData q) {
+    // ── HARDCODED CASCADING REGION LOGIC ──
+    // Sembunyikan pertanyaan Kota/Kecamatan/Desa jika induknya belum diisi
+    if (_isCityQuestion(q)) {
+      final prevProv = _findPreviousQuestion(q, _isProvinceQuestion);
+      if (prevProv != null &&
+          (_answers[prevProv.id] == null ||
+              _answers[prevProv.id].toString().isEmpty)) {
+        return false;
+      }
+    } else if (_isDistrictQuestion(q)) {
+      final prevCity = _findPreviousQuestion(q, _isCityQuestion);
+      if (prevCity != null &&
+          (_answers[prevCity.id] == null ||
+              _answers[prevCity.id].toString().isEmpty)) {
+        return false;
+      }
+    } else if (_isVillageQuestion(q)) {
+      final prevDist = _findPreviousQuestion(q, _isDistrictQuestion);
+      if (prevDist != null &&
+          (_answers[prevDist.id] == null ||
+              _answers[prevDist.id].toString().isEmpty)) {
+        return false;
+      }
+    }
+
     // 1 = Always Display
     if (q.logicType == '1' || q.logicType.isEmpty) return true;
 
-    if (q.questionChoiceId == null) return true;
+    // Check if the trigger (parent question) is also visible
+    // This handles nested logic where a child should be hidden if its parent is hidden
+    if (q.questionChoiceId != null) {
+      SurveyQuestionData? parentQuestion;
+      try {
+        parentQuestion = _data?.pages
+            .expand((p) => p.questions)
+            .firstWhere(
+              (element) =>
+                  element.choice.any((c) => c.id == q.questionChoiceId),
+            );
+      } catch (_) {
+        // Parent not found in this survey's pages
+      }
+
+      if (parentQuestion != null && !_isQuestionVisible(parentQuestion)) {
+        return false;
+      }
+    }
 
     final triggerId = q.questionChoiceId;
+    if (triggerId == null) return true;
 
-    // Cek apakah triggerId ada di antara semua jawaban saat ini
-    return _answers.values.any((ans) {
+    // Check if triggerId exists in current answers
+    bool isTriggered = _answers.values.any((ans) {
       if (ans == null) return false;
       if (ans is List) {
         return ans.contains(triggerId.toString()) || ans.contains(triggerId);
       }
       return ans.toString() == triggerId.toString();
     });
+
+    if (q.logicType == '2') {
+      // 2 = Show if triggered
+      return isTriggered;
+    } else if (q.logicType == '3') {
+      // 3 = Hide if triggered
+      return !isTriggered;
+    }
+
+    return true;
   }
 
   bool _isPageVisible(SurveyPageData page) {
@@ -92,6 +297,77 @@ class _SubmissionPageState extends State<SubmissionPage> {
     // Atau jika halaman tersebut tidak punya pertanyaan (tapi ini jarang)
     if (page.questions.isEmpty) return true;
     return page.questions.any((q) => _isQuestionVisible(q));
+  }
+
+  bool _isCityQuestion(SurveyQuestionData q) {
+    final text = q.questionText.toLowerCase();
+    // Harus mengandung kata kota/kabupaten tapi bukan provinsi
+    return (text.contains('kota') ||
+            text.contains('kabupaten') ||
+            text.contains('city') ||
+            text.contains('kab.')) &&
+        !text.contains('provinsi');
+  }
+
+  bool _isDistrictQuestion(SurveyQuestionData q) {
+    final text = q.questionText.toLowerCase();
+    return text.contains('kecamatan') || text.contains('district');
+  }
+
+  bool _isVillageQuestion(SurveyQuestionData q) {
+    final text = q.questionText.toLowerCase();
+    return text.contains('desa') ||
+        text.contains('kelurahan') ||
+        text.contains('village');
+  }
+
+  SurveyQuestionData? _findPreviousQuestion(
+    SurveyQuestionData currentQ,
+    bool Function(SurveyQuestionData) test,
+  ) {
+    if (_data == null) return null;
+    SurveyQuestionData? lastMatch;
+    for (var page in _data!.pages) {
+      for (var q in page.questions) {
+        if (q.id == currentQ.id) return lastMatch;
+        if (test(q)) lastMatch = q;
+      }
+    }
+    return null;
+  }
+
+  SurveyQuestionData? _findNextQuestion(
+    SurveyQuestionData currentQ,
+    bool Function(SurveyQuestionData) test,
+  ) {
+    if (_data == null) return null;
+    bool found = false;
+    for (var page in _data!.pages) {
+      for (var q in page.questions) {
+        if (found && test(q)) return q;
+        if (q.id == currentQ.id) found = true;
+      }
+    }
+    return null;
+  }
+
+  void _clearRegionAnswersAfter(SurveyQuestionData currentQ) {
+    bool found = false;
+    for (var page in _data!.pages) {
+      for (var q in page.questions) {
+        if (found) {
+          if (_isCityQuestion(q) ||
+              _isDistrictQuestion(q) ||
+              _isVillageQuestion(q)) {
+            _answers.remove(q.id);
+            _citiesData.remove(q.id);
+            _districtsData.remove(q.id);
+            _villagesData.remove(q.id);
+          }
+        }
+        if (q.id == currentQ.id) found = true;
+      }
+    }
   }
 
   List<SurveyPageData> get _visiblePages {
@@ -136,6 +412,9 @@ class _SubmissionPageState extends State<SubmissionPage> {
           _hasDraft = true;
         });
 
+        // Repopulate region data for cascading dropdowns
+        _restoreRegionData();
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -146,6 +425,27 @@ class _SubmissionPageState extends State<SubmissionPage> {
               duration: Duration(seconds: 2),
             ),
           );
+        }
+      }
+    }
+  }
+
+  void _restoreRegionData() {
+    if (_data == null) return;
+    for (var page in _data!.pages) {
+      for (var q in page.questions) {
+        final val = _answers[q.id];
+        if (val == null) continue;
+
+        if (_isProvinceQuestion(q)) {
+          final nextCity = _findNextQuestion(q, _isCityQuestion);
+          if (nextCity != null) _fetchCitiesAndRegencies(nextCity.id, val);
+        } else if (_isCityQuestion(q)) {
+          final nextDist = _findNextQuestion(q, _isDistrictQuestion);
+          if (nextDist != null) _fetchDistricts(nextDist.id, val);
+        } else if (_isDistrictQuestion(q)) {
+          final nextVill = _findNextQuestion(q, _isVillageQuestion);
+          if (nextVill != null) _fetchVillages(nextVill.id, val);
         }
       }
     }
@@ -185,10 +485,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
               const SizedBox(width: 10),
               const Text(
                 "Voice Auto Fill Survey",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
               ),
             ],
           ),
@@ -267,9 +564,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
                 onPressed: _isListening
                     ? _stopVoiceRecording
                     : _startVoiceRecording,
-                icon: Icon(
-                  _isListening ? Icons.stop : Icons.mic,
-                ),
+                icon: Icon(_isListening ? Icons.stop : Icons.mic),
                 label: Text(
                   _isListening
                       ? "Stop Rekam (${_formatDuration(_voiceDuration)})"
@@ -288,12 +583,9 @@ class _SubmissionPageState extends State<SubmissionPage> {
             const SizedBox(height: 12),
             Text(
               "Hasil: $_voiceResult",
-              style: const TextStyle(
-                color: Colors.green,
-                fontSize: 12,
-              ),
-            )
-          ]
+              style: const TextStyle(color: Colors.green, fontSize: 12),
+            ),
+          ],
         ],
       ),
     );
@@ -312,9 +604,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
     if (!available) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Speech recognition tidak tersedia"),
-          ),
+          const SnackBar(content: Text("Speech recognition tidak tersedia")),
         );
       }
       return;
@@ -364,7 +654,8 @@ class _SubmissionPageState extends State<SubmissionPage> {
         } else if (question.contains("alamat")) {
           final alamat = _extractAfter(text, "alamat");
           if (alamat.isNotEmpty) _answers[q.id] = alamat;
-        } else if (question.contains("pekerjaan") || question.contains("kerja")) {
+        } else if (question.contains("pekerjaan") ||
+            question.contains("kerja")) {
           final kerja = _extractAfter(text, "kerja");
           if (kerja.isNotEmpty) _answers[q.id] = kerja;
         } else if (question.contains("kota")) {
@@ -419,7 +710,8 @@ class _SubmissionPageState extends State<SubmissionPage> {
 
     try {
       final directory = await getApplicationDocumentsDirectory();
-      final filePath = '${directory.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
+      final filePath =
+          '${directory.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
       await _recorder.start(
         const RecordConfig(encoder: AudioEncoder.aacLc),
@@ -436,9 +728,9 @@ class _SubmissionPageState extends State<SubmissionPage> {
       _updateRecordingDuration();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memulai rekaman: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal memulai rekaman: $e')));
       }
     }
   }
@@ -483,9 +775,9 @@ class _SubmissionPageState extends State<SubmissionPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memutar rekaman: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal memutar rekaman: $e')));
       }
     }
   }
@@ -559,7 +851,12 @@ class _SubmissionPageState extends State<SubmissionPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () async {
+              await _clearDraft();
+              if (context.mounted) {
+                Navigator.pop(context, true);
+              }
+            },
             child: const Text(
               'Keluar Tanpa Simpan',
               style: TextStyle(color: Colors.red),
@@ -592,24 +889,57 @@ class _SubmissionPageState extends State<SubmissionPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: _onWillPop,
-      child: Scaffold(
-        backgroundColor: AppTheme.monBgColor,
-        body: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(
-              child: _isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        color: AppTheme.monGreenMid,
-                      ),
-                    )
-                  : _errorMessage != null
-                  ? _buildErrorUI()
-                  : _buildContent(),
+      child: Stack(
+        children: [
+          Scaffold(
+            backgroundColor: AppTheme.monBgColor,
+            body: Column(
+              children: [
+                _buildHeader(context),
+                Expanded(
+                  child: _isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: AppTheme.monGreenMid,
+                          ),
+                        )
+                      : _errorMessage != null
+                      ? _buildErrorUI()
+                      : _buildContent(),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          if (_isSubmitting)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(color: AppTheme.monGreenMid),
+                      SizedBox(height: 16),
+                      Text(
+                        "Sedang Mengirim...",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.monTextDark,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -727,7 +1057,11 @@ class _SubmissionPageState extends State<SubmissionPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, color: AppTheme.monGreenMid, size: 48),
+          const Icon(
+            Icons.error_outline,
+            color: AppTheme.monGreenMid,
+            size: 48,
+          ),
           const SizedBox(height: 16),
           Text(_errorMessage ?? "Terjadi kesalahan"),
           const SizedBox(height: 16),
@@ -744,7 +1078,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
 
     return Column(
       children: [
-        _buildVoiceNoteSection(),
+        if (_data?.survey?.isVoiceEnabled == true) _buildVoiceNoteSection(),
         _buildPageIndicator(),
         Expanded(child: _buildQuestionPages()),
         _buildBottomBar(),
@@ -754,20 +1088,40 @@ class _SubmissionPageState extends State<SubmissionPage> {
 
   Widget _buildPageIndicator() {
     final totalPages = _visiblePages.length;
+    final progress = totalPages > 0
+        ? (_currentPageIndex + 1) / totalPages
+        : 0.0;
+    final isProgressEnabled = _data?.survey?.isProgressBarEnabled ?? false;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Column(
         children: [
-          Text(
-            'Halaman ${_currentPageIndex + 1} dari $totalPages',
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.monTextMid,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Halaman ${_currentPageIndex + 1} dari $totalPages',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.monTextMid,
+                ),
+              ),
+            ],
           ),
+          if (isProgressEnabled) ...[
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: LinearProgressIndicator(
+                value: progress,
+                backgroundColor: Colors.grey.shade200,
+                color: AppTheme.monGreenMid,
+                minHeight: 8,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -838,13 +1192,32 @@ class _SubmissionPageState extends State<SubmissionPage> {
       );
     }
 
+    final isParagraph = q.typeString == 'paragraph';
+
     return Container(
+      width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isParagraph ? const Color(0xFFF0FDF4) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+          color: _errors[q.id] != null
+              ? Colors.red
+              : (isParagraph
+                    ? AppTheme.monGreenMid.withOpacity(0.3)
+                    : Colors.grey.shade200),
+          width: _errors[q.id] != null || isParagraph ? 1.5 : 1,
+        ),
+        boxShadow: isParagraph
+            ? [
+                BoxShadow(
+                  color: Colors.green.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -855,23 +1228,38 @@ class _SubmissionPageState extends State<SubmissionPage> {
               Expanded(
                 child: Text(
                   q.plainText,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: isParagraph ? FontWeight.w700 : FontWeight.w600,
                     color: AppTheme.monTextDark,
                   ),
                 ),
               ),
-              if (q.required == 1)
-                const Text(
-                  '*',
-                  style: TextStyle(
-                    color: AppTheme.primary,
-                    fontWeight: FontWeight.bold,
+              if (q.required)
+                const Padding(
+                  padding: EdgeInsets.only(left: 4),
+                  child: Text(
+                    '*',
+                    style: TextStyle(
+                      color: AppTheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
             ],
           ),
+          if (_errors[q.id] != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                _errors[q.id]!,
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
           const SizedBox(height: 12),
           _buildAnswerInput(q),
         ],
@@ -880,10 +1268,28 @@ class _SubmissionPageState extends State<SubmissionPage> {
   }
 
   Widget _buildAnswerInput(SurveyQuestionData q) {
+    // Prioritaskan tipe 11 (Location Dropdown)
+    if (q.questionTypeId == 11) {
+      return _buildLocationDropdown(q);
+    }
+
     if (_isProvinceQuestion(q)) {
       return _buildProvinceDropdown(q);
     }
+    if (_isCityQuestion(q)) {
+      return _buildCityDropdown(q);
+    }
+    if (_isDistrictQuestion(q)) {
+      return _buildDistrictDropdown(q);
+    }
+    if (_isVillageQuestion(q)) {
+      return _buildVillageDropdown(q);
+    }
     switch (q.typeString) {
+      case 'location_dropdown':
+        return _buildLocationDropdown(q);
+      case 'phone':
+        return _buildPhoneInput(q);
       case 'radio':
         return _buildRadioInput(q);
       case 'checkbox':
@@ -898,62 +1304,379 @@ class _SubmissionPageState extends State<SubmissionPage> {
         return _buildMatrixInput(q);
       case 'dropdown':
         return _buildDropdownInput(q);
+      case 'attachment':
+        return _buildAttachmentInput(q);
       default:
         return const SizedBox();
     }
   }
 
-  bool _isProvinceQuestion(SurveyQuestionData q) {
-    final text = q.questionText.toLowerCase();
-    return text.contains('provinsi') || text.contains('province');
+  Widget _buildLocationDropdown(SurveyQuestionData q) {
+    final Map<String, dynamic> currentAnswer = _answers[q.id] is Map
+        ? Map<String, dynamic>.from(_answers[q.id] as Map)
+        : {};
+
+    final locationData = currentAnswer['locationDropdown'] is Map
+        ? Map<String, dynamic>.from(currentAnswer['locationDropdown'] as Map)
+        : {'province': '', 'city': '', 'district': '', 'village': ''};
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── PROVINCE ──────────────────────────────────────────
+        _buildLocationLabel("Pilih Provinsi"),
+        DropdownButtonFormField<String>(
+          value: locationData['province']?.toString().isEmpty == true
+              ? null
+              : locationData['province']?.toString(),
+          items: _provinces.map((p) {
+            return DropdownMenuItem<String>(
+              value: p['id'].toString(),
+              child: Text(
+                p['name'].toString(),
+                style: const TextStyle(fontSize: 12),
+              ),
+            );
+          }).toList(),
+          onChanged: (val) {
+            setState(() {
+              locationData['province'] = val ?? '';
+              locationData['city'] = '';
+              locationData['district'] = '';
+              locationData['village'] = '';
+              _answers[q.id] = {'locationDropdown': locationData};
+              if (val != null && val.isNotEmpty) {
+                _fetchCitiesAndRegencies(q.id, val);
+                _errors.remove(q.id);
+              }
+            });
+          },
+          decoration: _locationInputDecoration("Pilih Provinsi"),
+        ),
+
+        // ── CITY / REGENCY ────────────────────────────────────
+        if (q.includeCityRegency &&
+            locationData['province']?.toString().isNotEmpty == true) ...[
+          const SizedBox(height: 12),
+          _buildLocationLabel("Pilih Kota/Kabupaten"),
+          DropdownButtonFormField<String>(
+            value: locationData['city']?.toString().isEmpty == true
+                ? null
+                : locationData['city']?.toString(),
+            items: (_citiesData[q.id] ?? []).map((c) {
+              return DropdownMenuItem<String>(
+                value: c['id'].toString(),
+                child: Text(
+                  c['name'].toString(),
+                  style: const TextStyle(fontSize: 12),
+                ),
+              );
+            }).toList(),
+            onChanged: (val) {
+              setState(() {
+                locationData['city'] = val ?? '';
+                locationData['district'] = '';
+                locationData['village'] = '';
+                _answers[q.id] = {'locationDropdown': locationData};
+                if (val != null && val.isNotEmpty) {
+                  if (q.includeDistrictVillage) {
+                    _fetchDistricts(q.id, val);
+                  }
+                  _errors.remove(q.id);
+                }
+              });
+            },
+            decoration: _locationInputDecoration(
+              _locationLoading[q.id] == true
+                  ? "Memuat..."
+                  : "Pilih Kota/Kabupaten",
+            ),
+          ),
+        ],
+
+        // ── DISTRICT ──────────────────────────────────────────
+        if (q.includeDistrictVillage &&
+            locationData['city']?.toString().isNotEmpty == true) ...[
+          const SizedBox(height: 12),
+          _buildLocationLabel("Pilih Kecamatan"),
+          DropdownButtonFormField<String>(
+            value: locationData['district']?.toString().isEmpty == true
+                ? null
+                : locationData['district']?.toString(),
+            items: (_districtsData[q.id] ?? []).map((d) {
+              return DropdownMenuItem<String>(
+                value: d['id'].toString(),
+                child: Text(
+                  d['name'].toString(),
+                  style: const TextStyle(fontSize: 12),
+                ),
+              );
+            }).toList(),
+            onChanged: (val) {
+              setState(() {
+                locationData['district'] = val ?? '';
+                final dist = _districtsData[q.id]?.find(
+                  (d) => d['id'].toString() == val.toString(),
+                );
+                locationData['district_name'] = dist?['name'] ?? '';
+                locationData['village'] = '';
+                _answers[q.id] = {'locationDropdown': locationData};
+                if (val != null && val.isNotEmpty) {
+                  _fetchVillages(q.id, val);
+                }
+              });
+            },
+            decoration: _locationInputDecoration(
+              _locationLoading[q.id] == true ? "Memuat..." : "Pilih Kecamatan",
+            ),
+          ),
+        ],
+
+        // ── VILLAGE ───────────────────────────────────────────
+        if (q.includeDistrictVillage &&
+            locationData['district']?.toString().isNotEmpty == true) ...[
+          const SizedBox(height: 12),
+          _buildLocationLabel("Pilih Desa/Kelurahan"),
+          DropdownButtonFormField<String>(
+            value: locationData['village']?.toString().isEmpty == true
+                ? null
+                : locationData['village']?.toString(),
+            items: (_villagesData[q.id] ?? []).map((v) {
+              return DropdownMenuItem<String>(
+                value: v['name'].toString(),
+                child: Text(
+                  v['name'].toString(),
+                  style: const TextStyle(fontSize: 12),
+                ),
+              );
+            }).toList(),
+            onChanged: (val) {
+              setState(() {
+                locationData['village'] = val ?? '';
+                _answers[q.id] = {'locationDropdown': locationData};
+              });
+            },
+            decoration: _locationInputDecoration(
+              _locationLoading[q.id] == true
+                  ? "Memuat..."
+                  : "Pilih Desa/Kelurahan",
+            ),
+          ),
+        ],
+      ],
+    );
   }
 
-  Widget _buildProvinceDropdown(SurveyQuestionData q) {
-    // 1. Prioritaskan pilihan dari DATABASE (q.choice) jika ada
-    if (q.choice.isNotEmpty) {
-      return _buildDropdownInput(q);
-    }
+  Widget _buildLocationLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: AppTheme.monTextMid,
+        ),
+      ),
+    );
+  }
 
-    // 2. Jika q.choice kosong, pakai target provinsi projek
-    final provinces = _provinces;
+  InputDecoration _locationInputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+      filled: true,
+      fillColor: Colors.grey.shade50,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: AppTheme.monGreenMid, width: 2),
+      ),
+    );
+  }
 
-    if (provinces.isEmpty) {
-      // Jika benar-benar kosong, tampilkan dropdown kosong atau pesan
-      return _buildDropdownInput(q);
-    }
+  Widget _buildAttachmentInput(SurveyQuestionData q) {
+    final filePath = _answers[q.id]?.toString();
+    final fileName = filePath != null ? filePath.split('/').last : null;
 
-    return DropdownButtonFormField<String>(
-      value: _answers[q.id]?.toString(),
-      items: provinces.map((p) {
-        return DropdownMenuItem<String>(
-          value: p['id'].toString(),
-          child: Text(
-            p['name'].toString(),
-            style: const TextStyle(fontSize: 12),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (filePath != null) ...[
+          Container(
+            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: AppTheme.monGreenPale,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppTheme.monGreenMid.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  _isAudioFile(filePath)
+                      ? Icons.audiotrack
+                      : Icons.insert_drive_file,
+                  color: AppTheme.monGreenMid,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    fileName!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => setState(() {
+                    _answers.remove(q.id);
+                    _attachmentBytes.remove(q.id);
+                    _attachmentBlobUrls.remove(q.id);
+                  }),
+                  icon: const Icon(Icons.close, color: Colors.red, size: 20),
+                ),
+              ],
+            ),
           ),
-        );
-      }).toList(),
+
+          // Image Preview
+          if (_isImageFile(filePath))
+            Container(
+              height: 150,
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: kIsWeb && _attachmentBytes[q.id] != null
+                    ? Image.memory(_attachmentBytes[q.id]!, fit: BoxFit.cover)
+                    : Image.file(File(filePath), fit: BoxFit.cover),
+              ),
+            ),
+
+          // Audio Player for attachment
+          if (_isAudioFile(filePath))
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => _playAttachmentAudio(q.id, filePath),
+                    icon: Icon(
+                      _isPlayingVoice ? Icons.pause_circle : Icons.play_circle,
+                      color: AppTheme.monGreenMid,
+                      size: 32,
+                    ),
+                  ),
+                  const Text("Putar Rekaman", style: TextStyle(fontSize: 12)),
+                ],
+              ),
+            ),
+        ],
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => _pickAttachment(q.id),
+            icon: const Icon(Icons.upload_file),
+            label: Text(filePath == null ? "Pilih File" : "Ganti File"),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppTheme.monGreenMid,
+              side: const BorderSide(color: AppTheme.monGreenMid),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  bool _isImageFile(String path) {
+    final p = path.toLowerCase();
+    return p.endsWith('.jpg') ||
+        p.endsWith('.jpeg') ||
+        p.endsWith('.png') ||
+        p.endsWith('.webp');
+  }
+
+  bool _isAudioFile(String path) {
+    final p = path.toLowerCase();
+    return p.endsWith('.mp3') ||
+        p.endsWith('.wav') ||
+        p.endsWith('.m4a') ||
+        p.endsWith('.aac') ||
+        p.endsWith('.ogg');
+  }
+
+  Future<void> _playAttachmentAudio(int qId, String path) async {
+    try {
+      if (_isPlayingVoice) {
+        await _audioPlayer.stop();
+      } else {
+        if (kIsWeb && _attachmentBlobUrls[qId] != null) {
+          await _audioPlayer.play(UrlSource(_attachmentBlobUrls[qId]!));
+        } else {
+          await _audioPlayer.play(DeviceFileSource(path));
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal memutar audio: $e')));
+      }
+    }
+  }
+
+  Future<void> _pickAttachment(int questionId) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? media = await picker.pickMedia();
+    if (media != null) {
+      setState(() {
+        _answers[questionId] = media.path;
+        _errors.remove(questionId);
+      });
+    }
+  }
+
+  Widget _buildPhoneInput(SurveyQuestionData q) {
+    return TextFormField(
+      initialValue: _answers[q.id]?.toString() ?? '',
       onChanged: (val) {
         setState(() {
           _answers[q.id] = val;
+          if (val.trim().isNotEmpty) _errors.remove(q.id);
         });
       },
-      icon: const Icon(
-        Icons.keyboard_arrow_down_rounded,
-        color: AppTheme.monGreenMid,
-        size: 24,
-      ),
-      elevation: 2,
-      dropdownColor: Colors.white,
+      keyboardType: TextInputType.phone,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       decoration: InputDecoration(
-        hintText: 'Pilih provinsi',
+        hintText: "Contoh: 08123456789",
         hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 12),
         filled: true,
         fillColor: Colors.grey.shade50,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: Colors.grey.shade300),
@@ -966,6 +1689,190 @@ class _SubmissionPageState extends State<SubmissionPage> {
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: AppTheme.monGreenMid, width: 2),
         ),
+      ),
+    );
+  }
+
+  bool _isProvinceQuestion(SurveyQuestionData q) {
+    final text = q.questionText.toLowerCase();
+    return text.contains('provinsi') || text.contains('province');
+  }
+
+  Widget _buildProvinceDropdown(SurveyQuestionData q) {
+    // List pilihan bisa dari q.choice (database) atau _provinces (project target)
+    final List<DropdownMenuItem<String>> items = q.choice.isNotEmpty
+        ? q.choice
+              .map(
+                (opt) => DropdownMenuItem(
+                  value: opt.id.toString(),
+                  child: Text(opt.value, style: const TextStyle(fontSize: 12)),
+                ),
+              )
+              .toList()
+        : _provinces
+              .map(
+                (p) => DropdownMenuItem(
+                  value: p['id'].toString(),
+                  child: Text(
+                    p['name'].toString(),
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ),
+              )
+              .toList();
+
+    if (items.isEmpty) {
+      return _buildDropdownInput(q);
+    }
+
+    return DropdownButtonFormField<String>(
+      value: _answers[q.id]?.toString(),
+      items: items,
+      onChanged: (val) {
+        setState(() {
+          _answers[q.id] = val;
+          _clearRegionAnswersAfter(q);
+          if (val != null) {
+            final nextCity = _findNextQuestion(q, _isCityQuestion);
+            if (nextCity != null) {
+              _fetchCitiesAndRegencies(nextCity.id, val);
+            }
+          }
+          _errors.remove(q.id);
+        });
+      },
+      icon: const Icon(
+        Icons.keyboard_arrow_down_rounded,
+        color: AppTheme.monGreenMid,
+        size: 24,
+      ),
+      elevation: 2,
+      dropdownColor: Colors.white,
+      decoration: _locationInputDecoration('Pilih provinsi'),
+      validator: (val) {
+        if (q.required && (val == null || val.isEmpty)) {
+          return 'Pilihan ini wajib diisi';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildCityDropdown(SurveyQuestionData q) {
+    final cities = _citiesData[q.id] ?? [];
+
+    return DropdownButtonFormField<String>(
+      value: _answers[q.id]?.toString(),
+      items: cities.map((c) {
+        return DropdownMenuItem<String>(
+          value: c['id'].toString(),
+          child: Text(
+            c['name'].toString(),
+            style: const TextStyle(fontSize: 12),
+          ),
+        );
+      }).toList(),
+      onChanged: (val) {
+        setState(() {
+          _answers[q.id] = val;
+          _clearRegionAnswersAfter(q);
+          if (val != null) {
+            final nextDist = _findNextQuestion(q, _isDistrictQuestion);
+            if (nextDist != null) {
+              _fetchDistricts(nextDist.id, val);
+            }
+          }
+          _errors.remove(q.id);
+        });
+      },
+      icon: const Icon(
+        Icons.keyboard_arrow_down_rounded,
+        color: AppTheme.monGreenMid,
+        size: 24,
+      ),
+      decoration: _locationInputDecoration(
+        _locationLoading[q.id] == true ? "Memuat..." : "Pilih Kota/Kabupaten",
+      ),
+      validator: (val) {
+        if (q.required && (val == null || val.isEmpty)) {
+          return 'Pilihan ini wajib diisi';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildDistrictDropdown(SurveyQuestionData q) {
+    final districts = _districtsData[q.id] ?? [];
+
+    return DropdownButtonFormField<String>(
+      value: _answers[q.id]?.toString(),
+      items: districts.map((d) {
+        return DropdownMenuItem<String>(
+          value: d['id'].toString(),
+          child: Text(
+            d['name'].toString(),
+            style: const TextStyle(fontSize: 12),
+          ),
+        );
+      }).toList(),
+      onChanged: (val) {
+        setState(() {
+          _answers[q.id] = val;
+          _clearRegionAnswersAfter(q);
+          if (val != null) {
+            final nextVill = _findNextQuestion(q, _isVillageQuestion);
+            if (nextVill != null) {
+              _fetchVillages(nextVill.id, val);
+            }
+          }
+          _errors.remove(q.id);
+        });
+      },
+      icon: const Icon(
+        Icons.keyboard_arrow_down_rounded,
+        color: AppTheme.monGreenMid,
+        size: 24,
+      ),
+      decoration: _locationInputDecoration(
+        _locationLoading[q.id] == true ? "Memuat..." : "Pilih Kecamatan",
+      ),
+      validator: (val) {
+        if (q.required && (val == null || val.isEmpty)) {
+          return 'Pilihan ini wajib diisi';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildVillageDropdown(SurveyQuestionData q) {
+    final villages = _villagesData[q.id] ?? [];
+
+    return DropdownButtonFormField<String>(
+      value: _answers[q.id]?.toString(),
+      items: villages.map((v) {
+        return DropdownMenuItem<String>(
+          value: v['name'].toString(),
+          child: Text(
+            v['name'].toString(),
+            style: const TextStyle(fontSize: 12),
+          ),
+        );
+      }).toList(),
+      onChanged: (val) {
+        setState(() {
+          _answers[q.id] = val;
+          _errors.remove(q.id);
+        });
+      },
+      icon: const Icon(
+        Icons.keyboard_arrow_down_rounded,
+        color: AppTheme.monGreenMid,
+        size: 24,
+      ),
+      decoration: _locationInputDecoration(
+        _locationLoading[q.id] == true ? "Memuat..." : "Pilih Desa/Kelurahan",
       ),
       validator: (val) {
         if (q.required && (val == null || val.isEmpty)) {
@@ -986,16 +1893,19 @@ class _SubmissionPageState extends State<SubmissionPage> {
             borderRadius: BorderRadius.circular(10),
             color: isSelected ? AppTheme.monGreenPale : Colors.transparent,
             border: Border.all(
-              color: isSelected
-                  ? AppTheme.primary
-                  : Colors.grey.shade300,
+              color: isSelected ? AppTheme.primary : Colors.grey.shade300,
               width: isSelected ? 2 : 1,
             ),
           ),
           child: RadioListTile<String>(
             value: opt.id.toString(),
             groupValue: _answers[q.id]?.toString(),
-            onChanged: (val) => setState(() => _answers[q.id] = val),
+            onChanged: (val) {
+              setState(() {
+                _answers[q.id] = val;
+                _errors.remove(q.id);
+              });
+            },
             title: Text(
               opt.value,
               style: TextStyle(
@@ -1029,9 +1939,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
             borderRadius: BorderRadius.circular(10),
             color: isSelected ? AppTheme.monGreenPale : Colors.transparent,
             border: Border.all(
-              color: isSelected
-                  ? AppTheme.primary
-                  : Colors.grey.shade300,
+              color: isSelected ? AppTheme.primary : Colors.grey.shade300,
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -1046,6 +1954,9 @@ class _SubmissionPageState extends State<SubmissionPage> {
                   updated.remove(opt.id.toString());
                 }
                 _answers[q.id] = updated;
+                if (updated.isNotEmpty) {
+                  _errors.remove(q.id);
+                }
               });
             },
             title: Text(
@@ -1070,7 +1981,12 @@ class _SubmissionPageState extends State<SubmissionPage> {
   Widget _buildTextInput(SurveyQuestionData q) {
     return TextFormField(
       initialValue: _answers[q.id]?.toString() ?? '',
-      onChanged: (val) => _answers[q.id] = val,
+      onChanged: (val) {
+        setState(() {
+          _answers[q.id] = val;
+          if (val.trim().isNotEmpty) _errors.remove(q.id);
+        });
+      },
       decoration: InputDecoration(
         hintText: "Masukkan jawaban...",
         filled: true,
@@ -1095,7 +2011,12 @@ class _SubmissionPageState extends State<SubmissionPage> {
     return TextFormField(
       initialValue: _answers[q.id]?.toString() ?? '',
       keyboardType: TextInputType.number,
-      onChanged: (val) => _answers[q.id] = val,
+      onChanged: (val) {
+        setState(() {
+          _answers[q.id] = val;
+          if (val.trim().isNotEmpty) _errors.remove(q.id);
+        });
+      },
       decoration: InputDecoration(
         hintText: "Masukkan angka...",
         filled: true,
@@ -1120,7 +2041,12 @@ class _SubmissionPageState extends State<SubmissionPage> {
     return TextFormField(
       initialValue: _answers[q.id]?.toString() ?? '',
       maxLines: 4,
-      onChanged: (val) => _answers[q.id] = val,
+      onChanged: (val) {
+        setState(() {
+          _answers[q.id] = val;
+          if (val.trim().isNotEmpty) _errors.remove(q.id);
+        });
+      },
       decoration: InputDecoration(
         hintText: "Masukkan jawaban...",
         filled: true,
@@ -1146,10 +2072,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
         .map(
           (opt) => DropdownMenuItem(
             value: opt.id.toString(),
-            child: Text(
-              opt.value,
-              style: const TextStyle(fontSize: 12),
-            ),
+            child: Text(opt.value, style: const TextStyle(fontSize: 12)),
           ),
         )
         .toList();
@@ -1213,8 +2136,8 @@ class _SubmissionPageState extends State<SubmissionPage> {
     }
 
     final currentMap = _answers[q.id] is Map
-        ? Map<int, dynamic>.from(_answers[q.id] as Map)
-        : <int, dynamic>{};
+        ? Map<String, dynamic>.from(_answers[q.id] as Map)
+        : <String, dynamic>{};
 
     return Container(
       decoration: BoxDecoration(
@@ -1255,6 +2178,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
           ...q.matrixRows.asMap().entries.map((entry) {
             final rowIndex = entry.key;
             final row = entry.value;
+            final rowKey = row.id ?? "row-$rowIndex";
 
             return TableRow(
               children: [
@@ -1269,19 +2193,24 @@ class _SubmissionPageState extends State<SubmissionPage> {
                     return Center(
                       child: Radio<int>(
                         value: colIndex,
-                        groupValue: currentMap[rowIndex] as int?,
+                        groupValue: currentMap[rowKey] as int?,
                         activeColor: AppTheme.primary,
                         onChanged: (val) {
                           setState(() {
-                            currentMap[rowIndex] = val;
-                            _answers[q.id] = Map<int, dynamic>.from(currentMap);
+                            currentMap[rowKey] = val;
+                            _answers[q.id] = Map<String, dynamic>.from(
+                              currentMap,
+                            );
+                            if (currentMap.keys.length == q.matrixRows.length) {
+                              _errors.remove(q.id);
+                            }
                           });
                         },
                       ),
                     );
                   } else {
-                    final rowCols = currentMap[rowIndex] is List
-                        ? List<int>.from(currentMap[rowIndex] as List)
+                    final rowCols = currentMap[rowKey] is List
+                        ? List<int>.from(currentMap[rowKey] as List)
                         : <int>[];
 
                     return Center(
@@ -1291,13 +2220,19 @@ class _SubmissionPageState extends State<SubmissionPage> {
                         onChanged: (checked) {
                           setState(() {
                             if (checked == true) {
-                              if (!rowCols.contains(colIndex))
+                              if (!rowCols.contains(colIndex)) {
                                 rowCols.add(colIndex);
+                              }
                             } else {
                               rowCols.remove(colIndex);
                             }
-                            currentMap[rowIndex] = rowCols;
-                            _answers[q.id] = Map<int, dynamic>.from(currentMap);
+                            currentMap[rowKey] = rowCols;
+                            _answers[q.id] = Map<String, dynamic>.from(
+                              currentMap,
+                            );
+                            if (currentMap.keys.length == q.matrixRows.length) {
+                              _errors.remove(q.id);
+                            }
                           });
                         },
                       ),
@@ -1397,7 +2332,10 @@ class _SubmissionPageState extends State<SubmissionPage> {
                     SizedBox(width: 6),
                     Text(
                       'Simpan Draft',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
@@ -1410,8 +2348,73 @@ class _SubmissionPageState extends State<SubmissionPage> {
   }
 
   void _nextPage() {
-    if (_currentPageIndex < _visiblePages.length - 1) {
-      _pageController.nextPage(
+    if (!_validateCurrentPage()) {
+      return;
+    }
+
+    if (_currentPageIndex >= _visiblePages.length - 1) {
+      return;
+    }
+
+    final currentPage = _visiblePages[_currentPageIndex];
+    int nextIndx = _currentPageIndex + 1;
+    bool flowMatched = false;
+
+    if (currentPage.flow.isNotEmpty) {
+      for (var flowData in currentPage.flow) {
+        final targetPage = _visiblePages.indexWhere(
+          (p) => p.id == flowData.nextPageId,
+        );
+
+        if (targetPage == -1) {
+          continue;
+        }
+
+        bool match = false;
+        if (flowData.questionId != null) {
+          final answer = _answers[flowData.questionId];
+
+          if (answer != null) {
+            if (answer is List) {
+              match =
+                  answer.contains(flowData.questionChoiceId.toString()) ||
+                  answer.contains(flowData.questionChoiceId);
+            } else {
+              match = answer.toString() == flowData.questionChoiceId.toString();
+            }
+          }
+        } else {
+          match = true;
+        }
+
+        if (match) {
+          nextIndx = targetPage;
+          flowMatched = true;
+          break;
+        }
+      }
+    }
+
+    if (flowMatched || nextIndx != _currentPageIndex + 1) {
+      for (int i = _currentPageIndex + 1; i < nextIndx; i++) {
+        final skippedPage = _visiblePages[i];
+        for (var q in skippedPage.questions) {
+          _answers.remove(q.id);
+        }
+        _pageJumpHistory.remove(i);
+      }
+    }
+
+    _pageJumpHistory[nextIndx] = _currentPageIndex;
+    setState(() {
+      _currentPageIndex = nextIndx;
+    });
+
+    if (flowMatched) {
+      _pageController.jumpToPage(nextIndx);
+    } else {
+      _pageController.animateToPage(
+        nextIndx,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
@@ -1419,39 +2422,87 @@ class _SubmissionPageState extends State<SubmissionPage> {
   }
 
   void _previousPage() {
-    if (_currentPageIndex > 0) {
-      _pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+    int prevIndx = _currentPageIndex - 1;
+    bool wasJump = false;
+
+    if (_pageJumpHistory.containsKey(_currentPageIndex)) {
+      prevIndx = _pageJumpHistory[_currentPageIndex]!;
+      wasJump = true;
+    }
+
+    if (prevIndx >= 0) {
+      setState(() {
+        _currentPageIndex = prevIndx;
+      });
+
+      if (wasJump) {
+        _pageController.jumpToPage(prevIndx);
+      } else {
+        _pageController.animateToPage(
+          prevIndx,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
     }
   }
 
   Future<void> _submitSurvey() async {
+    if (!_validateCurrentPage()) return;
+
+    setState(() => _isSubmitting = true);
+
     try {
+      // 1. Ambil GPS Location (Optional, timeout 5s)
+      double? lat;
+      double? lng;
+      try {
+        LocationPermission permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+        }
+
+        if (permission == LocationPermission.whileInUse ||
+            permission == LocationPermission.always) {
+          Position position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+            timeLimit: const Duration(seconds: 5),
+          );
+          lat = position.latitude;
+          lng = position.longitude;
+        }
+      } catch (e) {
+        debugPrint("Gagal mengambil GPS: $e");
+      }
+
       final payload = _buildPayload();
+
+      // Hitung durasi pengerjaan
+      final duration = DateTime.now().difference(_startTime);
 
       final success = await _service.submitSurvey(
         clientSlug: widget.clientSlug,
         projectSlug: widget.projectSlug,
         surveySlug: widget.surveySlug,
         answers: payload,
+        attachmentBytes: _attachmentBytes,
       );
 
       if (mounted) {
+        setState(() => _isSubmitting = false);
+
         if (success) {
           await _clearDraft();
           await StorageHelper.deleteDraftPhoto(widget.surveySlug);
-          
+
           if (!mounted) return;
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Kuisioner berhasil dikirim!"),
               backgroundColor: Colors.green,
             ),
           );
-          // Pop with result true so previous pages can refresh status
           Navigator.pop(context, true);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1464,6 +2515,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _isSubmitting = false);
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Error: $e")));
@@ -1474,16 +2526,13 @@ class _SubmissionPageState extends State<SubmissionPage> {
   Map<String, dynamic> _buildPayload() {
     final Map<String, dynamic> payload = {};
 
-    if (widget.biodata != null && widget.biodata!.isNotEmpty) {
-      payload['biodata'] = widget.biodata;
-    }
-
     payload['page'] = _data!.pages.map((page) {
       return {
         'question': page.questions.map((q) => {'id': q.id}).toList(),
-        'answer': page.questions
-            .map((q) => _buildAnswerValue(q, _answers[q.id]))
-            .toList(),
+        'answer': page.questions.map((q) {
+          final answer = _answers[q.id];
+          return _buildAnswerValue(q, answer);
+        }).toList(),
       };
     }).toList();
 
@@ -1491,6 +2540,23 @@ class _SubmissionPageState extends State<SubmissionPage> {
   }
 
   Map<String, dynamic> _buildAnswerValue(SurveyQuestionData q, dynamic answer) {
+    // Payload cleansing: If question is hidden by logic, return empty answer
+    if (!_isQuestionVisible(q)) {
+      switch (q.questionTypeId) {
+        case 3: // Checkbox
+          return {'checkboxes': []};
+        case 9: // Matrix
+          return {'matrix': null};
+        case 2: // Radio
+        case 7: // Dropdown
+          return {q.questionTypeId == 2 ? 'radios' : 'dropdowns': ''};
+        case 11: // Location Dropdown
+          return {'locationDropdown': {}};
+        default:
+          return {'texts': ''};
+      }
+    }
+
     if (answer == null) return {'texts': ''};
 
     switch (q.questionTypeId) {
@@ -1518,6 +2584,19 @@ class _SubmissionPageState extends State<SubmissionPage> {
         return {'checkboxes': []};
       case 9: // Matrix
         return {'matrix': _buildMatrixValue(q, answer)};
+      case 10: // Attachment
+        return {
+          'hasFile': true,
+          'fileKey': 'file_question_${q.id}',
+          'filePath': answer.toString(),
+          'fileName': kIsWeb ? answer.toString() : null,
+        };
+      case 11: // Location Dropdown
+        return {
+          'locationDropdown': answer is Map
+              ? (answer['locationDropdown'] ?? answer)
+              : {},
+        };
       default:
         return {'texts': answer.toString()};
     }
@@ -1535,7 +2614,16 @@ class _SubmissionPageState extends State<SubmissionPage> {
       }
     });
 
-    // Mengembalikan string JSON agar bisa disimpan sebagai TEXT/JSON di database
-    return jsonEncode(result);
+    return result;
+  }
+}
+
+extension IterableExtension<T> on Iterable<T> {
+  T? find(bool Function(T) test) {
+    try {
+      return firstWhere(test);
+    } catch (_) {
+      return null;
+    }
   }
 }

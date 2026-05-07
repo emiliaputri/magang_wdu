@@ -219,10 +219,10 @@ class StorageHelper {
           final intKey = int.tryParse(k) ?? 0;
           if (v is Map) {
             // Konversi key dalam map (untuk data Matrix: Row ID)
-            final convertedMatrix = <int, dynamic>{};
+            // Sekarang kita menggunakan String key untuk matrix row agar konsisten dengan DB ID
+            final convertedMatrix = <String, dynamic>{};
             v.forEach((mk, mv) {
-              final mIntKey = int.tryParse(mk.toString()) ?? 0;
-              convertedMatrix[mIntKey] = mv;
+              convertedMatrix[mk.toString()] = mv;
             });
             converted[intKey] = convertedMatrix;
           } else {

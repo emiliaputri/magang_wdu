@@ -545,6 +545,80 @@ class ApiClient {
     }
   }
 
+  // ── POST WITH MULTIPLE FILES ────────────────────────────────────────
+  Future<ApiResponse<Map<String, dynamic>>> postWithFiles(
+    String endpoint, {
+    required Map<String, String> files, // Map: fieldName -> filePath
+    Map<String, String>? additionalFields,
+    bool requireAuth = true,
+  }) async {
+    if (requireAuth) {
+      await _validateToken();
+    }
+
+    try {
+      final uri = Uri.parse('${Endpoints.baseUrl}$endpoint');
+      final request = http.MultipartRequest('POST', uri);
+
+      final headers = await _buildHeaders(requireAuth: requireAuth);
+      headers.remove('Content-Type');
+      request.headers.addAll(headers);
+
+      for (var entry in files.entries) {
+        if (entry.value.isNotEmpty) {
+          request.files.add(await http.MultipartFile.fromPath(entry.key, entry.value));
+        }
+      }
+
+      if (additionalFields != null) {
+        request.fields.addAll(additionalFields);
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      return _handleResponse(response);
+    } catch (e, st) {
+      AppLogger.error('API Error on postWithFiles', error: e, stackTrace: st, category: 'API');
+      rethrow;
+    }
+  }
+
+  // ── POST MULTIPART WEB (Bytes) ──────────────────────────────────────
+  Future<bool> postMultipartWeb(
+    String endpoint, {
+    required Map<String, String> fields,
+    required Map<String, Uint8List> files,
+  }) async {
+    try {
+      final uri = Uri.parse('${Endpoints.baseUrl}$endpoint');
+      final request = http.MultipartRequest('POST', uri);
+
+      final headers = await _buildHeaders(requireAuth: true);
+      headers.remove('Content-Type');
+      request.headers.addAll(headers);
+
+      request.fields.addAll(fields);
+
+      for (var entry in files.entries) {
+        request.files.add(http.MultipartFile.fromBytes(
+          entry.key,
+          entry.value,
+          filename: '${entry.key}.jpg', // Default name
+        ));
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      final result = _handleResponse(response);
+      return result.success;
+    } catch (e) {
+      debugPrint('Error postMultipartWeb: $e');
+      return false;
+    }
+  }
+
   // ── DELETE ─────────────────────────────────────────────────
 
   Future<ApiResponse<Map<String, dynamic>>> delete(

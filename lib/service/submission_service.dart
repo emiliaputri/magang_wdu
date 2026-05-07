@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import '../core/api/api_client.dart';
 import '../core/constants/endpoints.dart';
 import '../models/submission_model.dart';
@@ -59,55 +60,114 @@ class SubmissionService {
     required String projectSlug,
     required String surveySlug,
     required Map<String, dynamic> answers,
+    Map<int, Uint8List>? attachmentBytes,
   }) async {
     try {
       debugPrint('🚀 [SUBMIT] Starting submission for surveySlug: $surveySlug');
-      debugPrint('DEBUG submitSurvey: payload keys = ${answers.keys.toList()}');
 
-      final wrappedPayload = {'data': jsonEncode(answers)};
+      final wrappedPayload = {
+        'data': jsonEncode(answers),
+      };
 
+      // Handle Voice Note if exists in answers (old logic)
       final voiceNotePath = answers['voice_note'] as String?;
-      if (voiceNotePath != null) {
-        wrappedPayload['voice_note'] = voiceNotePath;
-      }
 
-      debugPrint(
-        '🔗 [SUBMIT] ENDPOINT: ${Endpoints.submitAnswer(clientSlug, projectSlug, surveySlug)}',
-      );
-
-      if (voiceNotePath != null) {
-        final additionalFields = {
-          'data': jsonEncode(answers),
-        };
-
-        final response = await _api.postWithFile(
+      if (kIsWeb) {
+        // WEB UPLOAD LOGIC
+        return await _api.postMultipartWeb(
           Endpoints.submitAnswer(clientSlug, projectSlug, surveySlug),
-          filePath: voiceNotePath,
-          fieldName: 'voice_note',
-          additionalFields: additionalFields,
+          fields: {'data': jsonEncode(answers)},
+          files: attachmentBytes?.map((id, bytes) => MapEntry('file_question_$id', bytes)) ?? {},
         );
-
-        if (response.success) {
-          debugPrint('✅ [SUBMIT] SUCCESS with voice note: ${response.message}');
-          return true;
-        }
-        return false;
       } else {
-        final response = await _api.post(
-          Endpoints.submitAnswer(clientSlug, projectSlug, surveySlug),
-          body: wrappedPayload,
-        );
-
-        if (response.success) {
-          debugPrint('✅ [SUBMIT] SUCCESS: ${response.message}');
-          return true;
+        // MOBILE UPLOAD LOGIC
+        final Map<String, String> files = {};
+        
+        // Add voice note if exists
+        if (voiceNotePath != null) {
+          files['voice_note'] = voiceNotePath;
         }
-        return false;
+
+        // Add question attachments
+        // We need to find attachments in answers or from a dedicated map
+        // For simplicity, let's assume answers contains paths for mobile
+        answers.forEach((key, value) {
+          if (value is Map && value['hasFile'] == true && value['filePath'] != null) {
+            files[value['fileKey']] = value['filePath'];
+          }
+        });
+
+        if (files.isNotEmpty) {
+          final response = await _api.postWithFiles(
+            Endpoints.submitAnswer(clientSlug, projectSlug, surveySlug),
+            files: files,
+            additionalFields: {'data': jsonEncode(answers)},
+          );
+          return response.success;
+        } else {
+          final response = await _api.post(
+            Endpoints.submitAnswer(clientSlug, projectSlug, surveySlug),
+            body: wrappedPayload,
+          );
+          return response.success;
+        }
       }
     } catch (e, st) {
       debugPrint('🚨 [SUBMIT] FATAL ERROR: $e');
       debugPrint('StackTrace: $st');
       return false;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getWilayahProvinces() async {
+    try {
+      final response = await http.get(Uri.parse('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json'));
+      if (response.statusCode == 200) {
+        return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+      }
+      return [];
+    } catch (e) {
+      debugPrint('Error getWilayahProvinces: $e');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getCitiesAndRegencies(dynamic provinceId) async {
+    try {
+      final response = await http.get(Uri.parse('https://www.emsifa.com/api-wilayah-indonesia/api/regencies/$provinceId.json'));
+      if (response.statusCode == 200) {
+        return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+      }
+      return [];
+    } catch (e) {
+      debugPrint('Error getCitiesAndRegencies: $e');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getWilayahDistricts(dynamic regencyId) async {
+    try {
+      final response = await http.get(Uri.parse('https://www.emsifa.com/api-wilayah-indonesia/api/districts/$regencyId.json'));
+      if (response.statusCode == 200) {
+        return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+      }
+      return [];
+    } catch (e) {
+      debugPrint('Error getWilayahDistricts: $e');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getWilayahVillages(dynamic districtId) async {
+    try {
+      final response = await http.get(Uri.parse('https://www.emsifa.com/api-wilayah-indonesia/api/villages/$districtId.json'));
+      if (response.statusCode == 200) {
+        return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+      }
+      return [];
+    } catch (e) {
+      debugPrint('Error getWilayahVillages: $e');
+      return [];
     }
   }
 }
@@ -200,6 +260,8 @@ class SurveyInfo {
   final bool status;
   final String? spreadsheetUrl;
   final bool isBiodataEnabled;
+  final bool isProgressBarEnabled;
+  final bool isVoiceEnabled;
 
   SurveyInfo({
     required this.id,
@@ -210,17 +272,36 @@ class SurveyInfo {
     required this.status,
     this.spreadsheetUrl,
     this.isBiodataEnabled = true,
+    this.isProgressBarEnabled = false,
+    this.isVoiceEnabled = false,
   });
 
   factory SurveyInfo.fromJson(Map<String, dynamic> json) {
     bool biodataEnabled = true;
+    bool progressEnabled = false;
+    bool voiceEnabled = false;
+
     if (json.containsKey('survey_settings') && json['survey_settings'] != null) {
       final settings = json['survey_settings'] as Map<String, dynamic>;
       if (settings.containsKey('is_biodata_enabled')) {
          biodataEnabled = settings['is_biodata_enabled'] == 1 || settings['is_biodata_enabled'] == true || settings['is_biodata_enabled'] == '1';
       }
-    } else if (json.containsKey('is_biodata_enabled')) {
-      biodataEnabled = json['is_biodata_enabled'] == 1 || json['is_biodata_enabled'] == true || json['is_biodata_enabled'] == '1';
+      if (settings.containsKey('is_progress_bar_enabled')) {
+        progressEnabled = settings['is_progress_bar_enabled'] == 1 || settings['is_progress_bar_enabled'] == true;
+      }
+      if (settings.containsKey('is_voice_enabled')) {
+        voiceEnabled = settings['is_voice_enabled'] == 1 || settings['is_voice_enabled'] == true;
+      }
+    } else {
+      if (json.containsKey('is_biodata_enabled')) {
+        biodataEnabled = json['is_biodata_enabled'] == 1 || json['is_biodata_enabled'] == true || json['is_biodata_enabled'] == '1';
+      }
+      if (json.containsKey('is_progress_bar_enabled')) {
+        progressEnabled = json['is_progress_bar_enabled'] == 1 || json['is_progress_bar_enabled'] == true;
+      }
+      if (json.containsKey('is_voice_enabled')) {
+        voiceEnabled = json['is_voice_enabled'] == 1 || json['is_voice_enabled'] == true;
+      }
     }
 
     return SurveyInfo(
@@ -232,6 +313,8 @@ class SurveyInfo {
       status: json['status'] ?? false,
       spreadsheetUrl: json['spreadsheet_url']?.toString(),
       isBiodataEnabled: biodataEnabled,
+      isProgressBarEnabled: progressEnabled,
+      isVoiceEnabled: voiceEnabled,
     );
   }
 }
@@ -294,6 +377,7 @@ class SurveyPageData {
   final int surveyId;
   final int order;
   final List<SurveyQuestionData> questions;
+  final List<PageFlow> flow;
 
   SurveyPageData({
     required this.id,
@@ -301,6 +385,7 @@ class SurveyPageData {
     required this.surveyId,
     required this.order,
     this.questions = const [],
+    this.flow = const [],
   });
 
   factory SurveyPageData.fromJson(Map<String, dynamic> json) {
@@ -311,12 +396,46 @@ class SurveyPageData {
           .toList();
     }
 
+    List<PageFlow> flow = [];
+    if (json.containsKey('flow') && json['flow'] is List) {
+      flow = (json['flow'] as List)
+          .map((e) => PageFlow.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+
     return SurveyPageData(
       id: _parseInt(json['id']),
       pageName: json['page_name']?.toString() ?? '',
       surveyId: _parseInt(json['survey_id']),
       order: _parseInt(json['order']),
       questions: questions,
+      flow: flow,
+    );
+  }
+}
+
+class PageFlow {
+  final int id;
+  final int pageId;
+  final int? questionId;
+  final int? questionChoiceId;
+  final int nextPageId;
+
+  PageFlow({
+    required this.id,
+    required this.pageId,
+    this.questionId,
+    this.questionChoiceId,
+    required this.nextPageId,
+  });
+
+  factory PageFlow.fromJson(Map<String, dynamic> json) {
+    return PageFlow(
+      id: _parseInt(json['id']),
+      pageId: _parseInt(json['page_id']),
+      questionId: _parseIntNullable(json['question_id']),
+      questionChoiceId: _parseIntNullable(json['question_choice_id']),
+      nextPageId: _parseInt(json['next_page_id']),
     );
   }
 }
@@ -336,6 +455,9 @@ class SurveyQuestionData {
   final List<MatrixColumn> matrixColumns;
   final String matrixType;
 
+  final bool includeCityRegency;
+  final bool includeDistrictVillage;
+
   SurveyQuestionData({
     required this.id,
     required this.questionText,
@@ -350,6 +472,8 @@ class SurveyQuestionData {
     this.matrixRows = const [],
     this.matrixColumns = const [],
     this.matrixType = 'radio',
+    this.includeCityRegency = false,
+    this.includeDistrictVillage = false,
   });
 
   factory SurveyQuestionData.fromJson(Map<String, dynamic> json) {
@@ -380,7 +504,7 @@ class SurveyQuestionData {
       questionTypeId: _parseInt(json['question_type_id']),
       surveyId: _parseInt(json['survey_id']),
       order: _parseInt(json['order']),
-      required: json['required'] ?? false,
+      required: json['required'] == 1 || json['required'] == true,
       questionChoiceId: _parseIntNullable(json['question_choice_id']),
       logicType: json['logic_type']?.toString() ?? '1',
       logicName: json['logic_name']?.toString() ?? 'Always Display',
@@ -388,6 +512,8 @@ class SurveyQuestionData {
       matrixRows: matrixRows,
       matrixColumns: matrixColumns,
       matrixType: json['matrix_type']?.toString() ?? 'radio',
+      includeCityRegency: json['include_city_regency'] == 1 || json['include_city_regency'] == true,
+      includeDistrictVillage: json['include_district_village'] == 1 || json['include_district_village'] == true,
     );
   }
 
@@ -419,6 +545,10 @@ class SurveyQuestionData {
         return 'paragraph';
       case 9:
         return 'matrix';
+      case 10:
+        return 'attachment';
+      case 11:
+        return 'location_dropdown';
       default:
         return 'unknown';
     }
@@ -461,12 +591,16 @@ class QuestionChoice {
 }
 
 class MatrixRow {
+  final String? id;
   final String label;
 
-  MatrixRow({required this.label});
+  MatrixRow({this.id, required this.label});
 
   factory MatrixRow.fromJson(Map<String, dynamic> json) {
-    return MatrixRow(label: json['label']?.toString() ?? '');
+    return MatrixRow(
+      id: json['id']?.toString(),
+      label: json['label']?.toString() ?? '',
+    );
   }
 }
 
