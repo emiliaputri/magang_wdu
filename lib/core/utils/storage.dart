@@ -189,6 +189,8 @@ class StorageHelper {
     required Map<String, dynamic> answers,
     required Map<String, dynamic> biodata,
     required int currentPageIndex,
+    String? clientSlug,
+    String? projectSlug,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final key = '$_keyDraftSurveyPrefix$surveySlug';
@@ -197,6 +199,8 @@ class StorageHelper {
       'biodata': biodata,
       'currentPageIndex': currentPageIndex,
       'updatedAt': DateTime.now().toIso8601String(),
+      if (clientSlug != null) 'clientSlug': clientSlug,
+      if (projectSlug != null) 'projectSlug': projectSlug,
     };
     await prefs.setString(key, jsonEncode(data));
   }
@@ -243,10 +247,17 @@ class StorageHelper {
   static Future<void> saveDraftBiodata({
     required String surveySlug,
     required Map<String, dynamic> biodata,
+    String? clientSlug,
+    String? projectSlug,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final key = '$_keyDraftBiodataPrefix$surveySlug';
-    await prefs.setString(key, jsonEncode(biodata));
+    final data = {
+      ...biodata,
+      if (clientSlug != null) 'clientSlug': clientSlug,
+      if (projectSlug != null) 'projectSlug': projectSlug,
+    };
+    await prefs.setString(key, jsonEncode(data));
   }
 
   static Future<Map<String, dynamic>?> getDraftBiodata(

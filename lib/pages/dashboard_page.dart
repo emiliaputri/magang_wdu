@@ -9,6 +9,7 @@ import '../widgets/dashboard_surveys/client_card.dart';
 import '../widgets/dashboard_surveys/project_card.dart';
 import 'login_page.dart';
 import 'settings_page.dart';
+import 'archive_page.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
 import '../widgets/ringing_bell_icon.dart';
@@ -36,6 +37,7 @@ class _DashboardViewState extends State<_DashboardView>
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
   int _selectedIndex = 0;
+  final GlobalKey<ArchivePageState> _archiveKey = GlobalKey<ArchivePageState>();
 
   @override
   void initState() {
@@ -48,13 +50,16 @@ class _DashboardViewState extends State<_DashboardView>
 
     _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
 
-    final provider = context.read<DashboardProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final provider = context.read<DashboardProvider>();
 
-    if (!provider.loading) {
-      _animController.forward();
-    } else {
-      provider.addListener(_onLoadingDone);
-    }
+      if (!provider.loading) {
+        _animController.forward();
+      } else {
+        provider.addListener(_onLoadingDone);
+      }
+    });
   }
 
   void _onLoadingDone() {
@@ -82,41 +87,89 @@ class _DashboardViewState extends State<_DashboardView>
       );
     }
 
+    final screens = [
+      _buildDashboardContent(),
+      ArchivePage(key: _archiveKey),
+      const SettingsPage(),
+    ];
+
     return Scaffold(
       backgroundColor: AppTheme.background,
-      body: FadeTransition(
-        opacity: _fadeAnim,
-        child: CustomScrollView(
-          slivers: [
-            _buildAppBar(),
-
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 120),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  const SizedBox(height: 12),
-
-                  // 🔥 PROJECT LIST (FIX animDelay)
-                  if (provider.filteredProjects.isNotEmpty)
-                    ...provider.filteredProjects.asMap().entries.map((entry) {
-                      final i = entry.key;
-                      final project = entry.value;
-
-                      return ProjectCard(
-                        project: project,
-                        animDelay: Duration(milliseconds: 100 + i * 150),
-                      );
-                    }),
-
-                  const SizedBox(height: 20),
-
-                  // 🔥 CLIENT SECTION
-                  _ClientsSection(provider: provider),
-                ]),
-              ),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: screens,
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
             ),
           ],
         ),
+        child: NavigationBar(
+          selectedIndex: _selectedIndex,
+          onDestinationSelected: (index) {
+            setState(() => _selectedIndex = index);
+            if (index == 1) {
+              _archiveKey.currentState?.reloadDrafts();
+            }
+          },
+          elevation: 0,
+          backgroundColor: AppTheme.surface,
+          indicatorColor: AppTheme.primary.withOpacity(0.12),
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          destinations: [
+            NavigationDestination(
+              icon: Icon(Icons.dashboard_outlined, color: AppTheme.outline),
+              selectedIcon: Icon(Icons.dashboard_rounded, color: AppTheme.primary),
+              label: 'Dashboard',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.archive_outlined, color: AppTheme.outline),
+              selectedIcon: Icon(Icons.archive_rounded, color: AppTheme.primary),
+              label: 'Arsip',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.settings_outlined, color: AppTheme.outline),
+              selectedIcon: Icon(Icons.settings_rounded, color: AppTheme.primary),
+              label: 'Pengaturan',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDashboardContent() {
+    final provider = context.watch<DashboardProvider>();
+    return FadeTransition(
+      opacity: _fadeAnim,
+      child: CustomScrollView(
+        slivers: [
+          _buildAppBar(),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 120),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                const SizedBox(height: 12),
+                if (provider.filteredProjects.isNotEmpty)
+                  ...provider.filteredProjects.asMap().entries.map((entry) {
+                    final i = entry.key;
+                    final project = entry.value;
+                    return ProjectCard(
+                      project: project,
+                      animDelay: Duration(milliseconds: 100 + i * 150),
+                    );
+                  }),
+                const SizedBox(height: 20),
+                _ClientsSection(provider: provider),
+              ]),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -150,21 +203,7 @@ class _DashboardViewState extends State<_DashboardView>
       actions: [
         _buildFontSizeButton(context),
         const RingingBellIcon(),
-        _buildSettingsButton(context),
       ],
-    );
-  }
-
-  Widget _buildSettingsButton(BuildContext context) {
-    return IconButton(
-      icon: Icon(Icons.settings_rounded, color: AppTheme.primary),
-      tooltip: 'Settings',
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const SettingsPage()),
-        );
-      },
     );
   }
 

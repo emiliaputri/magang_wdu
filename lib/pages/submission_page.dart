@@ -454,6 +454,8 @@ class _SubmissionPageState extends State<SubmissionPage> {
   Future<void> _saveDraft() async {
     await StorageHelper.saveDraftSurvey(
       surveySlug: widget.surveySlug,
+      clientSlug: widget.clientSlug,
+      projectSlug: widget.projectSlug,
       answers: _answers.map((key, value) => MapEntry(key.toString(), value)),
       biodata: widget.biodata ?? {},
       currentPageIndex: _currentPageIndex,

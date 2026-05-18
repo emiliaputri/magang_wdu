@@ -158,6 +158,8 @@ class _BiodataPageState extends State<BiodataPage> {
     };
     await StorageHelper.saveDraftBiodata(
       surveySlug: widget.surveySlug,
+      clientSlug: widget.clientSlug,
+      projectSlug: widget.projectSlug,
       biodata: biodata,
     );
   }
@@ -863,6 +865,8 @@ class _BiodataPageState extends State<BiodataPage> {
 
       await StorageHelper.saveDraftBiodata(
         surveySlug: widget.surveySlug,
+        clientSlug: widget.clientSlug,
+        projectSlug: widget.projectSlug,
         biodata: biodata,
       );
 
@@ -900,6 +904,8 @@ class _BiodataPageState extends State<BiodataPage> {
 
     await StorageHelper.saveDraftBiodata(
       surveySlug: widget.surveySlug,
+      clientSlug: widget.clientSlug,
+      projectSlug: widget.projectSlug,
       biodata: biodata,
     );
 
