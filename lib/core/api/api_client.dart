@@ -15,7 +15,7 @@ class ApiResponse<T> {
   final String? message;
   final int statusCode;
 
-  const ApiResponse({
+  const ApiResponse({   
     required this.success,
     required this.statusCode,
     this.data,
